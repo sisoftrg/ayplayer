@@ -1,3 +1,7 @@
 #!/bin/sh
 
-aclocal && autoheader && automake --copy --add-missing --force-missing && autoconf --force
+autopoint --force &&
+aclocal &&
+autoheader &&
+automake --copy --add-missing --force-missing &&
+autoconf --force

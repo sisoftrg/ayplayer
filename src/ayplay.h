@@ -1,12 +1,12 @@
 //(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* $Id: ayplay.h,v 1.2 2004/03/11 17:27:58 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
-#include <stdio.h>
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -22,6 +22,7 @@
 #include <conio.h>
 #include <bios.h>
 #endif
+#include "i18.h"
 
 #define _UC unsigned char
 #define _UL unsigned long

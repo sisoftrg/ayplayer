@@ -2,7 +2,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([ayplayer],[0.99],[sisoft@bk.ru])
 AM_INIT_AUTOMAKE([ayplayer],[0.99])
-AC_REVISION([$Id: configure.in,v 1.7 2004/03/11 14:23:24 root Exp $])
+AC_REVISION([$Id: configure.in,v 1.8 2004/03/11 17:27:52 root Exp $])
 AC_PREREQ(2.53)
 AC_CONFIG_SRCDIR([src/ayplay.c])
 AM_CONFIG_HEADER([config.h])
@@ -13,6 +13,10 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
 AM_PROG_AS
+
+dnl Internationalize
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION(0.14)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -63,5 +67,6 @@ fi
 
 AC_DEFINE_UNQUOTED(UNIX,1,[Compile with UNIX-style includes])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile po/Makefile.in])
+
 AC_OUTPUT

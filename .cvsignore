@@ -10,10 +10,12 @@ config.log
 config.status
 config.sub
 config.guess
+config.rpath
 stamp-h
 stamp-h1
 install-sh
 mkinstalldirs
 missing
 depcomp
-.deps
+ABOUT-NLS
+m4

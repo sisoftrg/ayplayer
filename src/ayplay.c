@@ -1,5 +1,5 @@
 //(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* $Id: ayplay.c,v 1.2 2004/03/11 17:27:58 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -9,19 +9,19 @@ enum {
 static _US sp;
 static _UC *ibuf,*obuf;
 static _UL origsize,compsize,q,tick,t=0,lp;
-static char name[]="Name:    ",author[]="Author:  ";
+static char *name,*author;
 static int quitflag=0;
 static int ca,cb,cc,ft=UNK;
 
 #define PLADR 18432
 #define WRD(x) ((*(_UC*)(x))*256+(*(_UC*)((x)+1)))
 #define PTR(x) ((*(char*)(x))*256+(*(char*)((x)+1)))
+#define FORMATS "VTX,PSG,AY,YM,PT[123],STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,FLS,FXM,Hobeta"
 
 void erro(char *ermess)
 {
-	if(ermess)printf("\n* Error: %s!\n",ermess);
-	else puts("* Support: VTX,PSG,AY,YM,PT[123],STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,FLS,FXM,Hobeta.\n"
-		  "* Usage: ayplayer filename");
+	if(ermess)printf(_("\n* Error: %s!\n"),ermess);
+	else printf(_("* Support: %s.\n* Usage: ayplayer filename\n"),FORMATS);
 	exit(-1);
 }
 
@@ -148,32 +148,32 @@ static void indik()
 static _UC *vtxinfo(char *buf)
 {
 	_US yea;
-	printf("Chip:    %s\n",*buf++=='a'?"AY-3-8910(12)":"YM2149F");
-	printf("Regime:  ");
+	printf(_("Chip:    %s\n"),*buf++=='a'?"AY-3-8910(12)":"YM2149F");
+	printf(_("Regime:  "));
 	switch(*++buf)
 	{
-		case 0: puts("Mono"); break;
-		case 1: puts("ABC stereo"); break;
-		case 2: puts("ACB stereo"); break;
-		case 3: puts("BAC stereo"); break;
-		case 4: puts("BCA stereo"); break;
-		case 5: puts("CAB stereo"); break;
-		case 6: puts("CBA stereo"); break;
-		default:erro("uncknown mode");
+		case 0: puts(_("Mono")); break;
+		case 1: puts(_("ABC stereo")); break;
+		case 2: puts(_("ACB stereo")); break;
+		case 3: puts(_("BAC stereo")); break;
+		case 4: puts(_("BCA stereo")); break;
+		case 5: puts(_("CAB stereo")); break;
+		case 6: puts(_("CBA stereo")); break;
+		default:erro(_("unknown mode"));
 	}
 	lp=*(_US*)(++buf);
 	buf+=6;q=*buf++;
 	yea=*(_US*)buf++;
-	if(yea)printf("Year:    %u\n",yea);
+	if(yea)printf(_("Year:    %u\n"),yea);
 	origsize=*(_UL*)++buf;buf+=4;
-	if(!origsize)erro("playable data is empty");
+	if(!origsize)erro(_("playable data is empty"));
 	if(strlen(buf))printf("%s%s\n",name,buf);buf+=strlen(buf);
 	if(strlen(++buf))printf("%s%s\n",author,buf);buf+=strlen(buf);
-	if(strlen(++buf))printf("Origin:  %s\n",buf);buf+=strlen(buf);
-	if(strlen(++buf))printf("Editor:  %s\n",buf);buf+=strlen(buf);
-	if(strlen(++buf))printf("Comment: %s\n",buf);buf+=strlen(buf);
-	tick=origsize/14L;printf("Length:  %lu min, %lu sec\n",tick/q/60L,tick/q%60L);
-	if(q!=50)puts("Warning: music may not play correctly!");
+	if(strlen(++buf))printf(_("Origin:  %s\n"),buf);buf+=strlen(buf);
+	if(strlen(++buf))printf(_("Editor:  %s\n"),buf);buf+=strlen(buf);
+	if(strlen(++buf))printf(_("Comment: %s\n"),buf);buf+=strlen(buf);
+	tick=origsize/14L;printf(_("Length:  %lu min, %lu sec\n"),tick/q/60L,tick/q%60L);
+	if(q!=50)puts(_("Warning: music may not play correctly!"));
 	return((_UC*)(++buf));
 }
 
@@ -211,15 +211,18 @@ int main(int argc,char *argv[])
 	_US sadr=0,iadr=0,padr=0,sngadr=0,i;
 	puts("\n AY Player'2004, for real AY chip on LPT port");
 	puts("(c) Stepan Pologov (sisoft\\\\trg), sisoft@bk.ru");
+	GT_INIT;
 	if(argc!=2||strchr(argv[1],'.')==NULL)erro(NULL);
 #ifndef LPT_PORT
-	if(!sound_init())erro("can't init soundcard");
+	if(!sound_init())erro(_("can't init soundcard"));
 #endif
+	name=_("Name:    ");
+	author=_("Author:  ");
 	if(!strcmp(argv[1],".")) {
 		sb.st_size=DEMO_S;ft=DEMO_T;
-		if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro("out of memory");
+		if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro(_("out of memory"));
 		memcpy(ibuf,DEMO_D,DEMO_S);
-		puts("\nFile:    AYPlayer demo song");
+		puts(_("\nFile:    AYPlayer demo song"));
 		goto playz;
 	}
 	if(!strcasecmp(strrchr(argv[1],'.'),".gz")) {
@@ -227,16 +230,16 @@ int main(int argc,char *argv[])
 		nam=tmpnam(NULL);
 		strncat(nam,argv[1]+(strchr(argv[1],'.')-argv[1]),4);
 		sprintf(cmd,"gzip -cd %s >%s 2>/dev/null",argv[1],nam);
-		if(system(cmd)){unlink(nam);erro("can't gzip sound file");}
+		if(system(cmd)){unlink(nam);erro(_("can't gzip sound file"));}
 	}
-	if(stat(nam?nam:argv[1],&sb))erro("can't stat sound file");
-	if(sb.st_size<128)erro("file is empty");
+	if(stat(nam?nam:argv[1],&sb))erro(_("can't stat sound file"));
+	if(sb.st_size<128)erro(_("file is empty"));
 	if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".vtx"))ft=VTX;
 	    else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".psg"))ft=PSG;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ym"))ft=YM;
 	if(ft) {
-		if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro("out of memory");
-		if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
+		if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro(_("out of memory"));
+		if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro(_("can't open sound file"));
 		fread(ibuf,sb.st_size,1,infile);
 		fclose(infile);
 	} else {
@@ -265,14 +268,14 @@ int main(int argc,char *argv[])
 			for(i=0;i<256;i++)DANM(mem)[i]=0xc9;
 			for(i=256;i<16384;i++)DANM(mem)[i]=0xff;
 			DANM(mem)[0]=0x76;DANM(mem)[0x38]=0xfb;sp=PLADR+1024;
-			if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
+			if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro(_("can't open sound file"));
 again:			switch(ft) {
 			    case HOB: {
 				unsigned short crc=0;
 				char hdr[17]={0};
 				fread(hdr,17,1,infile);
 				for(i=0;i<15;i++)crc+=hdr[i]*257+i;
-				if(crc!=*(_US*)(hdr+15))puts("\nWarn: corrupted hobeta file!");
+				if(crc!=*(_US*)(hdr+15))puts(_("\nWarn: corrupted hobeta file!"));
 				sb.st_size=*(_US*)(hdr+11);
 				if(sb.st_size<128)sb.st_size=*(_US*)(hdr+13);
 				switch(hdr[8]) {
@@ -283,9 +286,9 @@ again:			switch(ft) {
 				    case 'm': ft=PT3;break;
 				    case 'G': ft=GTR;break;
 				    case 'Y': ft=FTC;break;
-				    case 'S': erro("Uncompiled SoundTracker modules is not supported");
+				    case 'S': erro(_("Uncompiled SoundTracker modules is not supported"));
 				    case 'C': if(sb.st_size!=6912)break;
-				    default : erro("Extension of this file is not supported");
+				    default : erro(_("Extension of this file is not supported"));
 				}
 				if(ft!=HOB)goto again;
 				iadr=sadr=*(_US*)(hdr+9);
@@ -448,7 +451,7 @@ again:			switch(ft) {
 					}
 					i3--;
 				} while(i3>=0);
-				if(i3<0)erro("bad fls file");
+				if(i3<0)erro(_("bad fls file"));
 				p=(_US*)(DANM(mem)+FLS_song);
 				i1=*(_US*)(DANM(mem)+FLS_song+4)-i3+(long)p;
 				i2=*(_US*)(DANM(mem)+FLS_song)-i3+(long)p+2;
@@ -469,9 +472,9 @@ again:			switch(ft) {
 				} break;
 			    case AY:
 				tt1=(_UC*)malloc(sb.st_size);
-				if(tt1==NULL)erro("out of memory");
+				if(tt1==NULL)erro(_("out of memory"));
 				fread(tt1,sb.st_size,1,infile);
-				if(memcmp(tt1,"ZXAYEMUL",8)){puts("unknown format");exit(-1);}
+				if(memcmp(tt1,"ZXAYEMUL",8)){puts(_("unknown format"));exit(-1);}
 				ibuf=tt1+18;
 				ibuf+=PTR(ibuf)+2;
 				ibuf+=PTR(ibuf)+4;
@@ -493,7 +496,7 @@ again:			switch(ft) {
 				char bu[6];
 				memcpy(DANM(mem)+FXM_init,ftc_player,FXM_song-FXM_init);
 				fread(bu,6,1,infile);
-				if(strncasecmp(bu,"FXSM",4))erro("bad file format");
+				if(strncasecmp(bu,"FXSM",4))erro(_("bad file format"));
 				sngadr=*(unsigned short*)(bu+4);
 				fread(DANM(mem)+sngadr,sb.st_size-6,1,infile);
 				memcpy(DANM(mem)+FXM_song,DANM(mem)+sngadr,sb.st_size-6);
@@ -510,12 +513,12 @@ again:			switch(ft) {
 		}
 	}
 	if(nam)unlink(nam);
-	printf("\nFile:    %s\n",argv[1]);
+	printf(_("\nFile:    %s\n"),argv[1]);
 playz:
 #ifdef UNIX
 	signal(SIGHUP,sighup);signal(SIGINT,sighup);
 #endif
-	printf("Type:    %s%s",nam?"packed ":"",co?"compiled ":"");
+	printf(_("Type:    %s%s"),nam?_("packed "):"",co?_("compiled "):"");
 #ifndef LPT_PORT
 	sound_ay_reset();
 #endif
@@ -525,7 +528,7 @@ playz:
 		puts("Vortex Tracker");
 		ibuf=vtxinfo((char*)ibuf);
 		compsize=sb.st_size-(ibuf-tt1);
-		if((tt2=obuf=(_UC*)calloc(14,tick))==NULL)erro("out of memory");
+		if((tt2=obuf=(_UC*)calloc(14,tick))==NULL)erro(_("out of memory"));
 		unlh5(ibuf,obuf,origsize,compsize);
 		obuf=tt2;free(tt1);tt1=NULL;
 		break;
@@ -545,14 +548,14 @@ playz:
 		_US i1=0,i2;
 		struct {int l;_UC *b;} ds[1024];
 		puts("YM file");
-		if(memcmp(ibuf+2,"-lh5-",5))erro("unknown archive type");
+		if(memcmp(ibuf+2,"-lh5-",5))erro(_("unknown archive type"));
 		compsize=*(long*)(ibuf+7);
 		origsize=*(long*)(ibuf+11);
 		ibuf+=*(_UC*)ibuf+2;
-		if((tt2=obuf=(_UC*)calloc(1,origsize))==NULL)erro("out of memory");
+		if((tt2=obuf=(_UC*)calloc(1,origsize))==NULL)erro(_("out of memory"));
 		unlh5(ibuf,obuf,origsize,compsize);
 		obuf=tt2;free(tt1);tt1=NULL;
-		if(*obuf!='Y'||obuf[1]!='M')erro("unknown format");
+		if(*obuf!='Y'||obuf[1]!='M')erro(_("unknown format"));
 		tick=*(_UL*)(obuf+12);
 		i=*(_US*)(obuf+20);
 		if(i>0) {
@@ -571,19 +574,19 @@ playz:
 		} break;
 	    case PSG:
 		puts("PSG file");
-		if(memcmp(ibuf,"PSG\x1a",4))erro("bad psg file");
+		if(memcmp(ibuf,"PSG\x1a",4))erro(_("bad psg file"));
 		for(t=5,tick=0;t<sb.st_size;t++)if(ibuf[t]==0xff)tick++;
-		printf("Length:  %lu min, %lu sec\n",tick/50L/60L,tick/50L%60L);
+		printf(_("Length:  %lu min, %lu sec\n"),tick/50L/60L,tick/50L%60L);
 		lp=sb.st_size-4;q=0;
 		break;
 	    case AY:
 		puts("AY file");
 		ibuf=tt1+12;co=1;
-		printf("Misc:    %s\n",ibuf+PTR(ibuf));
+		printf(_("Misc:    %s\n"),ibuf+PTR(ibuf));
 		printf("%s%s\n",author,ibuf+2+PTR(ibuf+2));
 		ibuf+=6;ibuf+=PTR(ibuf);
 		printf("%s%s\n",name,ibuf+PTR(ibuf));
-		if(tick)printf("Length:  %lu min, %lu sec\n",tick/50L/60L,tick/50L%60L);
+		if(tick)printf(_("Length:  %lu min, %lu sec\n"),tick/50L/60L,tick/50L%60L);
 		lp=0;q=0;
 		break;
 	    case PT1:
@@ -665,11 +668,11 @@ playz:
 		lp=0;q=0;
 		break;
 	    default:
-		puts("unknown format");
+		puts(_("unknown format"));
 		exit(-1);
 		break;
 	}
-	t=0;printf("Playing..\n\n");
+	t=0;printf(_("Playing..\n\n"));
 	while(!quitflag
 #ifdef WIN
 	    &&!_bios_keybrd(_KEYBRD_READY)
@@ -703,7 +706,7 @@ playz:
 #ifndef LPT_PORT
 	sound_end();
 #endif
-	printf("\nExiting..\n");
+	printf(_("\nExiting..\n"));
 #ifdef UNIX
 	signal(SIGHUP,SIG_DFL);
 	signal(SIGINT,SIG_DFL);

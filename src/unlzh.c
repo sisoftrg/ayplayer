@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: unlzh.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* $Id: unlzh.c,v 1.2 2004/03/11 17:27:58 root Exp $ */
 #include "ayplay.h"
 
 static _US left[1019],right[1019],pt_table[256],bitbuf=0;
@@ -44,7 +44,7 @@ static void make_table(short nchar,_UC bitlen[],short tablebits,_US table[])
 		start[i]=total;
 		total+=weight[i]*count[i];
 	}
-	if(total&0xffff)erro("bad file structure");
+	if(total&0xffff)erro(_("bad file structure"));
 	for(i=1;i<=tablebits;i++) {
 		start[i]>>=m;
 		weight[i]>>=m;
@@ -108,7 +108,7 @@ void unlh5(_UC *_ibuf,_UC *_obuf,_UL _origsize,_UL _compsize)
 	_UC c_len[1024];
 	_UL count=0;
 	text=(_UC*)malloc(dicsiz);
-	if(text==NULL)erro("out of memory");
+	if(text==NULL)erro(_("out of memory"));
 	memset(text,' ',dicsiz);
 	ibuf=_ibuf;obuf=_obuf;
 	origsize=_origsize;
