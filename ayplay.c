@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.23 2003/10/30 18:32:01 root Exp $ */
+/* $Id: ayplay.c,v 1.24 2003/11/01 18:43:02 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -7,6 +7,7 @@ _US sp;
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t=0,lp;
 enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT} formats;
+unsigned long tstates,tsmax;
 static char name[]="Name:    ",author[]="Author:  ";
 static int quitflag=0;
 int ca,cb,cc,ft=UNK;
@@ -32,20 +33,24 @@ static void sighup(int sig)
 
 void sreg(char reg,_UC dat)
 {
+#ifdef LPT_PORT
 #ifdef UNIX
-	ioperm(dPort,3,1);
+	ioperm(LPT_PORT,3,1);
 #endif
-	outb(reg,dPort);
-	outb(6,Port);
-	outb(15,Port);
-	outb(dat,dPort);
-	outb(14,Port);
-	outb(15,Port);
-	outb(0,dPort);
-	outb(6,Port);
-	outb(15,Port);
+	outb(reg,LPT_PORT);
+	outb(6,LPT_PORT+2);
+	outb(15,LPT_PORT+2);
+	outb(dat,LPT_PORT);
+	outb(14,LPT_PORT+2);
+	outb(15,LPT_PORT+2);
+	outb(0,LPT_PORT);
+	outb(6,LPT_PORT+2);
+	outb(15,LPT_PORT+2);
 #ifdef UNIX
-	ioperm(dPort,3,0);
+	ioperm(LPT_PORT,3,0);
+#endif
+#else
+	sound_ay_write(reg,dat,DANM(tc));
 #endif
 }
 
@@ -88,7 +93,7 @@ void playemu()
 	while(!DANM(haltstate)) {
 		DANM(r)=128;DANM(v)=128;
 //		printf("pc=%u,sp=%u\n",PC,SP);
-		PRNM(step)(1);
+		tstates=PRNM(step)(tstates);
 		if((i=DANM(r))!=128)r=i;
 		if((i=DANM(v))!=128)v=i;
 		if(r>=0&&v>=0) {
@@ -191,6 +196,10 @@ int main(int argc,char *argv[])
 	puts("\n\tAY Player'2003, for real AY chip on LPT port");
 	puts("(c) Stepan Pologov (sisoft\\\\trg), 2:5093/56.7, sisoft@bk.ru");
 	if(argc!=2||strchr(argv[1],'.')==NULL)erro(NULL);
+	tstates=0;tsmax=3546900/50;
+#ifndef LPT_PORT
+	if(!sound_init())erro("can't init soundcard");
+#endif
 	if(!strcmp(argv[1],".")) {
 		sb.st_size=DEMO_S;ft=DEMO_T;
 		if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro("out of memory");
@@ -379,6 +388,9 @@ playz:
 	signal(SIGHUP,sighup);signal(SIGINT,sighup);
 #endif
 	printf("Type:    %s",nam?"packed ":"");
+#ifndef LPT_PORT
+	sound_ay_reset();
+#endif
 	switch(ft) {
 	    case VTX:
 		puts("Vortex Tracker");
@@ -521,11 +533,17 @@ playz:
 			playemu();break;
 		}
 		indik();
-		usleep(Sleep);
+#ifndef LPT_PORT
+		sound_frame(1);
+#endif
+		XSLEEP;
 	}
 	if(tt1)free(tt1);
 	if(tt2)free(tt2);
 	sreg(8,0);sreg(9,0);sreg(10,0);
+#ifndef LPT_PORT
+	sound_end();
+#endif
 	printf("\nExiting..\n");
 #ifdef UNIX
 	signal(SIGHUP,SIG_DFL);

@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.14 2003/10/30 18:20:14 root Exp $ */
+/* $Id: ayplay.h,v 1.15 2003/11/01 18:43:02 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -21,9 +21,6 @@
 #include <conio.h>
 #endif
 
-#define dPort LPT_PORT
-#define Port (dPort+2)
-
 #define _UC unsigned char
 #define _UL unsigned long
 #define _US unsigned short
@@ -34,11 +31,14 @@
 #endif
 
 #ifdef WIN
-#define Sleep 20
+#define XSLEEP delay(20)
 #define outb(d,p) outp(p,d)
-#define usleep delay
 #else
-#define Sleep 2000
+#ifdef LPT_PORT
+#define XSLEEP usleep(20000)
+#else
+#define XSLEEP
+#endif
 #endif
 
 extern void unlh5(_UC*,_UC*,_UL,_UL);

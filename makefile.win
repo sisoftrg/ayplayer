@@ -1,5 +1,5 @@
 #(c)2003 sisoft\trg - AYplayer.
-# $Id: makefile.win,v 1.6 2003/10/30 18:20:14 root Exp $
+# $Id: makefile.win,v 1.7 2003/11/01 18:43:02 root Exp $
 
 CC = wcl386
 CFLAGS = /c /3 /mf /ox /bt=windows
@@ -23,8 +23,8 @@ z80$(OBJ): z80.c z80.h ayplay.h makefile$(MFE)
 
 Z80_OBJS = z80_step$(OBJ) z80optab$(OBJ) z80_op1$(OBJ) z80_op2$(OBJ) z80_op3$(OBJ) z80_op4$(OBJ) z80_op5$(OBJ) z80_op6$(OBJ)
 
-z80emu$(OBJ): z80emu.S makefile$(MFE)
-	$(CC) $(AFLAGS) z80emu.S
+sndemu$(OBJ): sndemu.c z80.h makefile$(MFE)
+	$(CC) $(CFLAGS) $(CDEFS) sndemu.c
 
 z80_op1$(OBJ): z80_op1.c z80_emu.h
 	$(CC) $(CFLAGS) $(CDEFS) z80_op1.c
@@ -69,4 +69,5 @@ ayplayer$(EXE): ayplay$(OBJ) unlzh$(OBJ) z80$(OBJ) $(Z80_OBJS) demo_pl$(OBJ) pt2
 	$(CC) $(LFLAGS) /fe=ayplayer$(EXE) *$(OBJ)
 
 clean:
-	$(RM) *$(OBJ) *.bak ayplayer$(EXE)
+	$(RM) *$(OBJ)
+	$(RM) ayplayer$(EXE)
