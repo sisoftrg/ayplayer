@@ -1,5 +1,5 @@
 //(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.9 2003/06/25 00:39:25 root Exp $ */
+/* $Id: ayplay.c,v 1.10 2003/06/25 09:09:18 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -12,7 +12,7 @@ int quitflag=0,ca,cb,cc,ft=UNK;
 void erro(char *ermess)
 {
 	if(ermess)printf("\n” Error: %s!\n",ermess);
-	    else puts("* Usage: ayplayer filename");
+	    else puts("* Support: VTX, PSG, PT2, PT3, STP, STC, PSC, ASC, Hobeta.\n* Usage: ayplayer filename");
 	exit(-1);
 }
 
@@ -174,6 +174,7 @@ int main(int argc,char *argv[])
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".pt3"))ft=PT3;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".stp"))ft=STP;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".stc"))ft=STC;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".zxs"))ft=STC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".psc"))ft=PSC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".asc"))ft=ASC;
 		else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
