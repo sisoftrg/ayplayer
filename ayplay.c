@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.14 2003/06/30 22:11:00 root Exp $ */
+/* $Id: ayplay.c,v 1.15 2003/06/30 23:27:12 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -7,6 +7,7 @@ _US sp;
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t=0,lp;
 enum {UNK=0,VTX,PSG,AY,HOB,PT2,PT3,STP,STC,PSC,ASC} formats;
+static char name[]="Name:    ",author[]="Author:  ";
 static int quitflag=0;
 int ca,cb,cc,ft=UNK;
 #define PLADR 18432
@@ -147,6 +148,28 @@ char *vtxinfo(char *buf)
 	tick=origsize/14L;printf("Length:  %lu min, %lu sec\n",tick/q/60L,tick/q%60L);
 	if(q!=50)puts("Warning: music may not play correctly!");
 	return(++buf);
+}
+
+static _US xfind(_US sa,char *s,int l)
+{
+	_US f=0;
+	while(memcmp(DANM(mem)+sa+f,s,l)&&f<256)f++;
+	if(f>=255)f=0;
+	return f;
+}
+
+static _US xstr(char *n,_US sa,char *e,_US x)
+{
+	_US l=x,i=0;
+	if(e)l=xfind(sa,e,x);
+	if(l) {
+		if(n)printf(n);
+		while(i<l&&DANM(mem)[sa+i]==' ')i++;
+		fwrite(DANM(mem)+sa+i,l-i,1,stdout);
+		printf("\n");
+	}
+	if(e)l+=x;
+	return l;
 }
 
 int main(int argc,char *argv[])
@@ -314,64 +337,54 @@ again:			switch(ft) {
 		puts("AY file");
 		ibuf=tt1+12;
 		printf("Misc:    %s\n",ibuf+PTR(ibuf));
-		printf("Author:  %s\n",ibuf+2+PTR(ibuf+2));
+		printf("%s%s\n",author,ibuf+2+PTR(ibuf+2));
 		ibuf+=6;ibuf+=PTR(ibuf);
-		printf("Name:    %s\n",ibuf+PTR(ibuf));
+		printf("%s%s\n",name,ibuf+PTR(ibuf));
 		if(tick)printf("Length:  %lu min, %lu sec\n",tick/50L/60L,tick/50L%60L);
 		lp=0;q=0;
 		break;
 	    case PT2:
-		printf("Protracker 2.x\nName:    ");
-		fwrite(DANM(mem)+sngadr+101,30,1,stdout);
-		printf("\n");
+		puts("Protracker 2.x");
+		xstr(name,sngadr+101,NULL,30);
 		lp=0;q=0;
 		break;
 	    case PT3:
-		fwrite(DANM(mem)+sngadr,15,1,stdout);
-		printf("\nName:    ");
-		fwrite(DANM(mem)+sngadr+30,32,1,stdout);
-		printf("\nAuthor:  ");
-		fwrite(DANM(mem)+sngadr+66,32,1,stdout);
-		printf("\n");
+		xstr(NULL,sngadr,NULL,15);
+		xstr(name,sngadr+30,NULL,32);
+		xstr(author,sngadr+66,NULL,32);
 		lp=0;q=0;
 		break;
 	    case STP:
 		puts("Sound Tracker Pro");
-		if(*(_UC*)(DANM(mem)+sadr+45)>=32) {
-			printf("Name:    ");
-			fwrite(DANM(mem)+sadr+45,25,1,stdout);
-			printf("\n");
-		}
+		if(!memcmp(DANM(mem)+sngadr+10,"KSA ",4))
+		    xstr(name,sngadr+38,NULL,24);
+			else if(*(_UC*)(DANM(mem)+sadr+45)>=32)
+			    xstr(name,sadr+45,NULL,25);
 		lp=0;q=0;
 		break;
 	    case STC:
 		puts("Sound Tracker");
 		if(*(_UC*)(DANM(mem)+sadr+49)>=32) {
-			printf("Name:    ");
-			fwrite(DANM(mem)+sadr+49,10,1,stdout);
-			printf("\nAuthor:  ");
-			fwrite(DANM(mem)+sadr+63,12,1,stdout);
-			printf("\n");
+			xstr(name,sadr+49,NULL,10);
+			xstr(author,sadr+63,NULL,12);
 		}
 		lp=0;q=0;
 		break;
 	    case PSC:
-		fwrite(DANM(mem)+sngadr,9,1,stdout);
-		printf("\nName:    ");
-		fwrite(DANM(mem)+sngadr+25,19,1,stdout);
-		printf("\nAuthor:  ");
-		fwrite(DANM(mem)+sngadr+49,19,1,stdout);
-		printf("\n");
+		xstr(NULL,sngadr,NULL,9);
+		xstr(name,sngadr+25,NULL,19);
+		xstr(author,sngadr+49,NULL,19);
 		lp=0;q=0;
 		break;
 	    case ASC:
 		puts("ASC Sound Master");
-		if(*(_UC*)(DANM(mem)+sadr+39)>=32) {
-			printf("Name:    ");
-			fwrite(DANM(mem)+sadr+39,6,1,stdout);
-			printf("\nAuthor:  ");
-			fwrite(DANM(mem)+sadr+49,32,1,stdout);
-			printf("\n");
+		i=xfind(sngadr,"ASM ",4);
+		if(i) {
+			xstr(name,sngadr+i+19,NULL,20);
+			xstr(author,sngadr+i+43,NULL,20);
+		} else if(*(_UC*)(DANM(mem)+sadr+39)>=32) {
+			i=xstr(name,sadr+39," BY ",4);
+			xstr(author,sadr+39+i,NULL,32);
 		}
 		lp=0;q=0;
 		break;
