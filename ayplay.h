@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.9 2003/07/01 09:31:19 root Exp $ */
+/* $Id: ayplay.h,v 1.10 2003/10/24 07:53:15 root Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,8 +9,7 @@
 #include <sys/io.h>
 #include <signal.h>
 #include <unistd.h>
-#endif
-#ifdef WIN
+#else
 #include <dos.h>
 #include <io.h>
 #endif

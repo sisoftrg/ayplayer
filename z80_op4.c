@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_op4.c,v 1.1 2003/07/01 09:31:20 root Exp $ */
+/* $Id: z80_op4.c,v 1.2 2003/10/24 07:53:15 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
@@ -273,8 +273,8 @@ OPDEF(rst_ ## nnn, 0xC7+n*8)       \
   ENTIME(11);                      \
 }
 
-RST_NN(00, 0)
-RST_NN(08, 1)
+RST_NN(0, 0)
+RST_NN(8, 1)
 RST_NN(10, 2)
 RST_NN(18, 3)
 RST_NN(20, 4)

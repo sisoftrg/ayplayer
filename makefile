@@ -1,11 +1,11 @@
 #(c)2003 sisoft\trg - AYplayer.
-# $Id: makefile,v 1.10 2003/07/09 14:50:07 root Exp $
+# $Id: makefile,v 1.11 2003/10/24 07:53:15 root Exp $
 
 BINDIR = /usr/local/bin
 CC = gcc
-CFLAGS = -g -O2 -fomit-frame-pointer -Wall -c
+CFLAGS = -g -O3 -fomit-frame-pointer -Wall -pedantic -c
 LFLAGS = -g
-AFLAGS = -Wall -c
+AFLAGS = -g -Wall -c
 CDEFS = -DUNIX -D__LPT_PORT_=0x378
 INSTALL = install -c -m 664
 RM = rm -f

@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.17 2003/07/26 19:43:51 root Exp $ */
+/* $Id: ayplay.c,v 1.18 2003/10/24 07:53:15 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -22,11 +22,13 @@ void erro(char *ermess)
 	exit(-1);
 }
 
+#ifdef UNIX
 static void sighup(int sig)
 {
 	signal(sig,sighup);
 	quitflag=1;
 }
+#endif
 
 void sreg(char reg,_UC dat)
 {
@@ -118,7 +120,7 @@ void indik()
 	fflush(stdout);
 }
 
-char *vtxinfo(char *buf)
+_UC *vtxinfo(char *buf)
 {
 	_US yea;
 	printf("Chip:    %s\n",*buf++=='a'?"AY-3-8910(12)":"YM2149F");
@@ -147,7 +149,7 @@ char *vtxinfo(char *buf)
 	if(strlen(++buf))printf("Comment: %s\n",buf);buf+=strlen(buf);
 	tick=origsize/14L;printf("Length:  %lu min, %lu sec\n",tick/q/60L,tick/q%60L);
 	if(q!=50)puts("Warning: music may not play correctly!");
-	return(++buf);
+	return((_UC*)(++buf));
 }
 
 static _US xfind(_US sa,char *s,int l)
@@ -285,7 +287,7 @@ again:			switch(ft) {
 				sngadr=ASC_song;
 				break;
 			    case AY:
-				tt1=(char*)malloc(sb.st_size);
+				tt1=(_UC*)malloc(sb.st_size);
 				if(tt1==NULL)erro("out of memory");
 				fread(tt1,sb.st_size,1,infile);
 				if(memcmp(tt1,"ZXAYEMUL",8)){puts("unknown format");exit(-1);}
@@ -316,13 +318,15 @@ again:			switch(ft) {
 		}
 	}
 	if(nam)unlink(nam);
+#ifdef UNIX
 	signal(SIGHUP,sighup);signal(SIGINT,sighup);
+#endif
 	printf("\nFile:    %s\n",argv[1]);
 	printf("Type:    %s",nam?"packed ":"");
 	switch(ft) {
 	    case VTX:
 		puts("Vortex Tracker");
-		ibuf=vtxinfo(ibuf);
+		ibuf=vtxinfo((char*)ibuf);
 		compsize=sb.st_size-(ibuf-tt1);
 		if((tt2=obuf=(_UC*)calloc(14,tick))==NULL)erro("out of memory");
 		unlh5(ibuf,obuf,origsize,compsize);
@@ -330,14 +334,14 @@ again:			switch(ft) {
 		break;
 /*
   Id:dword;
-  Leo:array[0..7]of char;+4
-  Num_of_tiks:dword;+12
-  Song_Attr:dword;+16
-  Num_of_Dig:word;+20
-  ChipFrq:dword;+22
-  InterFrq:word;+26
-  Loop:dword;+28
-  Add_Size:word;+32
+  Leo:array[0..7]of char;+4
+  Num_of_tiks:dword;+12
+  Song_Attr:dword;+16
+  Num_of_Dig:word;+20
+  ChipFrq:dword;+22
+  InterFrq:word;+26
+  Loop:dword;+28
+  Add_Size:word;+32
 */
 	    case YM: {
 		_UL j;
@@ -452,7 +456,9 @@ again:			switch(ft) {
 	if(tt2)free(tt2);
 	sreg(8,0);sreg(9,0);sreg(10,0);
 	printf("\nExiting..\n");
+#ifdef UNIX
 	signal(SIGHUP,SIG_DFL);
 	signal(SIGINT,SIG_DFL);
+#endif
 	return 0;
 }
