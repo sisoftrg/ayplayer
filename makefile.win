@@ -1,5 +1,5 @@
 #(c)2003 sisoft\trg - AYplayer.
-# $Id: makefile.win,v 1.1 2003/07/01 09:31:20 root Exp $
+# $Id: makefile.win,v 1.2 2003/07/09 14:50:07 root Exp $
 
 CC = bcc32
 CFLAGS = -WC -v -w -O2 -c
@@ -8,9 +8,9 @@ AFLAGS =
 CDEFS = -DWIN -D__LPT_PORT_=0x378
 RM = del
 OBJ = .obj
-EXE = $(EXE)
+EXE = .exe
+MFE = .win
 DO_ASM = 0
-MFE = $(MFE)
 
 all: ayplayer$(EXE)
 
