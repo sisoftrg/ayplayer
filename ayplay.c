@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.15 2003/06/30 23:27:12 root Exp $ */
+/* $Id: ayplay.c,v 1.16 2003/07/01 08:12:56 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -140,8 +140,8 @@ char *vtxinfo(char *buf)
 	if(yea)printf("Year:    %u\n",yea);
 	origsize=*(_UL*)++buf;buf+=4;
 	if(!origsize)erro("playable data is empty");
-	if(strlen(buf))printf("Name:    %s\n",buf);buf+=strlen(buf);
-	if(strlen(++buf))printf("Author:  %s\n",buf);buf+=strlen(buf);
+	if(strlen(buf))printf("%s%s\n",name,buf);buf+=strlen(buf);
+	if(strlen(++buf))printf("%s%s\n",author,buf);buf+=strlen(buf);
 	if(strlen(++buf))printf("Origin:  %s\n",buf);buf+=strlen(buf);
 	if(strlen(++buf))printf("Editor:  %s\n",buf);buf+=strlen(buf);
 	if(strlen(++buf))printf("Comment: %s\n",buf);buf+=strlen(buf);

@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80emu.S,v 1.4 2003/06/26 09:19:25 root Exp $ */
+/* $Id: z80emu.S,v 1.5 2003/07/01 08:12:56 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
@@ -252,10 +252,6 @@
 	movzbl porth, VWP	; \
 	movb Z80(inports)(VWP), rd
 
-//#define OUT(l, porth, portl, rs) \
-//	movzbl porth, VWP	; \
-//	movb rs, Z80(outports)(VWP) ;\
-
 #define OUT(l, porth, portl, rs) \
 	cmpb $0xfd, portl ;\
 	jnz l ## _o3 ;\
@@ -267,8 +263,6 @@ l ## _o2: ;\
 	movb rs, RRV ;\
 l ## _o3:
 
-//#define DI_CHECK		
-	
 #define RSHLTIME(time) \
 	RSHL			; \
 	TIMEX(time)
@@ -2204,7 +2198,6 @@ ex_de_hl:
 di:
 //	movw $0, IFF1
 //	movw $0, IFF2
-//	DI_CHECK
 	TIME(4)
 
 ei:	
