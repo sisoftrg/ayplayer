@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: unlzh.c,v 1.4 2003/11/06 09:21:37 root Exp $ */
+/* $Id: unlzh.c,v 1.5 2004/01/26 19:06:18 root Exp $ */
 #include "ayplay.h"
 
 static _US left[1019],right[1019],pt_table[256],bitbuf=0;
@@ -103,9 +103,9 @@ static void read_pt_len(short nn,short nbit,short i_special)
 
 void unlh5(_UC *_ibuf,_UC *_obuf,_UL _origsize,_UL _compsize)
 {
-	_US blocksize=0,dicsiz=1<<13,c_table[4096],mask=1,loc=0;
+	_US blocksize=0,dicsiz=1<<13,c_table[8192],mask=1,loc=0;
 	int i,j,k,c,n,q,dicsiz1=dicsiz-1;
-	_UC c_len[1020];
+	_UC c_len[1024];
 	_UL count=0;
 	text=(_UC*)malloc(dicsiz);
 	if(text==NULL)erro("out of memory");
