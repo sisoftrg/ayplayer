@@ -1,5 +1,5 @@
 //(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.3 2003/05/27 12:17:20 root Exp $ */
+/* $Id: ayplay.c,v 1.4 2003/05/28 09:39:52 root Exp $ */
 #include "ayplay.h"
 
 #define VTX 1
@@ -124,19 +124,27 @@ char *vtxinfo(char *buf)
 int main(int argc,char *argv[])
 {
 	FILE *infile;
+	char *nam=NULL;
 	_UC *tt1,*tt2=NULL;
 	struct stat sb;
 	struct timespec ts;
 	if(argc!=2)erro(NULL);
-	if(stat(argv[1],&sb))erro("can't stat sound file");
+	if(!strcasecmp(strrchr(argv[1],'.'),".gz")) {
+		char cmd[256];
+		nam=tmpnam(NULL);
+		snprintf(cmd,255,"gzip -cd %s >%s",argv[1],nam);
+		if(system(cmd))erro("can't gzip sound file");
+	}
+	if(stat(nam?nam:argv[1],&sb))erro("can't stat sound file");
 	if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro("out of memory");
-	if((infile=fopen(argv[1],"rb"))==NULL)erro("can't open sound file");
-	fread(ibuf,sb.st_size,1,infile);fclose(infile);
+	if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
+	fread(ibuf,sb.st_size,1,infile);
+	fclose(infile);if(nam)unlink(nam);
 	signal(SIGHUP,sighup);signal(SIGINT,sighup);
-	printf("File:    %s\n",argv[1]);
+	printf("\nFile:    %s%s\n",argv[1],nam?" (packed)":"");
 	printf("Type:    ");
 	if(*ibuf=='a'||*ibuf=='y') {
-		puts("Vortex Tracker");ft=VTX;
+		puts("Vortex Tracker");ft=VTX;
 		ibuf=vtxinfo(ibuf);
 		compsize=sb.st_size-(ibuf-tt1);
 		if((tt2=obuf=(_UC*)calloc(14,tick))==NULL)erro("out of memory");
