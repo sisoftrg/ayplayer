@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80.h,v 1.9 2003/11/02 18:31:40 root Exp $ */
+/* $Id: z80.h,v 1.10 2003/11/05 12:41:23 root Exp $ */
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 #ifndef __Z80_H_
 #define __Z80_H_
@@ -52,18 +52,18 @@ extern Z80 PRNM(proc);
 extern byte PRNM(inports)[];
 extern byte PRNM(outports)[];
 
-extern unsigned long tstates,tsmax;
-
 #ifndef LPT_PORT
+#ifdef UNIX
 extern int sound_freq;
 extern int sound_stereo;
 extern int sound_stereo_ay_narrow;
 extern int soundfd;
 extern int sixteenbit;
+extern int sound_frame(int really);
+extern void sound_frame_blank();
+#endif
 extern int sound_init();
 extern void sound_end();
-extern int sound_frame();
-extern void sound_frame_blank();
 extern void sound_ay_write(int reg,int val);
 extern void sound_ay_reset();
 #endif

@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: sndemu.c,v 1.2 2003/11/02 09:02:39 root Exp $ */
+/* $Id: sndemu.c,v 1.3 2003/11/05 12:41:23 root Exp $ */
 
 //base version of this file was taken from aylet-0.3 by Russell Marks.
 
@@ -43,7 +43,7 @@ static unsigned int ay_tick_incr;
 static unsigned int ay_tone_period[3],ay_noise_period,ay_env_period;
 static unsigned char sound_ay_registers[16];
 
-struct ay_change_tag {
+static struct ay_change_tag {
     unsigned char reg,val;
 };
 
@@ -54,7 +54,7 @@ static int rstereopos,rchan1pos,rchan2pos,rchan3pos;
 
 
 #ifdef UNIX
-int driver_init(int *freqptr,int *stereoptr)
+static int driver_init(int *freqptr,int *stereoptr)
 {
     int frag,tmp;
     if((soundfd=open("/dev/dsp",O_WRONLY))<0)return(0);
@@ -85,12 +85,12 @@ int driver_init(int *freqptr,int *stereoptr)
     return(1);
 }
 
-void driver_end()
+static void driver_end()
 {
     if(soundfd>1)close(soundfd);
 }
 
-void driver_frame(unsigned char *data,int len)
+static void driver_frame(unsigned char *data,int len)
 {
     static unsigned char buf16[8192];
     int ret=0,ofs=0;
@@ -115,7 +115,7 @@ void driver_frame(unsigned char *data,int len)
 
 #define CLOCK_RESET(clock) ay_tick_incr=(int)(65536.*clock/sound_freq)
 
-void sound_ay_init()
+static void sound_ay_init()
 {
     int f;
     static int levels[16]= {

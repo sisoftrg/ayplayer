@@ -1,6 +1,6 @@
-# $Id: Makefile.am,v 1.7 2003/11/02 06:57:57 root Exp $
+# $Id: Makefile.am,v 1.8 2003/11/05 12:41:22 root Exp $
 AUTOMAKE_OPTIONS = foreign 1.5
-EXTRA_DIST = makefile.win
+EXTRA_DIST = makefile.win sndemu_w.c
 bin_PROGRAMS = ayplayer
 noinst_HEADERS = ayplay.h z80.h z80_emu.h
 

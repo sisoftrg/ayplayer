@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.29 2003/11/05 11:08:57 root Exp $ */
+/* $Id: ayplay.c,v 1.30 2003/11/05 12:41:23 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -54,7 +54,7 @@ void sreg(char reg,_UC dat)
 #endif
 }
 
-void playvtx()
+static void playvtx()
 {
 	int i;
 	_UC a;
@@ -70,7 +70,7 @@ void playvtx()
 	if(t>=tick)t=lp;
 }
 
-void playpsg()
+static void playpsg()
 {
 	_UC a,i;
 	while((i=ibuf[t+++4])<0xfd&&t<lp) {
@@ -84,7 +84,7 @@ void playpsg()
 	if(t>=lp||q>=tick||i==0xfd)t=q=0;
 }
 
-void playemu()
+static void playemu()
 {
 	_UC i;
 	int r=-1,v=-1;
@@ -109,7 +109,7 @@ void playemu()
 	if(tick&&q>tick)q=lp;
 }
 
-void indik()
+static void indik()
 {
 	int i;
 	char a[16]={"               "};
@@ -129,7 +129,7 @@ void indik()
 	fflush(stdout);
 }
 
-_UC *vtxinfo(char *buf)
+static _UC *vtxinfo(char *buf)
 {
 	_US yea;
 	printf("Chip:    %s\n",*buf++=='a'?"AY-3-8910(12)":"YM2149F");
@@ -629,7 +629,9 @@ playz:
 		}
 		indik();
 #ifndef LPT_PORT
+#ifndef ADLIB
 		sound_frame(1);
+#endif
 #endif
 		XSLEEP;
 	}
