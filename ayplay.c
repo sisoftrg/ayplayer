@@ -1,5 +1,5 @@
 //(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.37 2004/02/06 12:23:45 root Exp $ */
+/* $Id: ayplay.c,v 1.38 2004/02/06 20:29:32 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -115,19 +115,30 @@ static void indik()
 {
 	int i;
 	static unsigned sn=0;
-	char a[16]={"               "};
-	char b[16]={"               "};
-	char c[16]={"               "},s;
-	for(i=0;i<(ca&15);i++)a[i]='=';if(i)a[(ca&15)-1]='-';
-	for(i=0;i<(cb&15);i++)b[i]='=';if(i)b[(cb&15)-1]='-';
-	for(i=0;i<(cc&15);i++)c[i]='=';if(i)c[(cc&15)-1]='-';
+	char a[]={"                "};
+	char b[]={"                "};
+	char c[]={"                "},s;
+	static unsigned char ma=0,mb=0,mc=0;
+	static unsigned short mca=0,mcb=0,mcc=0;
+	for(i=0;i<(ca&15);i++)a[i+1]='=';if(i)a[ca&15]='-';if(ca>15)*a=ca>16?'>':'<';
+	if((ca&15)>=ma){ma=ca&15;mca=0;}
+	else{mca++;if(mca>6&&mca<104&&!(mca%(13-mca/8))&&ma)ma--;}
+	if(ma&&a[ma]==' ')a[ma]='•';
+	for(i=0;i<(cb&15);i++)b[i+1]='=';if(i)b[cb&15]='-';if(cb>15)*b=cb>16?'>':'<';
+	if((cb&15)>=mb){mb=cb&15;mcb=0;}
+	else {mcb++;if(mcb>6&&mcb<104&&!(mcb%(13-mcb/8))&&mb)mb--;}
+	if(mb&&b[mb]==' ')b[mb]='•';
+	for(i=0;i<(cc&15);i++)c[i+1]='=';if(i)c[cc&15]='-';if(cc>15)*c=cc>16?'>':'<';
+	if((cc&15)>=mc){mc=cc&15;mcc=0;}
+	else {mcc++;if(mcc>6&&mcc<104&&!(mcc%(13-mcc/8))&&mc)mc--;}
+	if(mc&&c[mc]==' ')c[mc]='•';
 	s=*((char*)&(":::/-\\|/-\\:::\\-/|\\-/")+((++sn)%100/5));
 	switch(ft) {
 	    case VTX: 
-		printf("%02lu%c%02lu   A: %s   B: %s   C: %s\r",t/q/60L,s,t/q%60L,a,b,c);
+		printf("%02lu%c%02lu   A:%s   B:%s   C:%s\r",t/q/60L,s,t/q%60L,a,b,c);
 		break;
 	    default:
-		printf("%02lu%c%02lu   A: %s   B: %s   C: %s\r",q/50L/60L,s,q/50L%60L,a,b,c);
+		printf("%02lu%c%02lu   A:%s   B:%s   C:%s\r",q/50L/60L,s,q/50L%60L,a,b,c);
 		break;
 	}
 	fflush(stdout);
