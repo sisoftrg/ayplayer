@@ -1,5 +1,5 @@
 //(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.33 2004/01/11 12:28:11 root Exp $ */
+/* $Id: ayplay.c,v 1.34 2004/01/11 12:37:32 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -20,7 +20,7 @@ static int ca,cb,cc,ft=UNK;
 void erro(char *ermess)
 {
 	if(ermess)printf("\n* Error: %s!\n",ermess);
-	else puts("* Support: VTX,PSG,AY,YM,PT1,PT2,PT3,STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,FLS,Hobeta.\n"
+	else puts("* Support: VTX,PSG,AY,YM,PT[123],STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,FLS,FXM,Hobeta.\n"
 		  "* Usage: ayplayer filename");
 	exit(-1);
 }
@@ -195,8 +195,8 @@ int main(int argc,char *argv[])
 	char *nam=NULL;
 	_UC *tt1=NULL,*tt2=NULL;
 	_US sadr=0,iadr=0,padr=0,sngadr=0,i;
-	puts("\n\tAY Player'2003, for real AY chip on LPT port");
-	puts("(c) Stepan Pologov (sisoft\\\\trg), 2:5093/56.7, sisoft@bk.ru");
+	puts("\nAY Player'2004, for real AY chip on LPT port");
+	puts("(c) Stepan Pologov (sisoft\\\\trg), sisoft@bk.ru");
 	if(argc!=2||strchr(argv[1],'.')==NULL)erro(NULL);
 #ifndef LPT_PORT
 	if(!sound_init())erro("can't init soundcard");

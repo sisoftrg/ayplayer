@@ -1,5 +1,5 @@
 #(c)2004 sisoft\trg - AYplayer.
-# $Id: makefile.win,v 1.11 2004/01/11 12:28:11 root Exp $
+# $Id: makefile.win,v 1.12 2004/01/11 12:37:32 root Exp $
 
 CC = wcc386
 LD = wlink
@@ -18,8 +18,9 @@ sndemu_w.obj:	sndemu_w.c ayplay.h z80.h makefile.win
 Z80_OBJS = z80_step.obj z80optab.obj z80_op1.obj z80_op2.obj &
 	   z80_op3.obj z80_op4.obj z80_op5.obj z80_op6.obj
 
-PL_OBJS = demo_pl.obj pt1_pl.obj pt2_pl.obj pt3_pl.obj stp_pl.obj stc_pl.obj &
-	  psc_pl.obj asc_pl.obj gtr_pl.obj ftc_pl.obj sqt_pl.obj fls_pl.obj
+PL_OBJS = demo_pl.obj pt1_pl.obj pt2_pl.obj pt3_pl.obj stp_pl.obj &
+	  stc_pl.obj psc_pl.obj asc_pl.obj gtr_pl.obj ftc_pl.obj &
+	  sqt_pl.obj fls_pl.obj fxm_pl.obj
 
 OBJS = ayplay.obj unlzh.obj z80.obj $(Z80_OBJS) sndemu_w.obj $(PL_OBJS)
 
