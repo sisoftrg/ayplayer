@@ -1,12 +1,12 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.21 2003/10/30 15:49:56 root Exp $ */
+/* $Id: ayplay.c,v 1.22 2003/10/30 18:20:14 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
 _US sp;
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t=0,lp;
-enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC,GTR} formats;
+enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT} formats;
 static char name[]="Name:    ",author[]="Author:  ";
 static int quitflag=0;
 int ca,cb,cc,ft=UNK;
@@ -18,7 +18,7 @@ int ca,cb,cc,ft=UNK;
 void erro(char *ermess)
 {
 	if(ermess)printf("\n* Error: %s!\n",ermess);
-	    else puts("* Support: VTX, PSG, AY, YM, PT2, PT3, STP, STC, PSC, ASC, GTR, Hobeta.\n* Usage: ayplayer filename");
+	    else puts("* Support: VTX,PSG,AY,YM,PT2,PT3,STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,Hobeta.\n* Usage: ayplayer filename");
 	exit(-1);
 }
 
@@ -223,6 +223,8 @@ int main(int argc,char *argv[])
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".psc"))ft=PSC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".asc"))ft=ASC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".gtr"))ft=GTR;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ftc"))ft=FTC;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".sqt"))ft=SQT;
 		else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ay"))ft=AY;
 		if(ft) {
@@ -309,6 +311,35 @@ again:			switch(ft) {
 				padr=GTR_play;
 				sngadr=GTR_song;
 				break;
+			    case FTC:
+				memcpy(DANM(mem)+FTC_init,ftc_player,FTC_song-FTC_init);
+				fread(DANM(mem)+FTC_song,sb.st_size,1,infile);
+				iadr=FTC_init;
+				padr=FTC_play;
+				sngadr=FTC_song;
+				break;
+			    case SQT: {
+				_US j=0,k,*p,fl;
+				memcpy(DANM(mem)+SQT_init,sqt_player,SQT_song-SQT_init);
+				fread(DANM(mem)+SQT_song,sb.st_size,1,infile);
+				i=*(_US*)(DANM(mem)+SQT_song+2)-10;
+				k=*(_US*)(DANM(mem)+SQT_song+8)-i;
+				while(*(DANM(mem)+SQT_song+k)) {
+					if(j<(*(DANM(mem)+SQT_song+k)&0x7f))j=*(DANM(mem)+SQT_song+k)&0x7f;k+=2;
+					if(j<(*(DANM(mem)+SQT_song+k)&0x7f))j=*(DANM(mem)+SQT_song+k)&0x7f;k+=2;
+					if(j<(*(DANM(mem)+SQT_song+k)&0x7f))j=*(DANM(mem)+SQT_song+k)&0x7f;k+=3;
+				}
+				p=(_US*)(DANM(mem)+SQT_song+2);
+				fl=(*(_US*)(DANM(mem)+SQT_song+6)-i+(j<<1))/2;
+				for(k=0;k<fl;k++) {
+					*p-=i;
+					*p+=SQT_song;
+					p++;
+				}
+				iadr=SQT_init;
+				padr=SQT_play;
+				sngadr=SQT_song;
+				} break;
 			    case AY:
 				tt1=(_UC*)malloc(sb.st_size);
 				if(tt1==NULL)erro("out of memory");
@@ -462,6 +493,14 @@ playz:
 		xstr(name,sngadr+7,NULL,32);
 		lp=0;q=0;
 		break;
+	    case FTC:
+		puts("Fast Tracker");
+		lp=0;q=0;
+		break;
+	    case SQT:
+		puts("SQ-Tracker");
+		lp=0;q=0;
+		break;
 	    default:
 		puts("unknown format");
 		exit(-1);
@@ -475,7 +514,8 @@ playz:
 		    case PT2: case PT3:
 		    case STP: case STC:
 		    case PSC: case ASC:
-		    case GTR: case AY:
+		    case GTR: case FTC:
+		    case SQT: case AY:
 			playemu();break;
 		}
 		indik();

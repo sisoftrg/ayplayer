@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.13 2003/10/30 15:49:56 root Exp $ */
+/* $Id: ayplay.h,v 1.14 2003/10/30 18:20:14 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -86,5 +86,15 @@ extern _UC asc_player[];
 #define GTR_play 49158
 #define GTR_song 50677
 extern _UC gtr_player[];
+
+#define FTC_init 49152
+#define FTC_play 49158
+#define FTC_song 52069
+extern _UC ftc_player[];
+
+#define SQT_init 49152
+#define SQT_play 49200
+#define SQT_song 50448
+extern _UC sqt_player[];
 
 #endif

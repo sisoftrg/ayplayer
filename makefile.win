@@ -1,5 +1,5 @@
 #(c)2003 sisoft\trg - AYplayer.
-# $Id: makefile.win,v 1.5 2003/10/30 15:49:56 root Exp $
+# $Id: makefile.win,v 1.6 2003/10/30 18:20:14 root Exp $
 
 CC = wcl386
 CFLAGS = /c /3 /mf /ox /bt=windows
@@ -60,8 +60,12 @@ asc_pl$(OBJ): asc_pl.c
 	$(CC) $(CFLAGS) asc_pl.c
 gtr_pl$(OBJ): gtr_pl.c
 	$(CC) $(CFLAGS) gtr_pl.c
+ftc_pl$(OBJ): ftc_pl.c
+	$(CC) $(CFLAGS) ftc_pl.c
+sqt_pl$(OBJ): sqt_pl.c
+	$(CC) $(CFLAGS) sqt_pl.c
 
-ayplayer$(EXE): ayplay$(OBJ) unlzh$(OBJ) z80$(OBJ) $(Z80_OBJS) demo_pl$(OBJ) pt2_pl$(OBJ) pt3_pl$(OBJ) stp_pl$(OBJ) stc_pl$(OBJ) psc_pl$(OBJ) asc_pl$(OBJ) gtr_pl$(OBJ)
+ayplayer$(EXE): ayplay$(OBJ) unlzh$(OBJ) z80$(OBJ) $(Z80_OBJS) demo_pl$(OBJ) pt2_pl$(OBJ) pt3_pl$(OBJ) stp_pl$(OBJ) stc_pl$(OBJ) psc_pl$(OBJ) asc_pl$(OBJ) gtr_pl$(OBJ) ftc_pl$(OBJ) sqt_pl$(OBJ)
 	$(CC) $(LFLAGS) /fe=ayplayer$(EXE) *$(OBJ)
 
 clean:
