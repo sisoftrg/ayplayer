@@ -33,18 +33,18 @@ msgid ""
 "* Support: %s.\n"
 "* Usage: ayplayer filename\n"
 msgstr ""
-"* Играем: %s.\n"
+"* Умеем: %s.\n"
 "* Используем: ayplayer filename\n"
 
 #: src/ayplay.c:151
 #, c-format
 msgid "Chip:    %s\n"
-msgstr "Чип:     %s\n"
+msgstr "Чип:      %s\n"
 
 #: src/ayplay.c:152
 #, c-format
 msgid "Regime:  "
-msgstr "Режим:   "
+msgstr "Режим:    "
 
 #: src/ayplay.c:155
 msgid "Mono"
@@ -81,7 +81,7 @@ msgstr "неизвестный режим"
 #: src/ayplay.c:167
 #, c-format
 msgid "Year:    %u\n"
-msgstr "Год:     %u\n"
+msgstr "Год:      %u\n"
 
 #: src/ayplay.c:169
 msgid "playable data is empty"
@@ -90,22 +90,22 @@ msgstr "нет данных для проигрывания"
 #: src/ayplay.c:172
 #, c-format
 msgid "Origin:  %s\n"
-msgstr "Оригинал:%s\n"
+msgstr "Оригинал: %s\n"
 
 #: src/ayplay.c:173
 #, c-format
 msgid "Editor:  %s\n"
-msgstr "Редактор:%s\n"
+msgstr "Редактор: %s\n"
 
 #: src/ayplay.c:174
 #, c-format
 msgid "Comment: %s\n"
-msgstr "Коммент.:%s\n"
+msgstr "Коммент:  %s\n"
 
 #: src/ayplay.c:175 src/ayplay.c:579 src/ayplay.c:589
 #, c-format
 msgid "Length:  %lu min, %lu sec\n"
-msgstr "Длина:   %lu мин, %lu сек.\n"
+msgstr "Длина:    %lu мин, %lu сек.\n"
 
 #: src/ayplay.c:176
 msgid "Warning: music may not play correctly!"
@@ -117,11 +117,11 @@ msgstr "не могу открыть звуковуху"
 
 #: src/ayplay.c:219
 msgid "Name:    "
-msgstr "Название:"
+msgstr "Название: "
 
 #: src/ayplay.c:220
 msgid "Author:  "
-msgstr "Автор:   "
+msgstr "Автор:    "
 
 #: src/ayplay.c:223 src/ayplay.c:241 src/ayplay.c:475 src/ayplay.c:531
 #: src/ayplay.c:555 src/unlzh.c:111
@@ -134,7 +134,7 @@ msgid ""
 "File:    AYPlayer demo song"
 msgstr ""
 "\n"
-"Файл:    AYPlayer demo song"
+"Файл:     AYPlayer demo song"
 
 #: src/ayplay.c:233
 msgid "can't gzip sound file"
@@ -187,12 +187,12 @@ msgid ""
 "File:    %s\n"
 msgstr ""
 "\n"
-"Файл:    %s\n"
+"Файл:     %s\n"
 
 #: src/ayplay.c:521
 #, c-format
 msgid "Type:    %s%s"
-msgstr "Тип:     %s%s"
+msgstr "Модуль:   %s%s"
 
 #: src/ayplay.c:521
 msgid "packed "
@@ -213,7 +213,7 @@ msgstr "плохой psg файл"
 #: src/ayplay.c:585
 #, c-format
 msgid "Misc:    %s\n"
-msgstr "Прочее:  %s\n"
+msgstr "Прочее:   %s\n"
 
 #: src/ayplay.c:675
 #, c-format
@@ -221,7 +221,7 @@ msgid ""
 "Playing..\n"
 "\n"
 msgstr ""
-"Проигрываем..\n"
+"Слушаем..\n"
 "\n"
 
 #: src/ayplay.c:709
