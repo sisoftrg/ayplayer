@@ -1,76 +1,40 @@
 #(c)2003 sisoft\trg - AYplayer.
-# $Id: makefile.win,v 1.9 2003/11/05 12:41:23 root Exp $
+# $Id: makefile.win,v 1.10 2003/11/06 10:35:18 root Exp $
 
-CC = wcl386
-CFLAGS = /c /3 /mf /ox /bt=windows
-LFLAGS = /mf /bt=windows
-CDEFS = /DWIN /DEZ80 /DLPT_PORT=0x378
-#CDEFS = /DWIN /DEZ80 /DADLIB
-RM = del
-OBJ = .obj
-EXE = .exe
-MFE = .win
+CC = wcc386
+LD = wlink
+CFLAGS = -5r -w9 -mf -ox -j -bt=windows -zq -fo=$^&
+LFLAGS = op{q} system dos4g
+CDEFS = -dWIN -dEZ80 -dLPT_PORT=0x378
+#CDEFS = -dWIN -dEZ80 -dADLIB
 
-all: ayplayer$(EXE)
+all: ayplayer.exe
 
-ayplay$(OBJ): ayplay.c ayplay.h z80.h makefile$(MFE)
-	$(CC) $(CFLAGS) $(CDEFS) ayplay.c
+ayplay.obj:	ayplay.c ayplay.h z80.h makefile.win
+unlzh.obj:	unlzh.c ayplay.h makefile.win
+z80.obj:	z80.c z80.h ayplay.h makefile.win
+sndemu_w.obj:	sndemu_w.c ayplay.h z80.h makefile.win
 
-unlzh$(OBJ): unlzh.c ayplay.h
-	$(CC) $(CFLAGS) $(CDEFS) unlzh.c
+Z80_OBJS = z80_step.obj z80optab.obj z80_op1.obj z80_op2.obj &
+	   z80_op3.obj z80_op4.obj z80_op5.obj z80_op6.obj
 
-z80$(OBJ): z80.c z80.h ayplay.h makefile$(MFE)
-	$(CC) $(CFLAGS) $(CDEFS) z80.c
+PL_OBJS = demo_pl.obj pt2_pl.obj pt3_pl.obj stp_pl.obj stc_pl.obj &
+	  psc_pl.obj asc_pl.obj gtr_pl.obj ftc_pl.obj sqt_pl.obj fls_pl.obj
 
-Z80_OBJS = z80_step$(OBJ) z80optab$(OBJ) z80_op1$(OBJ) z80_op2$(OBJ) z80_op3$(OBJ) z80_op4$(OBJ) z80_op5$(OBJ) z80_op6$(OBJ)
+OBJS = ayplay.obj unlzh.obj z80.obj $(Z80_OBJS) sndemu_w.obj $(PL_OBJS)
 
-sndemu_w$(OBJ): sndemu_w.c ayplay.h z80.h makefile$(MFE)
-	$(CC) $(CFLAGS) $(CDEFS) sndemu_w.c
+ayplayer.lnk: makefile.win
+	@%create ayplayer.lnk
+	@%append ayplayer.lnk name ayplayer
+	@for %i in ($(OBJS)) do @%append ayplayer.lnk file %i
 
-z80_op1$(OBJ): z80_op1.c z80_emu.h
-	$(CC) $(CFLAGS) $(CDEFS) z80_op1.c
-z80_op2$(OBJ): z80_op2.c z80_emu.h
-	$(CC) $(CFLAGS) $(CDEFS) z80_op2.c
-z80_op3$(OBJ): z80_op3.c z80_emu.h
-	$(CC) $(CFLAGS) $(CDEFS) z80_op3.c
-z80_op4$(OBJ): z80_op4.c z80_emu.h
-	$(CC) $(CFLAGS) $(CDEFS) z80_op4.c
-z80_op5$(OBJ): z80_op5.c z80_emu.h
-	$(CC) $(CFLAGS) $(CDEFS) z80_op5.c
-z80_op6$(OBJ): z80_op6.c z80_emu.h
-	$(CC) $(CFLAGS) $(CDEFS) z80_op6.c
-z80optab$(OBJ): z80optab.c z80_emu.h z80.h
-	$(CC) $(CFLAGS) $(CDEFS) z80optab.c
-z80_step$(OBJ): z80_step.c z80_emu.h z80.h makefile$(MFE)
-	$(CC) $(CFLAGS) $(CDEFS) z80_step.c
+.c.obj:
+	$(CC) $(CFLAGS) $(CDEFS) $[&
 
-demo_pl$(OBJ): demo_pl.c
-	$(CC) $(CFLAGS) demo_pl.c
+ayplayer.exe: $(OBJS) makefile.win ayplayer.lnk
+	$(LD) $(LFLAGS) @$^*
 
-pt2_pl$(OBJ): pt2_pl.c
-	$(CC) $(CFLAGS) pt2_pl.c
-pt3_pl$(OBJ): pt3_pl.c
-	$(CC) $(CFLAGS) pt3_pl.c
-stp_pl$(OBJ): stp_pl.c
-	$(CC) $(CFLAGS) stp_pl.c
-stc_pl$(OBJ): stc_pl.c
-	$(CC) $(CFLAGS) stc_pl.c
-psc_pl$(OBJ): psc_pl.c
-	$(CC) $(CFLAGS) psc_pl.c
-asc_pl$(OBJ): asc_pl.c
-	$(CC) $(CFLAGS) asc_pl.c
-gtr_pl$(OBJ): gtr_pl.c
-	$(CC) $(CFLAGS) gtr_pl.c
-ftc_pl$(OBJ): ftc_pl.c
-	$(CC) $(CFLAGS) ftc_pl.c
-sqt_pl$(OBJ): sqt_pl.c
-	$(CC) $(CFLAGS) sqt_pl.c
-fls_pl$(OBJ): fls_pl.c
-	$(CC) $(CFLAGS) fls_pl.c
-
-ayplayer$(EXE): ayplay$(OBJ) unlzh$(OBJ) z80$(OBJ) $(Z80_OBJS) sndemu_w$(OBJ) demo_pl$(OBJ) pt2_pl$(OBJ) pt3_pl$(OBJ) stp_pl$(OBJ) stc_pl$(OBJ) psc_pl$(OBJ) asc_pl$(OBJ) gtr_pl$(OBJ) ftc_pl$(OBJ) sqt_pl$(OBJ) fls_pl$(OBJ)
-	$(CC) $(LFLAGS) /fe=ayplayer$(EXE) *$(OBJ)
-
-clean:
-	$(RM) *$(OBJ)
-	$(RM) ayplayer$(EXE)
+clean: .symbolic
+	-del *.obj
+	-del ayplayer.lnk
+	-del ayplayer.exe
