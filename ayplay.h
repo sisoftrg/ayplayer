@@ -1,5 +1,5 @@
 //(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.21 2004/02/06 09:04:52 root Exp $ */
+/* $Id: ayplay.h,v 1.22 2004/02/16 10:59:09 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -45,6 +45,12 @@
 #else
 #define XSLEEP
 #endif
+#endif
+
+#ifdef WIN
+#define POINT 'ù'
+#else
+#define POINT '•'
 #endif
 
 extern void unlh5(_UC*,_UC*,_UL,_UL);
