@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.22 2003/10/30 18:20:14 root Exp $ */
+/* $Id: ayplay.c,v 1.23 2003/10/30 18:32:01 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -255,6 +255,7 @@ again:			switch(ft) {
 				if(!memcmp(DANM(mem)+sadr+20,"SOUND TR",8)){ft=STC;iadr=sadr+11;padr=iadr+3;}
 				if(!memcmp(DANM(mem)+sadr+20,"ASM COMP",8)){ft=ASC;iadr=sadr+11;padr=iadr+3;}
 				if(!memcmp(DANM(mem)+sadr+13,"GLOBAL T",8))ft=GTR;
+				if(!memcmp(DANM(mem)+sadr+51,"Fast Tra",8))ft=FTC;
 				if(!memcmp(DANM(mem)+sadr+9,"PSC ",4))ft=PSC;
 				sngadr=*(_US*)(DANM(mem)+iadr+1);
 //				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
@@ -495,6 +496,7 @@ playz:
 		break;
 	    case FTC:
 		puts("Fast Tracker");
+		xstr(name,sngadr+8,NULL,42);
 		lp=0;q=0;
 		break;
 	    case SQT:
