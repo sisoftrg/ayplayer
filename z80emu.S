@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80emu.S,v 1.7 2003/10/30 18:49:50 root Exp $ */
+/* $Id: z80emu.S,v 1.8 2003/11/02 09:02:39 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 #ifndef EZ80
@@ -403,6 +403,7 @@ Z80(pushpc):
 .globl Z80(step)
 /* .type    Z80(step),@function */
 Z80(step):
+	xor %eax, %eax
 	movl 4(%esp), %eax
 	
 	pushl %ebp

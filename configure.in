@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([ayplayer], [0.99], [sisoft@bk.ru])
 AM_INIT_AUTOMAKE([ayplayer],[0.99])
-AC_REVISION([$Id: configure.in,v 1.4 2003/11/01 18:50:07 root Exp $])
+AC_REVISION([$Id: configure.in,v 1.5 2003/11/02 09:02:39 root Exp $])
 AC_PREREQ(2.53)
 AC_CONFIG_SRCDIR([ayplay.c])
 AM_CONFIG_HEADER([config.h])
@@ -32,6 +32,7 @@ AC_ARG_ENABLE(asm,AC_HELP_STRING([--enable-asm],[enable Z80 emulation on assembl
 if test "${enable_asm}x" != "nox"; then
 	AC_MSG_RESULT(yes)
 else
+	ASFLAGS="-DEZ80"
 	AC_MSG_RESULT(no)
 	AC_DEFINE(EZ80,1,[Disable Z80 emulation on assembler])
 fi

@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80.h,v 1.7 2003/11/01 18:58:28 root Exp $ */
+/* $Id: z80.h,v 1.8 2003/11/02 09:02:39 root Exp $ */
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 #ifndef __Z80_H_
 #define __Z80_H_
@@ -60,12 +60,12 @@ extern int sound_stereo;
 extern int sound_stereo_ay_narrow;
 extern int soundfd;
 extern int sixteenbit;
-extern int sound_init(void);
-extern void sound_end(void);
-extern int sound_frame(int really_play);
-extern void sound_frame_blank(void);
-extern void sound_ay_write(int reg,int val,unsigned long tstates);
-extern void sound_ay_reset(void);
+extern int sound_init();
+extern void sound_end();
+extern int sound_frame();
+extern void sound_frame_blank();
+extern void sound_ay_write(int reg,int val);
+extern void sound_ay_reset();
 #endif
 
 #define ZI_BC 0
@@ -129,11 +129,11 @@ extern void sound_ay_reset(void);
 #define ABK  (DANM(br)[ZI_AF].s.h)
 #define FBK  (DANM(br)[ZI_AF].s.l)
 
-extern void PRNM(init)(void);
-extern int  PRNM(step)(int ticknum);
-extern void PRNM(reset)(void);
+extern void PRNM(init)();
+extern int  PRNM(step)();
+extern void PRNM(reset)();
 
-extern void PRNM(pushpc)(void);
-extern void PRNM(local_init)(void);
+extern void PRNM(pushpc)();
+extern void PRNM(local_init)();
 
 #endif

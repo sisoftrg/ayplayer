@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: sndemu.c,v 1.1 2003/11/01 18:43:02 root Exp $ */
+/* $Id: sndemu.c,v 1.2 2003/11/02 09:02:39 root Exp $ */
 
 //base version of this file was taken from aylet-0.3 by Russell Marks.
 
@@ -44,8 +44,6 @@ static unsigned int ay_tone_period[3],ay_noise_period,ay_env_period;
 static unsigned char sound_ay_registers[16];
 
 struct ay_change_tag {
-    unsigned long tstates;
-    unsigned short ofs;
     unsigned char reg,val;
 };
 
@@ -217,11 +215,9 @@ static void sound_ay_overlay()
     int reg,r;
     int is_low,is_on;
     int chan1,chan2,chan3;
-    int frametime=tsmax*50;
     unsigned int tone_count,noise_count;
-    for(f=0;f<ay_change_count;f++)ay_change[f].ofs=(ay_change[f].tstates*sound_freq)/frametime;
     for(f=0,ptr=sound_buf;f<sound_framesiz;f++) {
-        while(changes_left && f>=change_ptr->ofs) {
+        while(changes_left /*&& f>=change_ptr->ofs*/) {
             sound_ay_registers[reg=change_ptr->reg]=change_ptr->val;
             change_ptr++; changes_left--;
             switch(reg)
@@ -322,11 +318,10 @@ static void sound_ay_overlay()
     }
 }
 
-void sound_ay_write(int reg,int val,unsigned long tstates)
+void sound_ay_write(int reg,int val)
 {
     if(reg>=15) return;
     if(ay_change_count<AY_CHANGE_MAX) {
-        ay_change[ay_change_count].tstates=tstates;
         ay_change[ay_change_count].reg=reg;
         ay_change[ay_change_count].val=val;
         ay_change_count++;
@@ -337,7 +332,7 @@ void sound_ay_reset()
 {
     int f;
     ay_change_count=0;
-    for(f=0;f<16;f++)sound_ay_write(f,0,0);
+    for(f=0;f<16;f++)sound_ay_write(f,0);
     for(f=0;f<3;f++)ay_tone_high[f]=0;
     ay_tone_subcycles=ay_env_subcycles=0;
     sound_oldval=sound_oldval_orig=128;

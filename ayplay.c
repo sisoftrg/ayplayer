@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.26 2003/11/02 08:05:14 root Exp $ */
+/* $Id: ayplay.c,v 1.27 2003/11/02 09:02:39 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -7,7 +7,6 @@ _US sp;
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t=0,lp;
 enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT,FLS} formats;
-unsigned long tstates,tsmax;
 static char name[]="Name:    ",author[]="Author:  ";
 static int quitflag=0;
 int ca,cb,cc,ft=UNK;
@@ -51,7 +50,7 @@ void sreg(char reg,_UC dat)
 	ioperm(LPT_PORT,3,0);
 #endif
 #else
-	sound_ay_write(reg,dat,DANM(tc));
+	sound_ay_write(reg,dat);
 #endif
 }
 
@@ -94,7 +93,7 @@ void playemu()
 	while(!DANM(haltstate)) {
 		DANM(r)=128;DANM(v)=128;
 //		printf("pc=%u,sp=%u\n",PC,SP);
-		tstates=PRNM(step)(tstates);
+		PRNM(step)();
 		if((i=DANM(r))!=128)r=i;
 		if((i=DANM(v))!=128)v=i;
 		if(r>=0&&v>=0) {
@@ -197,7 +196,6 @@ int main(int argc,char *argv[])
 	puts("\n\tAY Player'2003, for real AY chip on LPT port");
 	puts("(c) Stepan Pologov (sisoft\\\\trg), 2:5093/56.7, sisoft@bk.ru");
 	if(argc!=2||strchr(argv[1],'.')==NULL)erro(NULL);
-	tstates=0;tsmax=3546900/50;
 #ifndef LPT_PORT
 	if(!sound_init())erro("can't init soundcard");
 #endif
@@ -442,7 +440,7 @@ again:			switch(ft) {
 			}
 			*(_US*)(DANM(mem)+PLADR+1)=(_US)iadr;
 			PC=PLADR;SP=sp;
-			while(iadr&&!DANM(haltstate)){/*printf("pc=%u,sp=%u\n",PC,SP);*/PRNM(step)(1);}
+			while(iadr&&!DANM(haltstate)){/*printf("pc=%u,sp=%u\n",PC,SP);*/PRNM(step)();}
 			if(!padr)padr=DANM(mem)[(dbyte)(((int)RI<<8)+0xFF)]+256*DANM(mem)[(dbyte)(((int)RI<<8)+0xFF+1)];
 			*(_US*)(DANM(mem)+PLADR+5)=(_US)padr;
 			fclose(infile);

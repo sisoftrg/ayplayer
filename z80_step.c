@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_step.c,v 1.2 2003/10/30 18:49:50 root Exp $ */
+/* $Id: z80_step.c,v 1.3 2003/11/02 09:02:39 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
@@ -97,9 +97,9 @@ void PRNM(local_init)()
 }
 
 
-int PRNM(step)(int tc)
+int PRNM(step)()
 {
-  DANM(tc) = tc;
+  DANM(tc) = 0;
   DANM(rl7) = RR & 0x80;
 
   if(DANM(haltstate)) {
