@@ -1,5 +1,5 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: ftc_pl.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: ftc_pl.c,v 1.2 2004/04/26 12:18:51 root Exp $ */
 
 unsigned char ftc_player[] = {
   0x21, 0x65, 0xCB, 0xC3, 0xB8, 0xC7, 0xF3, 0x21, 0x64, 0xCB, 

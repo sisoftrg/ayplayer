@@ -1,5 +1,5 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: fls_pl.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: fls_pl.c,v 1.2 2004/04/26 12:18:51 root Exp $ */
 
 unsigned char fls_player[] = {
   0x21, 0x9D, 0xC5, 0xC3, 0x4A, 0xC5, 0x97, 0x32, 0x2A, 0xC0, 

@@ -1,7 +1,6 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: sndemu.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
-
-//base version of this file was taken from aylet-0.3 by Russell Marks.
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: sndemu.c,v 1.2 2004/04/26 12:18:52 root Exp $
+ \ base version of this file was taken from aylet-0.3 by Russell Marks. */
 
 #include <stdio.h>
 #include <string.h>

@@ -1,6 +1,6 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: demo_pl.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
-/* demo song something.vtx */
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: demo_pl.c,v 1.2 2004/04/26 12:18:51 root Exp $
+ \ demo song <something.vtx> */
 
 unsigned char DEMO_D[] = {
   0x79, 0x6D, 0x02, 0x00, 0x00, 0x58, 0x0F, 0x1B, 0x00, 0x32, 

@@ -1,8 +1,7 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_op4.c,v 1.1 2004/03/11 14:24:11 root Exp $ */
-
-//original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
-
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: z80_op4.c,v 1.2 2004/04/26 12:18:52 root Exp $
+ \ original version of this file was taken from SpectEmu0.92 by Miklos Szeredi
+  */
 #include "z80_emu.h"
 #ifdef EZ80
 
@@ -140,15 +139,15 @@ OPDEF(ex_de_hl, 0xEB)
 
 OPDEF(di, 0xF3)
 {
-//  DANM(iff1) = 0;
-//  DANM(iff2) = 0;
+/*  DANM(iff1) = 0;
+  DANM(iff2) = 0;*/
   ENTIME(4);
 }
 
 OPDEF(ei, 0xFB)
 {
-//  DANM(iff1) = 1;
-//  DANM(iff2) = 1;
+/*  DANM(iff1) = 1;
+  DANM(iff2) = 1; */
   ENTIME(4);
 }
 

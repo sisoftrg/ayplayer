@@ -1,5 +1,5 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: sqt_pl.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: sqt_pl.c,v 1.2 2004/04/26 12:18:52 root Exp $ */
 
 unsigned char sqt_player[] = {
   0x3E, 0x08, 0x32, 0xB7, 0xC4, 0x32, 0xD4, 0xC4, 0x32, 0xF1, 

@@ -1,5 +1,5 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: pt3_pl.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: pt3_pl.c,v 1.2 2004/04/26 12:18:52 root Exp $ */
 
 unsigned char pt3_player[] = {
   0x21, 0x86, 0xCD, 0x18, 0x29, 0xC3, 0x4E, 0xC3, 0xC3, 0x36, 

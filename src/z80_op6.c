@@ -1,8 +1,7 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_op6.c,v 1.1 2004/03/11 14:24:11 root Exp $ */
-
-//original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
-
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: z80_op6.c,v 1.2 2004/04/26 12:18:52 root Exp $
+ \ original version of this file was taken from SpectEmu0.92 by Miklos Szeredi
+  */
 #include "z80_emu.h"
 #ifdef EZ80
 

@@ -1,5 +1,5 @@
-//(c)2004 sisoft\trg - AYplayer.
-/* $Id: players.h,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* (c)2004 sisoft\trg - AYplayer.
+\* $Id: players.h,v 1.2 2004/04/26 12:18:52 root Exp $ */
 
 #define DEMO_T VTX
 #define DEMO_S 946

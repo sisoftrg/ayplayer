@@ -1,5 +1,5 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: psc_pl.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: psc_pl.c,v 1.2 2004/04/26 12:18:52 root Exp $ */
 
 unsigned char psc_player[] = {
   0x21, 0xA2, 0xCB, 0xC3, 0x20, 0xC0, 0xC3, 0x94, 0xC0, 0x50, 

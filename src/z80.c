@@ -1,8 +1,7 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
-
-//original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
-
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: z80.c,v 1.2 2004/04/26 12:18:52 root Exp $
+ \ original version of this file was taken from SpectEmu0.92 by Miklos Szeredi
+  */
 #include "z80.h"
 #include "ayplay.h"
 
@@ -24,7 +23,7 @@ void PRNM(init)()
 
   DANM(mem) = a64kmalloc(1);
   srand((unsigned int) time(NULL));
-//  for(i = 0; i < 0x10000; i++) DANM(mem)[i] = (byte) rand();
+  /*for(i = 0; i < 0x10000; i++) DANM(mem)[i] = (byte) rand();*/
   for(i = 0; i < NUMDREGS; i++) {
     DANM(nr)[i].p = DANM(mem);
     DANM(nr)[i].d.d = (dbyte) rand();

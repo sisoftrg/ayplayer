@@ -1,5 +1,5 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: stc_pl.c,v 1.1 2004/03/11 14:24:10 root Exp $ */
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: stc_pl.c,v 1.2 2004/04/26 12:18:52 root Exp $ */
 
 unsigned char stc_player[] = {
   0x0B, 0x00, 0x0E, 0x00, 0x7E, 0x80, 0x81, 0x80, 0x80, 0x10, 

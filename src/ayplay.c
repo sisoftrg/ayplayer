@@ -1,5 +1,5 @@
-//(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.2 2004/03/11 17:27:58 root Exp $ */
+/* (c)2004 sisoft\trg - AYplayer.
+\* $Id: ayplay.c,v 1.3 2004/04/26 12:18:51 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -94,7 +94,7 @@ static void playemu()
 	PC=PLADR+4;SP=sp;
 	while(!DANM(haltstate)) {
 		DANM(r)=128;DANM(v)=128;
-//		printf("pc=%u,sp=%u\n",PC,SP);
+		/*printf("pc=%u,sp=%u\n",PC,SP);*/
 		PRNM(step)(0);
 		if((i=DANM(r))!=128)r=i;
 		if((i=DANM(v))!=128)v=i;
@@ -485,9 +485,9 @@ again:			switch(ft) {
 				if(!sp)sp=PLADR+1024;
 				iadr=WRD(obuf+2);
 				padr=WRD(obuf+4);
-//				printf("iadr=%u,padr=%u,sp=%u\n",iadr,padr,sp);
+				/*printf("iadr=%u,padr=%u,sp=%u\n",iadr,padr,sp);*/
 				do {
-//					printf("to=%u,from=%u,len=%u\n",WRD(ibuf),4+PTR(ibuf+4),WRD(ibuf+2));
+					/*printf("to=%u,from=%u,len=%u\n",WRD(ibuf),4+PTR(ibuf+4),WRD(ibuf+2));*/
 					memcpy(DANM(mem)+WRD(ibuf),ibuf+4+PTR(ibuf+4),WRD(ibuf+2));
 					if(!iadr)iadr=WRD(ibuf);ibuf+=6;
 				} while(WRD(ibuf));
@@ -522,7 +522,7 @@ playz:
 #ifndef LPT_PORT
 	sound_ay_reset();
 #endif
-//	{FILE *xx=fopen("debug","wb");fwrite(DANM(mem),1,65536,xx);fclose(xx);}
+	/*{FILE *xx=fopen("debug","wb");fwrite(DANM(mem),1,65536,xx);fclose(xx);}*/
 	switch(ft) {
 	    case VTX:
 		puts("Vortex Tracker");
@@ -568,7 +568,7 @@ playz:
 				i1++;
 				i--;
 			}
-//			if((*(_UL*)(obuf+16)&0x6000000)==0x2000000) {
+			/*if((*(_UL*)(obuf+16)&0x6000000)==0x2000000) {*/
 		}
 
 		} break;
@@ -619,10 +619,10 @@ playz:
 		break;
 	    case STC:
 		puts("Sound Tracker");
-//???		if(*(_UC*)(DANM(mem)+sadr+49)>=32) {
-//			xstr(name,sadr+49,NULL,10);
-//			xstr(author,sadr+63,NULL,12);
-//		}
+/* ???		if(*(_UC*)(DANM(mem)+sadr+49)>=32) {
+			xstr(name,sadr+49,NULL,10);
+			xstr(author,sadr+63,NULL,12);
+		}*/
 		if((*(_UC*)(DANM(mem)+sngadr+7)>=32)&&strncasecmp((char*)(DANM(mem)+sngadr+7),"SONG BY ST C",12)&&strncasecmp((char*)(DANM(mem)+sngadr+7),"SOUND TR",8))
 		    xstr(name,sngadr+7,NULL,18);
 		lp=0;q=0;

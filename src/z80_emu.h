@@ -1,7 +1,7 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_emu.h,v 1.1 2004/03/11 14:24:11 root Exp $ */
-
-//original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
+/* (c)2003 sisoft\trg - AYplayer.
+\* $Id: z80_emu.h,v 1.2 2004/04/26 12:18:52 root Exp $
+ \ original version of this file was taken from SpectEmu0.92 by Miklos Szeredi
+  */
 #ifndef __Z80_EMU_H_
 #define __Z80_EMU_H_
 
@@ -83,7 +83,7 @@ extern op_f z80c_op_tab_fd[];
 
 #define PUTMEM(addr, ptr, val) *(ptr) = (val)
 #define IN(porth, portl, dest) dest = PORT(inports)[portl]
-//#define OUT(porth, portl, source) PORT(outports)[portl] = (source)
+/*#define OUT(porth, portl, source) PORT(outports)[portl] = (source)*/
 #define OUT(porth, portl, source) if((portl)==0xfd){if((porth)==0xff)DANM(r)=(source);else DANM(v)=(source);}
 
 #define SF  0x80

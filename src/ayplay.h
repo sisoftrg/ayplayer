@@ -1,5 +1,5 @@
-//(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.2 2004/03/11 17:27:58 root Exp $ */
+/* (c)2004 sisoft\trg - AYplayer.
+\* $Id: ayplay.h,v 1.3 2004/04/26 12:18:51 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
