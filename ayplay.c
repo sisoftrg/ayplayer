@@ -1,11 +1,11 @@
 //(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.1 2003/05/25 14:15:11 root Exp $ */
+/* $Id: ayplay.c,v 1.2 2003/05/26 14:06:24 root Exp $ */
 #include "ayplay.h"
 
 _UL origsize,compsize,count,q,tick,t;
-_UC *ibuf,*obuf,ca,cb,cc;
+_UC *ibuf,*obuf;
 _US lp;
-int quitflag=0;
+int quitflag=0,ca,cb,cc;
 
 void erro(char *ermess)
 {
@@ -68,13 +68,14 @@ void playvtx()
 
 void indik()
 {
+	int i;
 	char a[16]={"               "};
 	char b[16]={"               "};
-	char c[16]={"               "},i;
+	char c[16]={"               "};
 //	ca=ireg(8);cb=ireg(9);cc=ireg(10);
-	for(i=0;i<(ca&15);i++)a[i]='=';if(i)a[ca&15-1]='-';
-	for(i=0;i<(cb&15);i++)b[i]='=';if(i)b[cb&15-1]='-';
-	for(i=0;i<(cc&15);i++)c[i]='=';if(i)c[cc&15-1]='-';
+	for(i=0;i<(ca&15);i++)a[i]='=';if(i)a[(ca&15)-1]='-';
+	for(i=0;i<(cb&15);i++)b[i]='=';if(i)b[(cb&15)-1]='-';
+	for(i=0;i<(cc&15);i++)c[i]='=';if(i)c[(cc&15)-1]='-';
 	printf("%02lu:%02lu   A: %s   B: %s   C: %s\r",t/q/60L,t/q%60L,a,b,c);
 	fflush(stdout);
 }
