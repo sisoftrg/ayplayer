@@ -1,12 +1,13 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: unlzh.c,v 1.2 2003/06/26 09:19:25 root Exp $ */
+/* $Id: unlzh.c,v 1.3 2003/06/26 17:12:08 root Exp $ */
 #include "ayplay.h"
 
-_US left[1019],right[1019],pt_table[256],bitbuf=0;
-_UC subbitbuf=0,bitcount=0,*text,pt_len[128],*ibuf,*obuf;
+static _US left[1019],right[1019],pt_table[256],bitbuf=0;
+static _UC subbitbuf=0,bitcount=0,*text,pt_len[128];
+_UC *ibuf,*obuf;
 _UL origsize,compsize;
 
-void fillbuf(_UC n)
+static void fillbuf(_UC n)
 {
 	while(n>bitcount) {
 		n-=bitcount;
@@ -22,14 +23,14 @@ void fillbuf(_UC n)
 	subbitbuf<<=n;
 }
 
-_US getbits(_UC n)
+static _US getbits(_UC n)
 {
 	_US x=bitbuf>>(16-n);
 	fillbuf(n);
 	return x;
 }
 
-void make_table(short nchar,_UC bitlen[],short tablebits,_US table[])
+static void make_table(short nchar,_UC bitlen[],short tablebits,_US table[])
 {
 	_US count[17],weight[17],start[17],total=0,*p;
 	unsigned i;

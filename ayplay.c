@@ -1,12 +1,13 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.11 2003/06/26 09:19:25 root Exp $ */
+/* $Id: ayplay.c,v 1.12 2003/06/26 17:12:08 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t,lp;
 enum {UNK=0,VTX,PSG,HOB,PT2,PT3,STP,STC,PSC,ASC} formats;
-int quitflag=0,ca,cb,cc,ft=UNK;
+static int quitflag=0;
+int ca,cb,cc,ft=UNK;
 #define PLADR 18432
 
 void erro(char *ermess)
@@ -16,7 +17,7 @@ void erro(char *ermess)
 	exit(-1);
 }
 
-void sighup(int sig)
+static void sighup(int sig)
 {
 	signal(sig,sighup);
 	quitflag=1;
@@ -205,7 +206,7 @@ again:			switch(ft) {
 				if(!memcmp(DANM(mem)+sadr+20,"ASM COMP",8)){ft=ASC;iadr=sadr+11;padr=iadr+3;}
 				if(!memcmp(DANM(mem)+sadr+9,"PSC ",4))ft=PSC;
 				sngadr=*(_US*)(DANM(mem)+iadr+1);
-				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
+//				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
 				break;
 			    case PT2:
 				memcpy(DANM(mem)+PT2_init,pt2_player,PT2_song-PT2_init);
