@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.28 2003/11/02 18:31:40 root Exp $ */
+/* $Id: ayplay.c,v 1.29 2003/11/05 11:08:57 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -190,7 +190,6 @@ int main(int argc,char *argv[])
 	FILE *infile;
 	struct stat sb;
 	char *nam=NULL;
-	char hdr[17]={0};
 	_UC *tt1=NULL,*tt2=NULL;
 	_US sadr=0,iadr=0,padr=0,sngadr=0,i;
 	puts("\n\tAY Player'2003, for real AY chip on LPT port");
@@ -248,28 +247,52 @@ int main(int argc,char *argv[])
 			DANM(mem)[0]=0x76;DANM(mem)[0x38]=0xfb;sp=PLADR+1024;
 			if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
 again:			switch(ft) {
-			    case HOB:
+			    case HOB: {
+				long crc=0;
+				char hdr[17]={0};
 				fread(hdr,17,1,infile);
+				for(i=0;i<15;i++)crc+=hdr[i];
+				crc=(crc*257+105)%65536;
+				if((_US)crc!=*(_US*)(hdr+15))puts("\nWarn: corrupted hobeta file!");
 				sb.st_size=*(_US*)(hdr+11);
+				if(sb.st_size<128)sb.st_size=*(_US*)(hdr+13);
 				switch(hdr[8]) {
-				    case 'M': ft=PT2;break;
+				    case 'M': 
+					    if(hdr[9]=='P'&&hdr[10]=='S')ft=PSC;
+						else ft=PT2;
+					    break;
 				    case 'm': ft=PT3;break;
 				    case 'G': ft=GTR;break;
+				    case 'Y': ft=FTC;break;
+				    case 'S': erro("Uncompiled SoundTracker modules is not supported");
+				    case 'C': if(sb.st_size!=6912)break;
+				    default : erro("Extension of this file is not supported");
 				}
 				if(ft!=HOB)goto again;
 				iadr=sadr=*(_US*)(hdr+9);
+				if(iadr<16384)iadr=49152;
 				padr=iadr+5;ft=PT3;
 				fread(DANM(mem)+sadr,sb.st_size,1,infile);
 				if(DANM(mem)[padr]!=0xc3){padr++;ft=PT2;}
-				if(!memcmp(DANM(mem)+sadr+17,"KSA SOFT",8))ft=STP;
+				if(*(_US*)(DANM(mem)+sadr)==0x83e){padr=iadr+48;ft=SQT;}
+				if(!memcmp(DANM(mem)+sadr+17,"KSA SOFT",8)) {
+					if((*(_US*)(DANM(mem)+sadr+4)-sadr)>256) {
+						iadr=*(_US*)(DANM(mem)+sadr+4)-0x4e;
+						memcpy(DANM(mem)+iadr,DANM(mem)+sadr,sb.st_size);
+						sadr=iadr;padr=iadr+6;
+					}
+					ft=STP;
+				}
 				if(!memcmp(DANM(mem)+sadr+20,"SOUND TR",8)){ft=STC;iadr=sadr+11;padr=iadr+3;}
+				if(!memcmp(DANM(mem)+sadr+1091,"SONG BY ",8)){ft=STC;iadr=sadr;padr=iadr+6;}
+				if(!memcmp(DANM(mem)+sadr+7,"SONG BY ST",10)){ft=STC;fseek(infile,17,SEEK_SET);goto again;}
 				if(!memcmp(DANM(mem)+sadr+20,"ASM COMP",8)){ft=ASC;iadr=sadr+11;padr=iadr+3;}
-				if(!memcmp(DANM(mem)+sadr+13,"GLOBAL T",8))ft=GTR;
-				if(!memcmp(DANM(mem)+sadr+51,"Fast Tra",8))ft=FTC;
-				if(!memcmp(DANM(mem)+sadr+9,"PSC ",4))ft=PSC;
+				if(xfind(sadr,"ASM COMP",8)){ft=ASC;fseek(infile,17,SEEK_SET);goto again;}
+				if(!memcmp(DANM(mem)+sadr,"ProTrack",8)){ft=PT3;fseek(infile,17,SEEK_SET);goto again;}
+				if(!memcmp(DANM(mem)+sadr+9,"PSC ",4)){ft=PSC;iadr=sadr;padr=iadr+6;}
 				sngadr=*(_US*)(DANM(mem)+iadr+1);
 //				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
-				break;
+				} break;
 			    case PT2:
 				memcpy(DANM(mem)+PT2_init,pt2_player,PT2_song-PT2_init);
 				fread(DANM(mem)+PT2_song,sb.st_size,1,infile);
@@ -535,18 +558,20 @@ playz:
 		break;
 	    case STP:
 		puts("Sound Tracker Pro");
-		if(!memcmp(DANM(mem)+sngadr+10,"KSA ",4))
-		    xstr(name,sngadr+38,NULL,25);
-//		else if(*(_UC*)(DANM(mem)+sadr+45)>=32)
-//		    xstr(name,sadr+45,NULL,25);
+		i=xfind(sngadr,"KSA ",4);
+		if(i)xstr(name,sngadr+i+28,NULL,25);
+		    else {
+			i=xfind(sadr,"KSA ",4);
+			if(i)xstr(name,sadr+i+28,NULL,25);
+		}
 		lp=0;q=0;
 		break;
 	    case STC:
 		puts("Sound Tracker");
-		if(*(_UC*)(DANM(mem)+sadr+49)>=32) {
-			xstr(name,sadr+49,NULL,10);
-			xstr(author,sadr+63,NULL,12);
-		}
+//???		if(*(_UC*)(DANM(mem)+sadr+49)>=32) {
+//			xstr(name,sadr+49,NULL,10);
+//			xstr(author,sadr+63,NULL,12);
+//		}
 		lp=0;q=0;
 		break;
 	    case PSC:
