@@ -1,5 +1,5 @@
 #(c)2002 sisoft\trg - AYplayer.
-# $Id: makefile,v 1.4 2003/06/24 22:52:03 root Exp $
+# $Id: makefile,v 1.5 2003/06/24 23:31:52 root Exp $
 
 bindir = /usr/local/bin
 CC = gcc
@@ -30,9 +30,11 @@ stp_pl.o: stp_pl.c
 	$(CC) $(CFLAGS) -c stp_pl.c
 stc_pl.o: stc_pl.c
 	$(CC) $(CFLAGS) -c stc_pl.c
+psc_pl.o: psc_pl.c
+	$(CC) $(CFLAGS) -c psc_pl.c
 
-ayplayer: ayplay.o unlzh.o z80.o z80emu.o pt2_pl.o pt3_pl.o stp_pl.o stc_pl.o
-	$(CC) $(LFLAGS) -o ayplayer ayplay.o unlzh.o z80.o z80emu.o pt2_pl.o pt3_pl.o stp_pl.o stc_pl.o
+ayplayer: ayplay.o unlzh.o z80.o z80emu.o pt2_pl.o pt3_pl.o stp_pl.o stc_pl.o psc_pl.o
+	$(CC) $(LFLAGS) -o ayplayer ayplay.o unlzh.o z80.o z80emu.o pt2_pl.o pt3_pl.o stp_pl.o stc_pl.o psc_pl.o
 
 clean:
 	rm -f core *.o ayplayer *~

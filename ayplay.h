@@ -1,4 +1,4 @@
-/* $Id: ayplay.h,v 1.5 2003/06/24 22:52:03 root Exp $ */
+/* $Id: ayplay.h,v 1.6 2003/06/24 23:31:52 root Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,3 +40,8 @@ extern _UC stp_player[];
 #define STC_play 49166
 #define STC_song 50344
 extern _UC stc_player[];
+
+#define PSC_init 49152
+#define PSC_play 49158
+#define PSC_song 52130
+extern _UC psc_player[];
