@@ -1,5 +1,5 @@
 #(c)2004 sisoft\trg - AYplayer.
-# $Id: makefile.win,v 1.15 2004/04/26 12:17:50 root Exp $
+# $Id: makefile.win,v 1.16 2004/08/02 09:43:57 root Exp $
 
 #MAKE = wmake
 
@@ -8,9 +8,9 @@ help:
 	echo type 'make real' or 'make adlib' for making.
 
 real:
-	$(MAKE) -f src/makefile.win SNDOUT=-dLPTPORT=0x378 all
+	$(MAKE) -f src/makefile.win CDEFS=-dLPTPORT=0x378 all
 adlib:
-	$(MAKE) -f src/makefile.win SNDOUT=-dADLIB all
+	$(MAKE) -f src/makefile.win CDEFS=-dADLIB all
 
 install:
 	$(MAKE) -f src/makefile.win install

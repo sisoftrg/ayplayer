@@ -1,11 +1,13 @@
 /* (c)2003 sisoft\trg - AYplayer.
-\* $Id: sndemu_w.c,v 1.2 2004/04/26 12:18:52 root Exp $
+\* $Id: sndemu_w.c,v 1.3 2004/08/02 09:44:26 root Exp $
  \ base version of this file was taken from x128 emulator by James McKay. */
 
 #include "ayplay.h"
 #ifdef ADLIB
-#ifdef WIN
+#ifndef UNIX
+#ifndef WIN32
 #include <i86.h>
+#endif
 #endif
 #include "z80.h"
 

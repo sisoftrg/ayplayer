@@ -1,5 +1,5 @@
 /* (c)2004 sisoft\trg - AYplayer.
-\* $Id: ayplay.h,v 1.3 2004/04/26 12:18:51 root Exp $ */
+\* $Id: ayplay.h,v 1.4 2004/08/02 09:44:26 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -11,6 +11,10 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#ifdef WIN32
+#undef UNIX
+
+#else
 #ifdef UNIX
 #include <sys/time.h>
 #include <sys/io.h>
@@ -22,6 +26,7 @@
 #include <conio.h>
 #include <bios.h>
 #endif
+#endif
 #include "i18.h"
 
 #define _UC unsigned char
@@ -31,11 +36,18 @@
 #ifndef UNIX
 #define strcasecmp stricmp
 #define strncasecmp strnicmp
+#ifdef WIN32
+#define XSLEEP
+#ifdef LPT_PORT
+#define outb(d,p)
 #endif
-
-#ifdef WIN
+#else
 #define XSLEEP delay(20)
+#ifdef LPT_PORT
 #define outb(d,p) outp(p,d)
+#endif
+#endif
+#define POINT 'ù'
 #else
 #ifdef LPT_PORT
 #define XSLEEP { \
@@ -46,11 +58,6 @@
 #else
 #define XSLEEP
 #endif
-#endif
-
-#ifdef WIN
-#define POINT 'ù'
-#else
 #define POINT '•'
 #endif
 

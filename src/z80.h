@@ -1,5 +1,5 @@
 /* (c)2003 sisoft\trg - AYplayer.
-\* $Id: z80.h,v 1.2 2004/04/26 12:18:52 root Exp $
+\* $Id: z80.h,v 1.3 2004/08/02 09:44:26 root Exp $
  \ original version of this file was taken from SpectEmu0.92 by Miklos Szeredi
   */
 #ifndef __Z80_H_
@@ -54,7 +54,7 @@ extern byte PRNM(inports)[];
 extern byte PRNM(outports)[];
 
 #ifndef LPT_PORT
-#ifdef UNIX
+#ifndef ADLIB
 extern int sound_freq;
 extern int sound_stereo;
 extern int sound_stereo_ay_narrow;

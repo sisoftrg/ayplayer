@@ -1,5 +1,5 @@
 /* (c)2004 sisoft\trg - AYplayer.
-\* $Id: ayplay.c,v 1.3 2004/04/26 12:18:51 root Exp $ */
+\* $Id: ayplay.c,v 1.4 2004/08/02 09:44:26 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -36,7 +36,7 @@ static void sighup(int sig)
 void sreg(char reg,_UC dat)
 {
 #ifdef LPT_PORT
-#ifdef UNIX
+#ifdef HAVE_IOPERM
 	ioperm(LPT_PORT,3,1);
 #endif
 	outb(reg,LPT_PORT);
@@ -48,7 +48,7 @@ void sreg(char reg,_UC dat)
 	outb(0,LPT_PORT);
 	outb(6,LPT_PORT+2);
 	outb(15,LPT_PORT+2);
-#ifdef UNIX
+#ifdef HAVE_IOPERM
 	ioperm(LPT_PORT,3,0);
 #endif
 #else
@@ -471,7 +471,7 @@ again:			switch(ft) {
 				sngadr=FLS_song;
 				} break;
 			    case AY:
-				tt1=(_UC*)malloc(sb.st_size);
+/* todo: play all parts */	tt1=(_UC*)malloc(sb.st_size);
 				if(tt1==NULL)erro(_("out of memory"));
 				fread(tt1,sb.st_size,1,infile);
 				if(memcmp(tt1,"ZXAYEMUL",8)){puts(_("unknown format"));exit(-1);}
@@ -674,8 +674,10 @@ playz:
 	}
 	t=0;printf(_("Playing..\n\n"));
 	while(!quitflag
-#ifdef WIN
+#ifndef UNIX
+#ifndef WIN32
 	    &&!_bios_keybrd(_KEYBRD_READY)
+#endif
 #endif
 	    ) {
 		switch(ft) {
@@ -711,7 +713,9 @@ playz:
 	signal(SIGHUP,SIG_DFL);
 	signal(SIGINT,SIG_DFL);
 #else
+#ifndef WIN32
 	getch();
+#endif
 #endif
 	return 0;
 }
