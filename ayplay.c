@@ -1,5 +1,5 @@
 //(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.4 2003/05/28 09:39:52 root Exp $ */
+/* $Id: ayplay.c,v 1.5 2003/05/28 09:54:01 root Exp $ */
 #include "ayplay.h"
 
 #define VTX 1
@@ -14,7 +14,7 @@ void erro(char *ermess)
 	puts("\n\tAY Player'2002, for real AY chip on LPT port");
 	puts("(c)Stepan Pologov (siSoft\\TRG), 2:5050/125, sisoft@udm.net");
 	puts("* Usage: ayplayer filename");
-	if(*ermess)printf("\n” Error: %s!\n",ermess);
+	if(ermess)printf("\n” Error: %s!\n",ermess);
 	exit(-1);
 }
 
