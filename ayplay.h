@@ -1,9 +1,10 @@
-/* $Id: ayplay.h,v 1.1 2003/05/25 14:15:11 root Exp $ */
+/* $Id: ayplay.h,v 1.2 2003/05/27 12:17:19 root Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/io.h>
 #include <time.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #define dPort __LPT_PORT_
 #define Port (dPort+2)

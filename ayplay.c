@@ -1,17 +1,19 @@
 //(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.2 2003/05/26 14:06:24 root Exp $ */
+/* $Id: ayplay.c,v 1.3 2003/05/27 12:17:20 root Exp $ */
 #include "ayplay.h"
 
-_UL origsize,compsize,count,q,tick,t;
+#define VTX 1
+#define PSG 2
+
+_UL origsize,compsize,count,q,tick,t,lp;
 _UC *ibuf,*obuf;
-_US lp;
-int quitflag=0,ca,cb,cc;
+int quitflag=0,ca,cb,cc,ft;
 
 void erro(char *ermess)
 {
 	puts("\n\tAY Player'2002, for real AY chip on LPT port");
 	puts("(c)Stepan Pologov (siSoft\\TRG), 2:5050/125, sisoft@udm.net");
-	puts("* Usage: ayplayer filename.vtx");
+	puts("* Usage: ayplayer filename");
 	if(*ermess)printf("\n” Error: %s!\n",ermess);
 	exit(-1);
 }
@@ -36,26 +38,13 @@ void sreg(char reg,_UC dat)
 	outb(15,Port);
 	ioperm(dPort,3,0);
 }
-/*
-_UC ireg(char reg)
-{
-	_UC dat;
-	ioperm(dPort,3,1);
-	outb(reg,dPort);
-	outb(6,Port);
-	outb(39,Port);
-	dat=inb(dPort);
-	outb(15,Port);
-	ioperm(dPort,3,0);
-	return dat;
-}
-*/
+
 void playvtx()
 {
-	long i;
+	int i;
 	_UC a;
 	for(i=0;i<14;i++) {
-		a=*(obuf+i*tick+t);
+		a=obuf[i*tick+t];
 		if(i==7)a|=192;
 		if(i==8)ca=a;
 		if(i==9)cb=a;
@@ -66,17 +55,37 @@ void playvtx()
 	if(t>=tick)t=lp;
 }
 
+void playpsg()
+{
+	_UC a,i;
+	while((i=ibuf[t+++4])<0xfd&&t<lp) {
+		a=ibuf[t+++4];
+		if(i==8)ca=a;
+		if(i==9)cb=a;
+		if(i==10)cc=a;
+		if(i<14)sreg(i,a);
+	}
+	q++;
+	if(t>=lp||q>=tick||i==0xfd)t=q=0;
+}
+
 void indik()
 {
 	int i;
 	char a[16]={"               "};
 	char b[16]={"               "};
 	char c[16]={"               "};
-//	ca=ireg(8);cb=ireg(9);cc=ireg(10);
 	for(i=0;i<(ca&15);i++)a[i]='=';if(i)a[(ca&15)-1]='-';
 	for(i=0;i<(cb&15);i++)b[i]='=';if(i)b[(cb&15)-1]='-';
 	for(i=0;i<(cc&15);i++)c[i]='=';if(i)c[(cc&15)-1]='-';
-	printf("%02lu:%02lu   A: %s   B: %s   C: %s\r",t/q/60L,t/q%60L,a,b,c);
+	switch(ft) {
+	    case VTX: 
+		printf("%02lu:%02lu   A: %s   B: %s   C: %s\r",t/q/60L,t/q%60L,a,b,c);
+		break;
+	    case PSG:
+		printf("%02lu:%02lu   A: %s   B: %s   C: %s\r",q/50L/60L,q/50L%60L,a,b,c);
+		break;
+	}
 	fflush(stdout);
 }
 
@@ -108,48 +117,52 @@ char *vtxinfo(char *buf)
 	if(strlen(++buf))printf("Editor:  %s\n",buf);buf+=strlen(buf);
 	if(strlen(++buf))printf("Comment: %s\n",buf);buf+=strlen(buf);
 	tick=origsize/14L;printf("Length:  %lu min, %lu sec\n",tick/q/60L,tick/q%60L);
+	if(q!=50)printf("Warning: music may not play correctly!\n");
 	return(++buf);
 }
 
 int main(int argc,char *argv[])
 {
-	_UC *ttt,*tt1,*tt2;
-	_UL fsize,osize;
 	FILE *infile;
+	_UC *tt1,*tt2=NULL;
+	struct stat sb;
 	struct timespec ts;
-	if(argc!=2)erro("");
-	if((ibuf=tt1=(_UC*)malloc(65535))==NULL)erro("out of memory");
-	if((infile=fopen(argv[1],"rb"))==NULL)erro("can't open music file");
-	fread(ibuf,65535,1,infile);
-	fsize=ftell(infile);
-	fclose(infile);
-	signal(SIGHUP,sighup);
-	signal(SIGINT,sighup);
+	if(argc!=2)erro(NULL);
+	if(stat(argv[1],&sb))erro("can't stat sound file");
+	if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro("out of memory");
+	if((infile=fopen(argv[1],"rb"))==NULL)erro("can't open sound file");
+	fread(ibuf,sb.st_size,1,infile);fclose(infile);
+	signal(SIGHUP,sighup);signal(SIGINT,sighup);
 	printf("File:    %s\n",argv[1]);
 	printf("Type:    ");
-	if(*ibuf=='a'||*ibuf=='y')puts("Vortex Tracker");
-	    else erro("uncknown format");
-	ttt=vtxinfo(ibuf);
-	compsize=fsize-(ttt-ibuf);
-	ibuf=ttt;osize=origsize;
-	if((obuf=tt2=(_UC*)calloc(14,tick))==NULL)erro("out of memory");
-	unlh5(ibuf,obuf,origsize,compsize);
-	obuf=tt2;
+	if(*ibuf=='a'||*ibuf=='y') {
+		puts("Vortex Tracker");ft=VTX;
+		ibuf=vtxinfo(ibuf);
+		compsize=sb.st_size-(ibuf-tt1);
+		if((tt2=obuf=(_UC*)calloc(14,tick))==NULL)erro("out of memory");
+		unlh5(ibuf,obuf,origsize,compsize);
+		obuf=tt2;free(tt1);tt1=NULL;
+	} else if(!memcmp(ibuf,"PSG\x1a",4)) {
+		puts("PSG file");ft=PSG;
+		for(t=5,tick=0;t<sb.st_size;t++)if(ibuf[t]==0xff)tick++;
+		printf("Length:  %lu min, %lu sec\n",tick/50L/60L,tick/50L%60L);
+		lp=sb.st_size-4;q=0;
+	} else erro("unknown format");
 	t=0;printf("Playing..\n\n");
-
 	while(!quitflag) {
-		playvtx();
+		switch(ft) {
+		    case VTX: playvtx();break;
+		    case PSG: playpsg();break;
+		}
 		indik();
 		ts.tv_sec=0;
 		ts.tv_nsec=10;
 		nanosleep(&ts,&ts);
-		    
 	}
-	sreg(8,0);
-	sreg(9,0);
-	sreg(10,0);
+	if(tt1)free(tt1);
+	if(tt2)free(tt2);
+	sreg(8,0);sreg(9,0);sreg(10,0);
 	printf("\nExiting..\n");
-	free(tt1);free(tt2);
 	signal(SIGHUP,SIG_DFL);
 	signal(SIGINT,SIG_DFL);
 	return 0;
