@@ -1,20 +1,18 @@
 //(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.5 2003/05/28 09:54:01 root Exp $ */
+/* $Id: ayplay.c,v 1.6 2003/06/24 19:48:20 root Exp $ */
 #include "ayplay.h"
+#include "z80.h"
 
-#define VTX 1
-#define PSG 2
-
-_UL origsize,compsize,count,q,tick,t,lp;
 _UC *ibuf,*obuf;
-int quitflag=0,ca,cb,cc,ft;
+_UL origsize,compsize,count,q,tick,t,lp;
+enum {UNK=0,VTX,PSG,HOB,PT2,PT3} formats;
+int quitflag=0,ca,cb,cc,ft=UNK;
+#define PLADR 18432
 
 void erro(char *ermess)
 {
-	puts("\n\tAY Player'2002, for real AY chip on LPT port");
-	puts("(c)Stepan Pologov (siSoft\\TRG), 2:5050/125, sisoft@udm.net");
-	puts("* Usage: ayplayer filename");
 	if(ermess)printf("\n” Error: %s!\n",ermess);
+	    else puts("* Usage: ayplayer filename");
 	exit(-1);
 }
 
@@ -69,6 +67,35 @@ void playpsg()
 	if(t>=lp||q>=tick||i==0xfd)t=q=0;
 }
 
+void playemu()
+{
+	int r=-1,v=-1;
+	_UC i;
+	DANM(haltstate)=0;
+	PC=PLADR+4;SP=PLADR+1024;
+	while(!DANM(haltstate)) {
+		DANM(r)=128;DANM(v)=128;
+		PRNM(step)(1);
+		if((i=DANM(r))!=128) {
+//			puts("r");
+			r=i;
+		}
+		if((i=DANM(v))!=128) {
+//			puts("v");
+			v=i;
+		}
+		if(r>=0&&v>=0) {
+			if(r==7)v|=192;
+			if(r==8)ca=v;
+			if(r==9)cb=v;
+			if(r==10)cc=v;
+			if(r<14)sreg(r,v);
+			v=-1;r=-1;
+		}
+	}
+	q++;
+}
+
 void indik()
 {
 	int i;
@@ -82,7 +109,7 @@ void indik()
 	    case VTX: 
 		printf("%02lu:%02lu   A: %s   B: %s   C: %s\r",t/q/60L,t/q%60L,a,b,c);
 		break;
-	    case PSG:
+	    default:
 		printf("%02lu:%02lu   A: %s   B: %s   C: %s\r",q/50L/60L,q/50L%60L,a,b,c);
 		break;
 	}
@@ -123,49 +150,128 @@ char *vtxinfo(char *buf)
 
 int main(int argc,char *argv[])
 {
+	char hdr[17];
 	FILE *infile;
 	char *nam=NULL;
-	_UC *tt1,*tt2=NULL;
+	_UC *tt1=NULL,*tt2=NULL;
 	struct stat sb;
-	struct timespec ts;
+	_US iadr=0,padr=0,sngadr=0;
+	puts("\n\tAY Player'2003, for real AY chip on LPT port");
+	puts("(c)Stepan Pologov (siSoft\\TRG), 2:5050/125, sisoft@udm.net");
 	if(argc!=2)erro(NULL);
 	if(!strcasecmp(strrchr(argv[1],'.'),".gz")) {
 		char cmd[256];
 		nam=tmpnam(NULL);
+		strncat(nam,argv[1]+(strchr(argv[1],'.')-argv[1]),4);
 		snprintf(cmd,255,"gzip -cd %s >%s",argv[1],nam);
 		if(system(cmd))erro("can't gzip sound file");
 	}
 	if(stat(nam?nam:argv[1],&sb))erro("can't stat sound file");
-	if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro("out of memory");
-	if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
-	fread(ibuf,sb.st_size,1,infile);
-	fclose(infile);if(nam)unlink(nam);
+	if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".vtx"))ft=VTX;
+	    else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".psg"))ft=PSG;
+	if(ft) {
+		if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro("out of memory");
+		if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
+		fread(ibuf,sb.st_size,1,infile);
+		fclose(infile);
+	} else {
+		if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".pt2"))ft=PT2;
+		    else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".pt3"))ft=PT3;
+			else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
+		if(ft) {
+			PRNM(init)();PRNM(reset)();
+			DANM(mem)[PLADR]=0xcd;
+			DANM(mem)[PLADR+3]=0x76;
+			DANM(mem)[PLADR+4]=0xcd;
+			DANM(mem)[PLADR+7]=0x76;
+			DANM(mem)[0]=0x76; // ;)
+			if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
+again:			switch(ft) {
+			    case HOB:
+				fread(hdr,17,1,infile);
+				sb.st_size=*(_US*)(hdr+11);
+				switch(hdr[8]) {
+				    case 'M': ft=PT2;break;
+				    case 'm': ft=PT3;break;
+				}
+				if(ft!=HOB)goto again;
+				iadr=*(_US*)(hdr+9);
+				padr=iadr+5;ft=PT3;
+				fread(DANM(mem)+iadr,sb.st_size,1,infile);
+				if(DANM(mem)[padr]!=0xc3){padr++;ft=PT2;}
+				sngadr=*(_US*)(DANM(mem)+iadr+1);
+				printf("hob: s: %u, l: %lu, p: %u, sng: %u\n",iadr,sb.st_size,padr,sngadr);
+				break;
+			    case PT2:
+				memcpy(DANM(mem)+PT2_init,pt2_player,PT2_song-PT2_init);
+				fread(DANM(mem)+PT2_song,sb.st_size,1,infile);
+				iadr=PT2_init;
+				padr=PT2_play;
+				sngadr=PT2_song;
+				break;
+			    case PT3:
+				memcpy(DANM(mem)+PT3_init,pt3_player,PT3_song-PT3_init);
+				fread(DANM(mem)+PT3_song,sb.st_size,1,infile);
+				iadr=PT3_init;
+				padr=PT3_play;
+				sngadr=PT3_song;
+				break;
+			}
+			*(_US*)(DANM(mem)+PLADR+1)=(_US)iadr;
+			*(_US*)(DANM(mem)+PLADR+5)=(_US)padr;
+			PC=PLADR;SP=PLADR+1024;
+			while(!DANM(haltstate)){/*printf("pc=%u,sp=%u\n",PC,SP);*/PRNM(step)(1);}
+			fclose(infile);
+		}
+	}
+	if(nam)unlink(nam);
 	signal(SIGHUP,sighup);signal(SIGINT,sighup);
-	printf("\nFile:    %s%s\n",argv[1],nam?" (packed)":"");
-	printf("Type:    ");
-	if(*ibuf=='a'||*ibuf=='y') {
-		puts("Vortex Tracker");ft=VTX;
+	printf("\nFile:    %s\n",argv[1]);
+	printf("Type:    %s",nam?"packed ":"");
+	switch(ft) {
+	    case VTX:
+		puts("Vortex Tracker");
 		ibuf=vtxinfo(ibuf);
 		compsize=sb.st_size-(ibuf-tt1);
 		if((tt2=obuf=(_UC*)calloc(14,tick))==NULL)erro("out of memory");
 		unlh5(ibuf,obuf,origsize,compsize);
 		obuf=tt2;free(tt1);tt1=NULL;
-	} else if(!memcmp(ibuf,"PSG\x1a",4)) {
-		puts("PSG file");ft=PSG;
+		break;
+	    case PSG:
+		puts("PSG file");
 		for(t=5,tick=0;t<sb.st_size;t++)if(ibuf[t]==0xff)tick++;
 		printf("Length:  %lu min, %lu sec\n",tick/50L/60L,tick/50L%60L);
 		lp=sb.st_size-4;q=0;
-	} else erro("unknown format");
+		break;
+	    case PT2:
+		printf("Protracker 2.x\nName:    ");
+		fwrite(DANM(mem)+sngadr+101,30,1,stdout);
+		printf("\n");
+		lp=0;q=0;
+		break;
+	    case PT3:
+		printf("Protracker 3.x\nName:    ");
+		fwrite(DANM(mem)+sngadr+30,32,1,stdout);
+		printf("\nAuthor:  ");
+		fwrite(DANM(mem)+sngadr+66,32,1,stdout);
+		printf("\n");
+		lp=0;q=0;
+		break;
+	    default:
+		puts("unknown format");
+		exit(-1);
+		break;
+	}
 	t=0;printf("Playing..\n\n");
 	while(!quitflag) {
 		switch(ft) {
 		    case VTX: playvtx();break;
 		    case PSG: playpsg();break;
+		    case PT2: case PT3:
+			playemu();break;
 		}
 		indik();
-		ts.tv_sec=0;
-		ts.tv_nsec=10;
-		nanosleep(&ts,&ts);
+		usleep(2000);
 	}
 	if(tt1)free(tt1);
 	if(tt2)free(tt2);

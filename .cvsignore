@@ -3,4 +3,8 @@
 *.ay
 *.ym
 *.gz
+*.pt2
+*.pt3
+*.$?
+*.bin
 ayplayer
