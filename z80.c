@@ -1,4 +1,4 @@
-/* $Id */
+/* $Id: z80.c,v 1.3 2003/06/24 22:53:41 root Exp $ */
 #include "z80.h"
 #include "ayplay.h"
 

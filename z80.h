@@ -1,4 +1,4 @@
-/* $Id */
+/* $Id: z80.h,v 1.2 2003/06/24 22:53:41 root Exp $ */
 #define PRNM(x) z80_ ## x
 #define DANM(x) PRNM(proc).x
 
