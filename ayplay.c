@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.31 2003/11/06 09:21:37 root Exp $ */
+/* $Id: ayplay.c,v 1.32 2003/11/11 11:46:06 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -187,6 +187,7 @@ static _US xstr(char *n,_US sa,char *e,_US x)
 
 int main(int argc,char *argv[])
 {
+	int co=0;
 	FILE *infile;
 	struct stat sb;
 	char *nam=NULL;
@@ -272,8 +273,9 @@ again:			switch(ft) {
 				if(ft!=HOB)goto again;
 				iadr=sadr=*(_US*)(hdr+9);
 				if(iadr<16384)iadr=49152;
-				padr=iadr+5;ft=PT3;
+				padr=iadr+5;ft=PT3;co=1;
 				fread(DANM(mem)+sadr,sb.st_size,1,infile);
+				sngadr=*(_US*)(DANM(mem)+iadr+1);
 				if(DANM(mem)[padr]!=0xc3){padr++;ft=PT2;}
 				if(*(_US*)(DANM(mem)+sadr)==0x83e){padr=iadr+48;ft=SQT;}
 				if(!memcmp(DANM(mem)+sadr+17,"KSA SOFT",8)) {
@@ -286,13 +288,14 @@ again:			switch(ft) {
 				}
 				if(!memcmp(DANM(mem)+sadr+20,"SOUND TR",8)){ft=STC;iadr=sadr+11;padr=iadr+3;}
 				if(!memcmp(DANM(mem)+sadr+1091,"SONG BY ",8)){ft=STC;iadr=sadr;padr=iadr+6;}
-				if(!memcmp(DANM(mem)+sadr+7,"SONG BY ST",10)){ft=STC;fseek(infile,17,SEEK_SET);goto again;}
+				if(!memcmp(DANM(mem)+sadr+7,"SONG BY ST",10)){ft=STC;co=0;fseek(infile,17,SEEK_SET);goto again;}
 				if(!memcmp(DANM(mem)+sadr+20,"ASM COMP",8)){ft=ASC;iadr=sadr+11;padr=iadr+3;}
-				if(xfind(sadr,"ASM COMP",8)){ft=ASC;fseek(infile,17,SEEK_SET);goto again;}
-				if(!memcmp(DANM(mem)+sadr,"ProTrack",8)){ft=PT3;fseek(infile,17,SEEK_SET);goto again;}
+				if(xfind(sadr,"ASM COMP",8)){ft=ASC;co=0;fseek(infile,17,SEEK_SET);goto again;}
+				if(!memcmp(DANM(mem)+sadr,"ProTrack",8)){ft=PT3;co=0;fseek(infile,17,SEEK_SET);goto again;}
+				if(!memcmp(DANM(mem)+sadr+77,"PT 3 P",6)){ft=PT3;iadr=sadr;padr=iadr+5;co=2;}
 				if(!memcmp(DANM(mem)+sadr+9,"PSC ",4)){ft=PSC;iadr=sadr;padr=iadr+6;}
-				sngadr=*(_US*)(DANM(mem)+iadr+1);
-//				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
+				if(ft==PT2&&*(DANM(mem)+sadr+131+*(DANM(mem)+sadr+1))==0xff){co=0;fseek(infile,17,SEEK_SET);goto again;}
+				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
 				} break;
 			    case PT2:
 				memcpy(DANM(mem)+PT2_init,pt2_player,PT2_song-PT2_init);
@@ -477,10 +480,11 @@ playz:
 #ifdef UNIX
 	signal(SIGHUP,sighup);signal(SIGINT,sighup);
 #endif
-	printf("Type:    %s",nam?"packed ":"");
+	printf("Type:    %s%s",nam?"packed ":"",co?"compiled ":"");
 #ifndef LPT_PORT
 	sound_ay_reset();
 #endif
+//	{FILE *xx=fopen("debug","wb");fwrite(DANM(mem),1,65536,xx);fclose(xx);}
 	switch(ft) {
 	    case VTX:
 		puts("Vortex Tracker");
@@ -532,13 +536,14 @@ playz:
 		} break;
 	    case PSG:
 		puts("PSG file");
+		if(memcmp(ibuf,"PSG\x1a",4))erro("bad psg file");
 		for(t=5,tick=0;t<sb.st_size;t++)if(ibuf[t]==0xff)tick++;
 		printf("Length:  %lu min, %lu sec\n",tick/50L/60L,tick/50L%60L);
 		lp=sb.st_size-4;q=0;
 		break;
 	    case AY:
 		puts("AY file");
-		ibuf=tt1+12;
+		ibuf=tt1+12;co=1;
 		printf("Misc:    %s\n",ibuf+PTR(ibuf));
 		printf("%s%s\n",author,ibuf+2+PTR(ibuf+2));
 		ibuf+=6;ibuf+=PTR(ibuf);
@@ -552,6 +557,7 @@ playz:
 		lp=0;q=0;
 		break;
 	    case PT3:
+		if(co==2)sngadr=*(_US*)(DANM(mem)+iadr+1);
 		xstr(NULL,sngadr,NULL,15);
 		xstr(name,sngadr+30,NULL,32);
 		xstr(author,sngadr+66,NULL,32);

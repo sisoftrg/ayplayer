@@ -1,4 +1,5 @@
-# $Id: Makefile.am,v 1.8 2003/11/05 12:41:22 root Exp $
+# (c)2003 sisoft\trg - AYplayer.
+# $Id: Makefile.am,v 1.9 2003/11/11 11:46:06 root Exp $
 AUTOMAKE_OPTIONS = foreign 1.5
 EXTRA_DIST = makefile.win sndemu_w.c
 bin_PROGRAMS = ayplayer
