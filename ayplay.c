@@ -1,5 +1,5 @@
 //(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.35 2004/01/11 13:04:10 root Exp $ */
+/* $Id: ayplay.c,v 1.36 2004/01/26 13:15:48 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -609,6 +609,8 @@ playz:
 //			xstr(name,sadr+49,NULL,10);
 //			xstr(author,sadr+63,NULL,12);
 //		}
+		if((*(_UC*)(DANM(mem)+sngadr+7)>=32)&&strncasecmp((char*)(DANM(mem)+sngadr+7),"SONG BY ST C",12)&&strncasecmp((char*)(DANM(mem)+sngadr+7),"SOUND TR",8))
+		    xstr(name,sngadr+7,NULL,18);
 		lp=0;q=0;
 		break;
 	    case PSC:
