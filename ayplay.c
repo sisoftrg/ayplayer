@@ -1,12 +1,12 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.20 2003/10/30 08:54:14 root Exp $ */
+/* $Id: ayplay.c,v 1.21 2003/10/30 15:49:56 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
 _US sp;
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t=0,lp;
-enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC} formats;
+enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC,GTR} formats;
 static char name[]="Name:    ",author[]="Author:  ";
 static int quitflag=0;
 int ca,cb,cc,ft=UNK;
@@ -18,7 +18,7 @@ int ca,cb,cc,ft=UNK;
 void erro(char *ermess)
 {
 	if(ermess)printf("\n* Error: %s!\n",ermess);
-	    else puts("* Support: VTX, PSG, AY, YM, PT2, PT3, STP, STC, PSC, ASC, Hobeta.\n* Usage: ayplayer filename");
+	    else puts("* Support: VTX, PSG, AY, YM, PT2, PT3, STP, STC, PSC, ASC, GTR, Hobeta.\n* Usage: ayplayer filename");
 	exit(-1);
 }
 
@@ -169,10 +169,12 @@ static _US xstr(char *n,_US sa,char *e,_US x)
 	_US l=x,i=0;
 	if(e)l=xfind(sa,e,x);
 	if(l) {
-		if(n)printf(n);
 		while(i<l&&DANM(mem)[sa+i]==' ')i++;
-		fwrite(DANM(mem)+sa+i,l-i,1,stdout);
-		printf("\n");
+		if(i<l) {
+			if(n)printf(n);
+			fwrite(DANM(mem)+sa+i,l-i,1,stdout);
+			printf("\n");
+		}
 	}
 	if(e)l+=x;
 	return l;
@@ -187,7 +189,7 @@ int main(int argc,char *argv[])
 	_UC *tt1=NULL,*tt2=NULL;
 	_US sadr=0,iadr=0,padr=0,sngadr=0,i;
 	puts("\n\tAY Player'2003, for real AY chip on LPT port");
-	puts("(c)Stepan Pologov (sisoft\\TRG), 2:5050/125, sisoft@udm.net");
+	puts("(c) Stepan Pologov (sisoft\\\\trg), 2:5093/56.7, sisoft@bk.ru");
 	if(argc!=2||strchr(argv[1],'.')==NULL)erro(NULL);
 	if(!strcmp(argv[1],".")) {
 		sb.st_size=DEMO_S;ft=DEMO_T;
@@ -220,6 +222,7 @@ int main(int argc,char *argv[])
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".zxs"))ft=STC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".psc"))ft=PSC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".asc"))ft=ASC;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".gtr"))ft=GTR;
 		else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ay"))ft=AY;
 		if(ft) {
@@ -239,6 +242,7 @@ again:			switch(ft) {
 				switch(hdr[8]) {
 				    case 'M': ft=PT2;break;
 				    case 'm': ft=PT3;break;
+				    case 'G': ft=GTR;break;
 				}
 				if(ft!=HOB)goto again;
 				iadr=sadr=*(_US*)(hdr+9);
@@ -248,6 +252,7 @@ again:			switch(ft) {
 				if(!memcmp(DANM(mem)+sadr+17,"KSA SOFT",8))ft=STP;
 				if(!memcmp(DANM(mem)+sadr+20,"SOUND TR",8)){ft=STC;iadr=sadr+11;padr=iadr+3;}
 				if(!memcmp(DANM(mem)+sadr+20,"ASM COMP",8)){ft=ASC;iadr=sadr+11;padr=iadr+3;}
+				if(!memcmp(DANM(mem)+sadr+13,"GLOBAL T",8))ft=GTR;
 				if(!memcmp(DANM(mem)+sadr+9,"PSC ",4))ft=PSC;
 				sngadr=*(_US*)(DANM(mem)+iadr+1);
 //				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
@@ -296,6 +301,13 @@ again:			switch(ft) {
 				iadr=ASC_init;
 				padr=ASC_play;
 				sngadr=ASC_song;
+				break;
+			    case GTR:
+				memcpy(DANM(mem)+GTR_init,gtr_player,GTR_song-GTR_init);
+				fread(DANM(mem)+GTR_song,sb.st_size,1,infile);
+				iadr=GTR_init;
+				padr=GTR_play;
+				sngadr=GTR_song;
 				break;
 			    case AY:
 				tt1=(_UC*)malloc(sb.st_size);
@@ -414,9 +426,9 @@ playz:
 	    case STP:
 		puts("Sound Tracker Pro");
 		if(!memcmp(DANM(mem)+sngadr+10,"KSA ",4))
-		    xstr(name,sngadr+38,NULL,24);
-			else if(*(_UC*)(DANM(mem)+sadr+45)>=32)
-			    xstr(name,sadr+45,NULL,25);
+		    xstr(name,sngadr+38,NULL,25);
+//		else if(*(_UC*)(DANM(mem)+sadr+45)>=32)
+//		    xstr(name,sadr+45,NULL,25);
 		lp=0;q=0;
 		break;
 	    case STC:
@@ -445,6 +457,11 @@ playz:
 		}
 		lp=0;q=0;
 		break;
+	    case GTR:
+		puts("Global Tracker");
+		xstr(name,sngadr+7,NULL,32);
+		lp=0;q=0;
+		break;
 	    default:
 		puts("unknown format");
 		exit(-1);
@@ -458,7 +475,7 @@ playz:
 		    case PT2: case PT3:
 		    case STP: case STC:
 		    case PSC: case ASC:
-		    case AY:
+		    case GTR: case AY:
 			playemu();break;
 		}
 		indik();
