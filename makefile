@@ -1,11 +1,11 @@
 #(c)2003 sisoft\trg - AYplayer.
-# $Id: makefile,v 1.11 2003/10/24 07:53:15 root Exp $
+# $Id: makefile,v 1.12 2003/10/24 08:00:06 root Exp $
 
 BINDIR = /usr/local/bin
 CC = gcc
 CFLAGS = -g -O3 -fomit-frame-pointer -Wall -pedantic -c
 LFLAGS = -g
-AFLAGS = -g -Wall -c
+AFLAGS = -Wall -c
 CDEFS = -DUNIX -D__LPT_PORT_=0x378
 INSTALL = install -c -m 664
 RM = rm -f
@@ -35,17 +35,17 @@ endif
 z80emu$(OBJ): z80emu.S makefile$(MFE)
 	$(CC) $(AFLAGS) z80emu.S
 
-z80_op1$(OBJ): z80_op1.c z80_emu.h makefile$(MFE)
+z80_op1$(OBJ): z80_op1.c z80_emu.h
 	$(CC) $(CFLAGS) $(CDEFS) z80_op1.c
-z80_op2$(OBJ): z80_op2.c z80_emu.h makefile$(MFE)
+z80_op2$(OBJ): z80_op2.c z80_emu.h
 	$(CC) $(CFLAGS) $(CDEFS) z80_op2.c
-z80_op3$(OBJ): z80_op3.c z80_emu.h makefile$(MFE)
+z80_op3$(OBJ): z80_op3.c z80_emu.h
 	$(CC) $(CFLAGS) $(CDEFS) z80_op3.c
-z80_op4$(OBJ): z80_op4.c z80_emu.h makefile$(MFE)
+z80_op4$(OBJ): z80_op4.c z80_emu.h
 	$(CC) $(CFLAGS) $(CDEFS) z80_op4.c
-z80_op5$(OBJ): z80_op5.c z80_emu.h makefile$(MFE)
+z80_op5$(OBJ): z80_op5.c z80_emu.h
 	$(CC) $(CFLAGS) $(CDEFS) z80_op5.c
-z80_op6$(OBJ): z80_op6.c z80_emu.h makefile$(MFE)
+z80_op6$(OBJ): z80_op6.c z80_emu.h
 	$(CC) $(CFLAGS) $(CDEFS) z80_op6.c
 z80optab$(OBJ): z80optab.c z80_emu.h z80.h makefile$(MFE)
 	$(CC) $(CFLAGS) $(CDEFS) z80optab.c
