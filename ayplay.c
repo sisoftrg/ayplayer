@@ -1,11 +1,11 @@
 //(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.8 2003/06/24 23:31:52 root Exp $ */
+/* $Id: ayplay.c,v 1.9 2003/06/25 00:39:25 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t,lp;
-enum {UNK=0,VTX,PSG,HOB,PT2,PT3,STP,STC,PSC} formats;
+enum {UNK=0,VTX,PSG,HOB,PT2,PT3,STP,STC,PSC,ASC} formats;
 int quitflag=0,ca,cb,cc,ft=UNK;
 #define PLADR 18432
 
@@ -175,6 +175,7 @@ int main(int argc,char *argv[])
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".stp"))ft=STP;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".stc"))ft=STC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".psc"))ft=PSC;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".asc"))ft=ASC;
 		else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
 		if(ft) {
 			PRNM(init)();PRNM(reset)();
@@ -182,7 +183,8 @@ int main(int argc,char *argv[])
 			DANM(mem)[PLADR+3]=0x76;
 			DANM(mem)[PLADR+4]=0xcd;
 			DANM(mem)[PLADR+7]=0x76;
-			DANM(mem)[0]=0x76; // ;)
+			DANM(mem)[0x52]=0xc9;
+			DANM(mem)[0]=0x76;
 			if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
 again:			switch(ft) {
 			    case HOB:
@@ -199,6 +201,7 @@ again:			switch(ft) {
 				if(DANM(mem)[padr]!=0xc3){padr++;ft=PT2;}
 				if(!memcmp(DANM(mem)+sadr+17,"KSA SOFT",8))ft=STP;
 				if(!memcmp(DANM(mem)+sadr+20,"SOUND TR",8)){ft=STC;iadr=sadr+11;padr=iadr+3;}
+				if(!memcmp(DANM(mem)+sadr+20,"ASM COMP",8)){ft=ASC;iadr=sadr+11;padr=iadr+3;}
 				if(!memcmp(DANM(mem)+sadr+9,"PSC ",4))ft=PSC;
 				sngadr=*(_US*)(DANM(mem)+iadr+1);
 				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
@@ -239,6 +242,14 @@ again:			switch(ft) {
 				iadr=PSC_init;
 				padr=PSC_play;
 				sngadr=PSC_song;
+				break;
+			    case ASC:
+				memcpy(DANM(mem)+ASC_start,asc_player,ASC_song-ASC_start);
+				fread(DANM(mem)+ASC_song,sb.st_size,1,infile);
+				sadr=ASC_start;
+				iadr=ASC_init;
+				padr=ASC_play;
+				sngadr=ASC_song;
 				break;
 			}
 			*(_US*)(DANM(mem)+PLADR+1)=(_US)iadr;
@@ -311,6 +322,17 @@ again:			switch(ft) {
 		printf("\n");
 		lp=0;q=0;
 		break;
+	    case ASC:
+		puts("ASC Sound Master");
+		if(*(_UC*)(DANM(mem)+sadr+39)>=32) {
+			printf("Name:    ");
+			fwrite(DANM(mem)+sadr+39,6,1,stdout);
+			printf("\nAuthor:  ");
+			fwrite(DANM(mem)+sadr+49,32,1,stdout);
+			printf("\n");
+		}
+		lp=0;q=0;
+		break;
 	    default:
 		puts("unknown format");
 		exit(-1);
@@ -323,7 +345,7 @@ again:			switch(ft) {
 		    case PSG: playpsg();break;
 		    case PT2: case PT3:
 		    case STP: case STC:
-		    case PSC:
+		    case PSC: case ASC:
 			playemu();break;
 		}
 		indik();
