@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80.h,v 1.8 2003/11/02 09:02:39 root Exp $ */
+/* $Id: z80.h,v 1.9 2003/11/02 18:31:40 root Exp $ */
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 #ifndef __Z80_H_
 #define __Z80_H_
@@ -130,7 +130,7 @@ extern void sound_ay_reset();
 #define FBK  (DANM(br)[ZI_AF].s.l)
 
 extern void PRNM(init)();
-extern int  PRNM(step)();
+extern int  PRNM(step)(int ticknum);
 extern void PRNM(reset)();
 
 extern void PRNM(pushpc)();

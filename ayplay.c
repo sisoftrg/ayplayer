@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.27 2003/11/02 09:02:39 root Exp $ */
+/* $Id: ayplay.c,v 1.28 2003/11/02 18:31:40 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -93,7 +93,7 @@ void playemu()
 	while(!DANM(haltstate)) {
 		DANM(r)=128;DANM(v)=128;
 //		printf("pc=%u,sp=%u\n",PC,SP);
-		PRNM(step)();
+		PRNM(step)(0);
 		if((i=DANM(r))!=128)r=i;
 		if((i=DANM(v))!=128)v=i;
 		if(r>=0&&v>=0) {
@@ -236,6 +236,7 @@ int main(int argc,char *argv[])
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".fls"))ft=FLS;
 		else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ay"))ft=AY;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".m"))ft=PT3;
 		if(ft) {
 			PRNM(init)();PRNM(reset)();
 			DANM(mem)[PLADR]=0xcd;
@@ -440,7 +441,7 @@ again:			switch(ft) {
 			}
 			*(_US*)(DANM(mem)+PLADR+1)=(_US)iadr;
 			PC=PLADR;SP=sp;
-			while(iadr&&!DANM(haltstate)){/*printf("pc=%u,sp=%u\n",PC,SP);*/PRNM(step)();}
+			while(iadr&&!DANM(haltstate)){/*printf("pc=%u,sp=%u\n",PC,SP);*/PRNM(step)(1);}
 			if(!padr)padr=DANM(mem)[(dbyte)(((int)RI<<8)+0xFF)]+256*DANM(mem)[(dbyte)(((int)RI<<8)+0xFF+1)];
 			*(_US*)(DANM(mem)+PLADR+5)=(_US)padr;
 			fclose(infile);
