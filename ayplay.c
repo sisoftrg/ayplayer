@@ -1,5 +1,5 @@
 //(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.34 2004/01/11 12:37:32 root Exp $ */
+/* $Id: ayplay.c,v 1.35 2004/01/11 13:04:10 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -195,7 +195,7 @@ int main(int argc,char *argv[])
 	char *nam=NULL;
 	_UC *tt1=NULL,*tt2=NULL;
 	_US sadr=0,iadr=0,padr=0,sngadr=0,i;
-	puts("\nAY Player'2004, for real AY chip on LPT port");
+	puts("\n AY Player'2004, for real AY chip on LPT port");
 	puts("(c) Stepan Pologov (sisoft\\\\trg), sisoft@bk.ru");
 	if(argc!=2||strchr(argv[1],'.')==NULL)erro(NULL);
 #ifndef LPT_PORT
@@ -212,8 +212,8 @@ int main(int argc,char *argv[])
 		char cmd[256];
 		nam=tmpnam(NULL);
 		strncat(nam,argv[1]+(strchr(argv[1],'.')-argv[1]),4);
-		sprintf(cmd,"gzip -cd %s >%s",argv[1],nam);
-		if(system(cmd))erro("can't gzip sound file");
+		sprintf(cmd,"gzip -cd %s >%s 2>/dev/null",argv[1],nam);
+		if(system(cmd)){unlink(nam);erro("can't gzip sound file");}
 	}
 	if(stat(nam?nam:argv[1],&sb))erro("can't stat sound file");
 	if(sb.st_size<128)erro("file is empty");
@@ -586,8 +586,9 @@ playz:
 		lp=0;q=0;
 		break;
 	    case PT3:
-		if(co==2)sngadr=*(_US*)(DANM(mem)+iadr+1);
-		xstr(NULL,sngadr,NULL,15);
+		q=15;if(co==2)sngadr=*(_US*)(DANM(mem)+iadr+1);
+		if(!strncasecmp((char*)(DANM(mem)+sngadr),"Vortex",6))q=23;
+		xstr(NULL,sngadr,NULL,q);
 		xstr(name,sngadr+30,NULL,32);
 		xstr(author,sngadr+66,NULL,32);
 		lp=0;q=0;
