@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.18 2003/10/24 07:53:15 root Exp $ */
+/* $Id: ayplay.c,v 1.19 2003/10/30 08:10:27 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -32,7 +32,9 @@ static void sighup(int sig)
 
 void sreg(char reg,_UC dat)
 {
+#ifdef UNIX
 	ioperm(dPort,3,1);
+#endif
 	outb(reg,dPort);
 	outb(6,Port);
 	outb(15,Port);
@@ -42,7 +44,9 @@ void sreg(char reg,_UC dat)
 	outb(0,dPort);
 	outb(6,Port);
 	outb(15,Port);
+#ifdef UNIX
 	ioperm(dPort,3,0);
+#endif
 }
 
 void playvtx()
@@ -189,7 +193,7 @@ int main(int argc,char *argv[])
 		char cmd[256];
 		nam=tmpnam(NULL);
 		strncat(nam,argv[1]+(strchr(argv[1],'.')-argv[1]),4);
-		snprintf(cmd,255,"gzip -cd %s >%s",argv[1],nam);
+		sprintf(cmd,"gzip -cd %s >%s",argv[1],nam);
 		if(system(cmd))erro("can't gzip sound file");
 	}
 	if(stat(nam?nam:argv[1],&sb))erro("can't stat sound file");
@@ -450,7 +454,7 @@ again:			switch(ft) {
 			playemu();break;
 		}
 		indik();
-		usleep(2000);
+		usleep(Sleep);
 	}
 	if(tt1)free(tt1);
 	if(tt2)free(tt2);

@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80optab.c,v 1.1 2003/07/01 09:31:20 root Exp $ */
+/* $Id: z80optab.c,v 1.2 2003/10/30 08:10:27 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
@@ -274,7 +274,7 @@ op_f z80c_op_tab[] = {
   z80op_call_nz_nn,
   z80op_push_bc,
   z80op_add_a_n,
-  z80op_rst_00,
+  z80op_rst_0,
   z80op_ret_z,
   z80op_ret,
   z80op_jp_z_nn,
@@ -282,7 +282,7 @@ op_f z80c_op_tab[] = {
   z80op_call_z_nn,
   z80op_call_nn,
   z80op_adc_a_n,
-  z80op_rst_08,
+  z80op_rst_8,
 
   z80op_ret_nc,
   z80op_pop_de,
@@ -823,7 +823,7 @@ op_f z80c_op_tab_dd[] = {
   z80op_call_nz_nn,
   z80op_push_bc,
   z80op_add_a_n,
-  z80op_rst_00,
+  z80op_rst_0,
   z80op_ret_z,
   z80op_ret,
   z80op_jp_z_nn,
@@ -831,7 +831,7 @@ op_f z80c_op_tab_dd[] = {
   z80op_call_z_nn,
   z80op_call_nn,
   z80op_adc_a_n,
-  z80op_rst_08,
+  z80op_rst_8,
 
   z80op_ret_nc,
   z80op_pop_de,
@@ -1098,7 +1098,7 @@ op_f z80c_op_tab_fd[] = {
   z80op_call_nz_nn,
   z80op_push_bc,
   z80op_add_a_n,
-  z80op_rst_00,
+  z80op_rst_0,
   z80op_ret_z,
   z80op_ret,
   z80op_jp_z_nn,
@@ -1106,7 +1106,7 @@ op_f z80c_op_tab_fd[] = {
   z80op_call_z_nn,
   z80op_call_nn,
   z80op_adc_a_n,
-  z80op_rst_08,
+  z80op_rst_8,
 
   z80op_ret_nc,
   z80op_pop_de,

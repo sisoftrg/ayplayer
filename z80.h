@@ -1,7 +1,12 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80.h,v 1.4 2003/07/01 09:31:20 root Exp $ */
-
+/* $Id: z80.h,v 1.5 2003/10/30 08:10:27 root Exp $ */
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
+#ifndef __Z80_H_
+#define __Z80_H_
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #define PRNM(x) z80_ ## x
 #define DANM(x) PRNM(proc).x
@@ -114,3 +119,5 @@ extern void PRNM(reset)(void);
 
 extern void PRNM(pushpc)(void);
 extern void PRNM(local_init)(void);
+
+#endif

@@ -1,0 +1,59 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT([ayplayer], [0.99], [sisoft@bk.ru])
+AM_INIT_AUTOMAKE([ayplayer],[0.99])
+AC_REVISION([$Id: configure.in,v 1.1 2003/10/30 08:10:27 root Exp $])
+AC_PREREQ(2.53)
+AC_CONFIG_SRCDIR([ayplay.c])
+AM_CONFIG_HEADER([config.h])
+AM_MAINTAINER_MODE
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_INSTALL
+AM_PROG_AS
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+dnl Checks for library functions.
+AC_FUNC_MALLOC
+AC_FUNC_MEMCMP
+AC_TYPE_SIGNAL
+AC_FUNC_STAT
+AC_CHECK_FUNCS([memset strcasecmp strchr strncasecmp strrchr ioperm])
+
+dnl Checks asm use.
+AC_MSG_CHECKING([for Z80 emulation on ASM])
+AC_ARG_ENABLE(asm,AC_HELP_STRING([--enable-asm],[enable Z80 emulation on assembler]),,enable_asm=no)
+if test "${enable_asm}x" != "nox"; then
+	AC_MSG_RESULT(yes)
+	AM_CONDITIONAL(ASM_SRC,true);
+else
+	AC_MSG_RESULT(no)
+	AC_DEFINE(EZ80,1,[Disable Z80 emulation on assembler])
+fi
+
+dnl LPT port.
+AC_MSG_CHECKING([for LPT port address])
+AC_ARG_WITH(lptport,AC_HELP_STRING([--with-lptport=hexaddr],[specifies LPT port address (default is 0x378 (LPT1))]),,with_lptport=0x378)
+AC_DEFINE_UNQUOTED(LPT_PORT,$with_lptport,[LPT port address])
+case "$with_lptport" in
+	0x378)	AC_MSG_RESULT(0x378 (LPT1));;
+	0x278)	AC_MSG_RESULT(0x278 (LPT2));;
+	0x3bc)	AC_MSG_RESULT(0x3bc (LPT3));;
+	0x???)	AC_MSG_RESULT($with_lptport);;
+	*)	AC_MSG_ERROR([Address '$with_lock_style' must be in hex style, ex. 0x378]);;
+esac
+
+dnl add warn flags in maintainer mode
+if test "x$USE_MAINTAINER_MODE" = "xyes"; then
+	CFLAGS="$CFLAGS -Wall -pedantic"
+fi
+
+AC_DEFINE_UNQUOTED(UNIX,1,[Compile with UNIX-style includes])
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

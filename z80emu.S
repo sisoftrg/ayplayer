@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80emu.S,v 1.5 2003/07/01 08:12:56 root Exp $ */
+/* $Id: z80emu.S,v 1.6 2003/10/30 08:10:27 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
@@ -2334,11 +2334,11 @@ rst_nn:
 	PUSH(rst_nn, RV, RW)
 	TIME(11)
 		
-rst_00:
-	RST_NN(00)
+rst_0:
+	RST_NN(0)
 
-rst_08:
-	RST_NN(08)
+rst_8:
+	RST_NN(8)
 
 rst_10:
 	RST_NN(10)
@@ -4288,7 +4288,7 @@ intr_table:
 	.long call_nz_nn
 	.long push_bc
 	.long add_a_n
-	.long rst_00
+	.long rst_0
 	.long ret_z
 	.long ret
 	.long jp_z_nn
@@ -4296,7 +4296,7 @@ intr_table:
 	.long call_z_nn
 	.long call_nn
 	.long adc_a_n
-	.long rst_08
+	.long rst_8
 
 	.long ret_nc		# D0
 	.long pop_de
@@ -4565,7 +4565,7 @@ intr_table_dd:
 	.long call_nz_nn
 	.long push_bc
 	.long add_a_n
-	.long rst_00
+	.long rst_0
 	.long ret_z
 	.long ret
 	.long jp_z_nn
@@ -4573,7 +4573,7 @@ intr_table_dd:
 	.long call_z_nn
 	.long call_nn
 	.long adc_a_n
-	.long rst_08
+	.long rst_8
 
 	.long ret_nc		# D0
 	.long pop_de
@@ -4841,7 +4841,7 @@ intr_table_fd:
 	.long call_nz_nn
 	.long push_bc
 	.long add_a_n
-	.long rst_00
+	.long rst_0
 	.long ret_z
 	.long ret
 	.long jp_z_nn
@@ -4849,7 +4849,7 @@ intr_table_fd:
 	.long call_z_nn
 	.long call_nn
 	.long adc_a_n
-	.long rst_08
+	.long rst_8
 
 	.long ret_nc		# D0
 	.long pop_de

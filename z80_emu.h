@@ -1,7 +1,9 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_emu.h,v 1.1 2003/07/01 09:31:20 root Exp $ */
+/* $Id: z80_emu.h,v 1.2 2003/10/30 08:10:27 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
+#ifndef __Z80_EMU_H_
+#define __Z80_EMU_H_
 
 #include "z80.h"
 
@@ -619,7 +621,7 @@ extern z80t z80op_jp_nn(z80t);
 extern z80t z80op_call_nz_nn(z80t);
 extern z80t z80op_push_bc(z80t);
 extern z80t z80op_add_a_n(z80t);
-extern z80t z80op_rst_00(z80t);
+extern z80t z80op_rst_0(z80t);
 extern z80t z80op_ret_z(z80t);
 extern z80t z80op_ret(z80t);
 extern z80t z80op_jp_z_nn(z80t);
@@ -627,7 +629,7 @@ extern z80t z80op_special_cb(z80t);
 extern z80t z80op_call_z_nn(z80t);
 extern z80t z80op_call_nn(z80t);
 extern z80t z80op_adc_a_n(z80t);
-extern z80t z80op_rst_08(z80t);
+extern z80t z80op_rst_8(z80t);
 
 extern z80t z80op_ret_nc(z80t);
 extern z80t z80op_pop_de(z80t);
@@ -1063,3 +1065,5 @@ extern z80t z80op_set_7_a(z80t);
 extern z80t z80op_special_xx(z80t);
 extern z80t z80op_special_dd_cb(z80t);
 extern z80t z80op_special_fd_cb(z80t);
+
+#endif

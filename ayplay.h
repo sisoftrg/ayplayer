@@ -1,6 +1,12 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.10 2003/10/24 07:53:15 root Exp $ */
+/* $Id: ayplay.h,v 1.11 2003/10/30 08:10:27 root Exp $ */
+#ifndef __AYPLAY_H_
+#define __AYPLAY_H_
+
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -12,14 +18,28 @@
 #else
 #include <dos.h>
 #include <io.h>
+#include <conio.h>
 #endif
 
-#define dPort __LPT_PORT_
+#define dPort LPT_PORT
 #define Port (dPort+2)
 
 #define _UC unsigned char
 #define _UL unsigned long
 #define _US unsigned short
+
+#ifndef UNIX
+#define strcasecmp stricmp
+#define strncasecmp strnicmp
+#endif
+
+#ifdef WIN
+#define Sleep 20
+#define outb(d,p) outp(p,d)
+#define usleep delay
+#else
+#define Sleep 2000
+#endif
 
 extern void unlh5(_UC*,_UC*,_UL,_UL);
 extern void erro(char*);
@@ -57,3 +77,5 @@ extern _UC psc_player[];
 #define ASC_play 49166
 #define ASC_song 50801
 extern _UC asc_player[];
+
+#endif
