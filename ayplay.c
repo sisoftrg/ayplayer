@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.25 2003/11/02 06:57:57 root Exp $ */
+/* $Id: ayplay.c,v 1.26 2003/11/02 08:05:14 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -280,8 +280,16 @@ again:			switch(ft) {
 				break;
 			    case PT3:
 				memcpy(DANM(mem)+PT3_init,pt3_player,PT3_song-PT3_init);
-				fread(DANM(mem)+PT3_song,sb.st_size,1,infile);
-//				memcpy(DANM(mem)+PT3_table,pt3_tables+192*(*(_UC*)(DANM(mem)+PT3_song+99)),192);
+				fread(DANM(mem)+PT3_song,sb.st_size,1,infile);i=6;
+				if(*(_UC*)(DANM(mem)+PT3_song+13)>='0'&&*(_UC*)(DANM(mem)+PT3_song+13)<='9')
+					i=*(_UC*)(DANM(mem)+PT3_song+13)-'0';
+				switch(*(_UC*)(DANM(mem)+PT3_song+99)) {
+				    case 0: if(i<=3)i=0; else i=1; break;
+				    case 1: i=2; break;
+				    case 2: if(i<=3)i=3; else i=4; break;
+				    default: if(i<=3)i=5; else i=6; break;
+				}
+				memcpy(DANM(mem)+PT3_table,pt3_tables+96*i,192);
 				iadr=PT3_init;
 				padr=PT3_play;
 				sngadr=PT3_song;
