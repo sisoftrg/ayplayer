@@ -1,12 +1,12 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.24 2003/11/01 18:43:02 root Exp $ */
+/* $Id: ayplay.c,v 1.25 2003/11/02 06:57:57 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
 _US sp;
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t=0,lp;
-enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT} formats;
+enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT,FLS} formats;
 unsigned long tstates,tsmax;
 static char name[]="Name:    ",author[]="Author:  ";
 static int quitflag=0;
@@ -19,7 +19,8 @@ int ca,cb,cc,ft=UNK;
 void erro(char *ermess)
 {
 	if(ermess)printf("\n* Error: %s!\n",ermess);
-	    else puts("* Support: VTX,PSG,AY,YM,PT2,PT3,STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,Hobeta.\n* Usage: ayplayer filename");
+	else puts("* Support: VTX,PSG,AY,YM,PT2,PT3,STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,FLS,Hobeta.\n"
+		  "* Usage: ayplayer filename");
 	exit(-1);
 }
 
@@ -234,6 +235,7 @@ int main(int argc,char *argv[])
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".gtr"))ft=GTR;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ftc"))ft=FTC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".sqt"))ft=SQT;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".fls"))ft=FLS;
 		else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ay"))ft=AY;
 		if(ft) {
@@ -349,6 +351,63 @@ again:			switch(ft) {
 				iadr=SQT_init;
 				padr=SQT_play;
 				sngadr=SQT_song;
+				} break;
+			    case FLS: {
+				int i3,i1,i2;
+				_US *p,song_len=sb.st_size;
+				memcpy(DANM(mem)+FLS_init,fls_player,FLS_song-FLS_init);
+				fread(DANM(mem)+FLS_song,sb.st_size,1,infile);
+				i3=*(_US*)(DANM(mem)+FLS_song+2)-16;
+				if(i3>=0) do {
+					i2=*(_US*)(DANM(mem)+FLS_song+4)-i3+2;
+					if(i2>=8&&i2<song_len) {
+						p=(_US*)(DANM(mem)+FLS_song+i2);
+						i1=*p-i3;
+						if(i1>=8&&i1<song_len) {
+							p=(_US*)(DANM(mem)+FLS_song+i2-4);
+							i2=*p-i3;
+							if(i2>=6&&i2<song_len)
+							    if(i1-i2==0x20) {
+								i2=*(_US*)(DANM(mem)+FLS_song+8)-i3;
+								if(i2>21&&i2<song_len) {
+									i1=*(_US*)(DANM(mem)+FLS_song+6)-i3;
+									if(i1>20&&i1<song_len)
+									    if(*(_UC*)(DANM(mem)+FLS_song+i1-1)==0) {
+										while(i1<song_len&&*(_UC*)(DANM(mem)+FLS_song+i1)!=255)
+										    do {
+											if(*(_UC*)(DANM(mem)+FLS_song+i1)<=0x5f||*(_UC*)(DANM(mem)+FLS_song+i1)==0x80||*(_UC*)(DANM(mem)+FLS_song+i1)==0x81) {
+												i1++;
+												break;
+											}
+											if(*(_UC*)(DANM(mem)+FLS_song+i1)>=0x82&&*(_UC*)(DANM(mem)+FLS_song+i1)<=0x8e)i1++;
+											i1++;
+										} while(i1<song_len);
+										if(i1+1==i2)break;
+									}
+								}
+							}
+						}
+					}
+					i3--;
+				} while(i3>=0);
+				if(i3<0)erro("bad fls file");
+				p=(_US*)(DANM(mem)+FLS_song);
+				i1=*(_US*)(DANM(mem)+FLS_song+4)-i3+(long)p;
+				i2=*(_US*)(DANM(mem)+FLS_song)-i3+(long)p+2;
+				do {
+					*p-=i3;
+					*p+=FLS_song;
+					p++;
+				} while((long)p!=i1);
+				p++;
+				do {
+					*p-=i3;
+					*p+=FLS_song;
+					p+=2;
+				} while((long)p!=i2);
+				iadr=FLS_init;
+				padr=FLS_play;
+				sngadr=FLS_song;
 				} break;
 			    case AY:
 				tt1=(_UC*)malloc(sb.st_size);
@@ -493,7 +552,7 @@ playz:
 		puts("ASC Sound Master");
 		i=xfind(sngadr,"ASM ",4);
 		if(i) {
-			xstr(name,sngadr+i+19,NULL,20);
+			xstr(name,sngadr+i+19+1*(*(DANM(mem)+sngadr+i+19)==0xfd),NULL,20);
 			xstr(author,sngadr+i+43,NULL,20);
 		} else if(*(_UC*)(DANM(mem)+sadr+39)>=32) {
 			i=xstr(name,sadr+39," BY ",4);
@@ -515,6 +574,10 @@ playz:
 		puts("SQ-Tracker");
 		lp=0;q=0;
 		break;
+	    case FLS:
+		puts("Flash Tracker");
+		lp=0;q=0;
+		break;
 	    default:
 		puts("unknown format");
 		exit(-1);
@@ -529,8 +592,8 @@ playz:
 		    case STP: case STC:
 		    case PSC: case ASC:
 		    case GTR: case FTC:
-		    case SQT: case AY:
-			playemu();break;
+		    case SQT: case FLS:
+		    case AY:  playemu();break;
 		}
 		indik();
 #ifndef LPT_PORT

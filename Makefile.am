@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.6 2003/11/01 18:43:02 root Exp $
+# $Id: Makefile.am,v 1.7 2003/11/02 06:57:57 root Exp $
 AUTOMAKE_OPTIONS = foreign 1.5
 EXTRA_DIST = makefile.win
 bin_PROGRAMS = ayplayer
@@ -6,6 +6,6 @@ noinst_HEADERS = ayplay.h z80.h z80_emu.h
 
 ayplayer_SOURCES = ayplay.c unlzh.c z80.c demo_pl.c \
 	asc_pl.c psc_pl.c pt2_pl.c pt3_pl.c stc_pl.c \
-	stp_pl.c gtr_pl.c ftc_pl.c sqt_pl.c sndemu.c \
-	z80_step.c z80optab.c z80_op1.c z80_op2.c \
+	stp_pl.c gtr_pl.c ftc_pl.c sqt_pl.c fls_pl.c \
+	sndemu.c z80_step.c z80optab.c z80_op1.c z80_op2.c \
 	z80_op3.c z80_op4.c z80_op5.c z80_op6.c z80emu.S

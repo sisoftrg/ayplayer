@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.16 2003/11/01 18:58:28 root Exp $ */
+/* $Id: ayplay.h,v 1.17 2003/11/02 06:57:58 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -96,5 +96,10 @@ extern _UC ftc_player[];
 #define SQT_play 49200
 #define SQT_song 50448
 extern _UC sqt_player[];
+
+#define FLS_init 49152
+#define FLS_play 49158
+#define FLS_song 50589
+extern _UC fls_player[];
 
 #endif
