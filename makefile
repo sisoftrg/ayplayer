@@ -1,5 +1,5 @@
-#(c)2002 sisoft\trg - AYplayer.
-# $Id: makefile,v 1.6 2003/06/25 00:39:25 root Exp $
+#(c)2003 sisoft\trg - AYplayer.
+# $Id: makefile,v 1.7 2003/06/26 09:19:25 root Exp $
 
 bindir = /usr/local/bin
 CC = gcc

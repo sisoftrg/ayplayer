@@ -1,4 +1,5 @@
-/* $Id: ayplay.h,v 1.7 2003/06/25 00:39:25 root Exp $ */
+//(c)2003 sisoft\trg - AYplayer.
+/* $Id: ayplay.h,v 1.8 2003/06/26 09:19:25 root Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,5 +1,5 @@
-//(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.10 2003/06/25 09:09:18 root Exp $ */
+//(c)2003 sisoft\trg - AYplayer.
+/* $Id: ayplay.c,v 1.11 2003/06/26 09:19:25 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 

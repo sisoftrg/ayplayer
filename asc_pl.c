@@ -1,4 +1,5 @@
-/* $Id: asc_pl.c,v 1.1 2003/06/25 00:39:25 root Exp $ */
+//(c)2003 sisoft\trg - AYplayer.
+/* $Id: asc_pl.c,v 1.2 2003/06/26 09:19:25 root Exp $ */
 
 unsigned char asc_player[] = {
   0x0B, 0xC0, 0x0E, 0xC0, 0x2C, 0xC1, 0x9B, 0xC5, 0x80, 0x24, 

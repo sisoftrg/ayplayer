@@ -1,4 +1,7 @@
-/* $Id: z80emu.S,v 1.3 2003/06/24 22:53:41 root Exp $ */
+//(c)2003 sisoft\trg - AYplayer.
+/* $Id: z80emu.S,v 1.4 2003/06/26 09:19:25 root Exp $ */
+
+//original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
 .text
 	

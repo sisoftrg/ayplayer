@@ -1,4 +1,8 @@
-/* $Id: z80.h,v 1.2 2003/06/24 22:53:41 root Exp $ */
+//(c)2003 sisoft\trg - AYplayer.
+/* $Id: z80.h,v 1.3 2003/06/26 09:19:25 root Exp $ */
+
+//original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
+
 #define PRNM(x) z80_ ## x
 #define DANM(x) PRNM(proc).x
 
@@ -32,23 +36,7 @@ typedef struct {
 
   unsigned char r;
   unsigned char v;
-#ifdef Z80C
-  dbyte cbaddr;
-
-#ifdef PROCP
-  byte *incf_tbl;
-  byte *decf_tbl;
-  byte *addf_tbl;
-  byte *subf_tbl;
-  byte *orf_tbl;
-
-  byte *inports;
-  byte *outports;
-#endif
-#endif
-
 } Z80;
-
 
 extern Z80 PRNM(proc);
 
@@ -64,7 +52,6 @@ extern byte PRNM(outports)[];
 #define ZI_IY 6
 #define ZI_PC 7
 #define ZI_SP 8
-
 
 #define BC  (DANM(nr)[ZI_BC].d.d)
 #define DE  (DANM(nr)[ZI_DE].d.d)
@@ -83,7 +70,6 @@ extern byte PRNM(outports)[];
 #define SPP (DANM(nr)[ZI_SP].p)
 #define IXP (DANM(nr)[ZI_IX].p)
 #define IYP (DANM(nr)[ZI_IY].p)
-
 
 #define RB  (DANM(nr)[ZI_BC].s.h)
 #define RC  (DANM(nr)[ZI_BC].s.l)
@@ -120,8 +106,6 @@ extern byte PRNM(outports)[];
 
 extern void PRNM(init)(void);
 extern int  PRNM(step)(int ticknum);
-
-extern void PRNM(interrupt)(void);
 extern void PRNM(reset)(void);
 
 extern void PRNM(pushpc)(void);
