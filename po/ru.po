@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ayplayer 0.99\n"
 "Report-Msgid-Bugs-To: sisoft@bk.ru\n"
-"POT-Creation-Date: 2004-04-26 16:14+0400\n"
+"POT-Creation-Date: 2004-08-02 13:47+0400\n"
 "PO-Revision-Date: 2004-03-11 19:10+0300\n"
 "Last-Translator: Stepan A. Pologov <sisoft@bk.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -224,7 +224,7 @@ msgstr ""
 "Слушаем..\n"
 "\n"
 
-#: src/ayplay.c:709
+#: src/ayplay.c:711
 #, c-format
 msgid ""
 "\n"
