@@ -1,5 +1,5 @@
 //(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.19 2004/01/11 12:28:11 root Exp $ */
+/* $Id: ayplay.h,v 1.20 2004/02/01 21:39:10 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #ifdef UNIX
+#include <sys/time.h>
 #include <sys/io.h>
 #include <signal.h>
 #include <unistd.h>
@@ -36,7 +37,11 @@
 #define outb(d,p) outp(p,d)
 #else
 #ifdef LPT_PORT
-#define XSLEEP usleep(2000)
+#define XSLEEP { \
+    struct timeval tv; \
+    tv.tv_sec=0;tv.tv_usec=20000; \
+    select(0,NULL,NULL,NULL,&tv); \
+}
 #else
 #define XSLEEP
 #endif
