@@ -1,15 +1,14 @@
 #(c)2002 sisoft\trg - AYplayer.
-# $Id: makefile,v 1.1 2003/05/25 14:15:11 root Exp $
+# $Id: makefile,v 1.2 2003/05/27 12:21:08 root Exp $
 
 bindir = /usr/local/bin
-LPTport = 0x378
 CC = gcc
-CFLAGS = -g -O2 -Wall
-CDEFS = -D__LPT_PORT_=$(LPTport)
+CFLAGS = -g -O2 -fomit-frame-pointer -Wall
+CDEFS = -D__LPT_PORT_=0x378
 
 all: ayplayer
 
-ayplay.o: ayplay.c ayplay.h
+ayplay.o: ayplay.c ayplay.h makefile
 	$(CC) $(CFLAGS) $(CDEFS) -c ayplay.c
 
 unlzh.o: unlzh.c ayplay.h
@@ -19,7 +18,7 @@ ayplayer: ayplay.o unlzh.o
 	$(CC) $(CFLAGS) -o ayplayer ayplay.o unlzh.o
 
 clean:
-	rm -f core *.o ayplayer
+	rm -f core *.o ayplayer *~
 
 install: ayplayer
-	cp ayplayer $(bindir)/ayplayer
+	install -c -m 664 ayplayer $(bindir)/ayplayer
