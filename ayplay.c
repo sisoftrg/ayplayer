@@ -1,19 +1,23 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.12 2003/06/26 17:12:08 root Exp $ */
+/* $Id: ayplay.c,v 1.13 2003/06/30 11:14:40 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
+_US sp;
 _UC *ibuf,*obuf;
-_UL origsize,compsize,count,q,tick,t,lp;
-enum {UNK=0,VTX,PSG,HOB,PT2,PT3,STP,STC,PSC,ASC} formats;
+_UL origsize,compsize,count,q,tick,t=0,lp;
+enum {UNK=0,VTX,PSG,AY,HOB,PT2,PT3,STP,STC,PSC,ASC} formats;
 static int quitflag=0;
 int ca,cb,cc,ft=UNK;
 #define PLADR 18432
 
+#define WRD(x) ((*(_UC*)(x))*256+(*(_UC*)((x)+1)))
+#define PTR(x) ((*(char*)(x))*256+(*(char*)((x)+1)))
+
 void erro(char *ermess)
 {
 	if(ermess)printf("\n” Error: %s!\n",ermess);
-	    else puts("* Support: VTX, PSG, PT2, PT3, STP, STC, PSC, ASC, Hobeta.\n* Usage: ayplayer filename");
+	    else puts("* Support: VTX, PSG, AY, PT2, PT3, STP, STC, PSC, ASC, Hobeta.\n* Usage: ayplayer filename");
 	exit(-1);
 }
 
@@ -73,7 +77,7 @@ void playemu()
 	_UC i;
 	int r=-1,v=-1;
 	DANM(haltstate)=0;
-	PC=PLADR+4;SP=PLADR+1024;
+	PC=PLADR+4;SP=sp;
 	while(!DANM(haltstate)) {
 		DANM(r)=128;DANM(v)=128;
 //		printf("pc=%u,sp=%u\n",PC,SP);
@@ -90,6 +94,7 @@ void playemu()
 		}
 	}
 	q++;
+	if(tick&&q>tick)q=lp;
 }
 
 void indik()
@@ -146,12 +151,12 @@ char *vtxinfo(char *buf)
 
 int main(int argc,char *argv[])
 {
-	char hdr[17];
 	FILE *infile;
-	char *nam=NULL;
-	_UC *tt1=NULL,*tt2=NULL;
 	struct stat sb;
-	_US sadr=0,iadr=0,padr=0,sngadr=0;
+	char *nam=NULL;
+	char hdr[17]={0};
+	_UC *tt1=NULL,*tt2=NULL;
+	_US sadr=0,iadr=0,padr=0,sngadr=0,i;
 	puts("\n\tAY Player'2003, for real AY chip on LPT port");
 	puts("(c)Stepan Pologov (siSoft\\TRG), 2:5050/125, sisoft@udm.net");
 	if(argc!=2)erro(NULL);
@@ -179,14 +184,16 @@ int main(int argc,char *argv[])
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".psc"))ft=PSC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".asc"))ft=ASC;
 		else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ay"))ft=AY;
 		if(ft) {
 			PRNM(init)();PRNM(reset)();
 			DANM(mem)[PLADR]=0xcd;
 			DANM(mem)[PLADR+3]=0x76;
 			DANM(mem)[PLADR+4]=0xcd;
 			DANM(mem)[PLADR+7]=0x76;
-			DANM(mem)[0x52]=0xc9;
-			DANM(mem)[0]=0x76;
+			for(i=0;i<256;i++)DANM(mem)[i]=0xc9;
+			for(i=256;i<16384;i++)DANM(mem)[i]=0xff;
+			DANM(mem)[0]=0x76;DANM(mem)[0x38]=0xfb;sp=PLADR+1024;
 			if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
 again:			switch(ft) {
 			    case HOB:
@@ -253,11 +260,34 @@ again:			switch(ft) {
 				padr=ASC_play;
 				sngadr=ASC_song;
 				break;
+			    case AY:
+				tt1=(char*)malloc(sb.st_size);
+				if(tt1==NULL)erro("out of memory");
+				fread(tt1,sb.st_size,1,infile);
+				if(memcmp(tt1,"ZXAYEMUL",8)){puts("unknown format");exit(-1);}
+				ibuf=tt1+18;
+				ibuf+=PTR(ibuf)+2;
+				ibuf+=PTR(ibuf)+4;
+				tick=WRD(ibuf);ibuf+=6;
+				obuf=ibuf+PTR(ibuf);
+				ibuf+=PTR(ibuf+2)+2;
+				sp=WRD(obuf);
+				if(!sp)sp=PLADR+1024;
+				iadr=WRD(obuf+2);
+				padr=WRD(obuf+4);
+//				printf("iadr=%u,padr=%u,sp=%u\n",iadr,padr,sp);
+				do {
+//					printf("to=%u,from=%u,len=%u\n",WRD(ibuf),4+PTR(ibuf+4),WRD(ibuf+2));
+					memcpy(DANM(mem)+WRD(ibuf),ibuf+4+PTR(ibuf+4),WRD(ibuf+2));
+					if(!iadr)iadr=WRD(ibuf);ibuf+=6;
+				} while(WRD(ibuf));
+				break;
 			}
 			*(_US*)(DANM(mem)+PLADR+1)=(_US)iadr;
+			PC=PLADR;SP=sp;
+			while(iadr&&!DANM(haltstate)){/*printf("pc=%u,sp=%u\n",PC,SP);*/PRNM(step)(1);}
+			if(!padr)padr=DANM(mem)[(dbyte)(((int)RI<<8)+0xFF)]+256*DANM(mem)[(dbyte)(((int)RI<<8)+0xFF+1)];
 			*(_US*)(DANM(mem)+PLADR+5)=(_US)padr;
-			PC=PLADR;SP=PLADR+1024;
-			while(!DANM(haltstate)){/*printf("pc=%u,sp=%u\n",PC,SP);*/PRNM(step)(1);}
 			fclose(infile);
 		}
 	}
@@ -279,6 +309,16 @@ again:			switch(ft) {
 		for(t=5,tick=0;t<sb.st_size;t++)if(ibuf[t]==0xff)tick++;
 		printf("Length:  %lu min, %lu sec\n",tick/50L/60L,tick/50L%60L);
 		lp=sb.st_size-4;q=0;
+		break;
+	    case AY:
+		puts("AY file");
+		ibuf=tt1+12;
+		printf("Misc:    %s\n",ibuf+PTR(ibuf));
+		printf("Author:  %s\n",ibuf+2+PTR(ibuf+2));
+		ibuf+=6;ibuf+=PTR(ibuf);
+		printf("Name:    %s\n",ibuf+PTR(ibuf));
+		if(tick)printf("Length:  %lu min, %lu sec\n",tick/50L/60L,tick/50L%60L);
+		lp=0;q=0;
 		break;
 	    case PT2:
 		printf("Protracker 2.x\nName:    ");
@@ -348,6 +388,7 @@ again:			switch(ft) {
 		    case PT2: case PT3:
 		    case STP: case STC:
 		    case PSC: case ASC:
+		    case AY:
 			playemu();break;
 		}
 		indik();
