@@ -1,9 +1,11 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.32 2003/11/11 11:46:06 root Exp $ */
+//(c)2004 sisoft\trg - AYplayer.
+/* $Id: ayplay.c,v 1.33 2004/01/11 12:28:11 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
-enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT,FLS} formats;
+enum {
+    UNK=0,VTX,PSG,AY,YM,HOB,PT1,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT,FLS,FXM
+} formats;
 static _US sp;
 static _UC *ibuf,*obuf;
 static _UL origsize,compsize,q,tick,t=0,lp;
@@ -18,7 +20,7 @@ static int ca,cb,cc,ft=UNK;
 void erro(char *ermess)
 {
 	if(ermess)printf("\n* Error: %s!\n",ermess);
-	else puts("* Support: VTX,PSG,AY,YM,PT2,PT3,STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,FLS,Hobeta.\n"
+	else puts("* Support: VTX,PSG,AY,YM,PT1,PT2,PT3,STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,FLS,Hobeta.\n"
 		  "* Usage: ayplayer filename");
 	exit(-1);
 }
@@ -226,6 +228,7 @@ int main(int argc,char *argv[])
 	} else {
 		if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".pt2"))ft=PT2;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".pt3"))ft=PT3;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".pt1"))ft=PT1;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".stp"))ft=STP;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".stc"))ft=STC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".zxs"))ft=STC;
@@ -235,6 +238,7 @@ int main(int argc,char *argv[])
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ftc"))ft=FTC;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".sqt"))ft=SQT;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".fls"))ft=FLS;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".fxm"))ft=FXM;
 		else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ay"))ft=AY;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".m"))ft=PT3;
@@ -250,12 +254,11 @@ int main(int argc,char *argv[])
 			if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
 again:			switch(ft) {
 			    case HOB: {
-				long crc=0;
+				unsigned short crc=0;
 				char hdr[17]={0};
 				fread(hdr,17,1,infile);
-				for(i=0;i<15;i++)crc+=hdr[i];
-				crc=(crc*257+105)%65536;
-				if((_US)crc!=*(_US*)(hdr+15))puts("\nWarn: corrupted hobeta file!");
+				for(i=0;i<15;i++)crc+=hdr[i]*257+i;
+				if(crc!=*(_US*)(hdr+15))puts("\nWarn: corrupted hobeta file!");
 				sb.st_size=*(_US*)(hdr+11);
 				if(sb.st_size<128)sb.st_size=*(_US*)(hdr+13);
 				switch(hdr[8]) {
@@ -297,6 +300,16 @@ again:			switch(ft) {
 				if(ft==PT2&&*(DANM(mem)+sadr+131+*(DANM(mem)+sadr+1))==0xff){co=0;fseek(infile,17,SEEK_SET);goto again;}
 				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
 				} break;
+				padr=PT2_play;
+				sngadr=PT2_song;
+				break;
+			    case PT1:
+				memcpy(DANM(mem)+PT1_init,pt1_player,PT1_song-PT1_init);
+				fread(DANM(mem)+PT1_song,sb.st_size,1,infile);
+				iadr=PT1_init;
+				padr=PT1_play;
+				sngadr=PT1_song;
+				break;
 			    case PT2:
 				memcpy(DANM(mem)+PT2_init,pt2_player,PT2_song-PT2_init);
 				fread(DANM(mem)+PT2_song,sb.st_size,1,infile);
@@ -465,6 +478,17 @@ again:			switch(ft) {
 					if(!iadr)iadr=WRD(ibuf);ibuf+=6;
 				} while(WRD(ibuf));
 				break;
+			    case FXM: {
+				char bu[6];
+				memcpy(DANM(mem)+FXM_init,ftc_player,FXM_song-FXM_init);
+				fread(bu,6,1,infile);
+				if(strncasecmp(bu,"FXSM",4))erro("bad file format");
+				sngadr=*(unsigned short*)(bu+4);
+				fread(DANM(mem)+sngadr,sb.st_size-6,1,infile);
+				memcpy(DANM(mem)+FXM_song,DANM(mem)+sngadr,sb.st_size-6);
+				iadr=FXM_init;
+				padr=FXM_play;
+				} break;
 			}
 			*(_US*)(DANM(mem)+PLADR+1)=(_US)iadr;
 			PC=PLADR;SP=sp;
@@ -551,6 +575,11 @@ playz:
 		if(tick)printf("Length:  %lu min, %lu sec\n",tick/50L/60L,tick/50L%60L);
 		lp=0;q=0;
 		break;
+	    case PT1:
+		puts("Protracker 1.x");
+		xstr(name,sngadr+69,NULL,30);
+		lp=0;q=0;
+		break;
 	    case PT2:
 		puts("Protracker 2.x");
 		xstr(name,sngadr+101,NULL,30);
@@ -617,6 +646,10 @@ playz:
 		puts("Flash Tracker");
 		lp=0;q=0;
 		break;
+	    case FXM:
+		puts("Fuxoft AY language");
+		lp=0;q=0;
+		break;
 	    default:
 		puts("unknown format");
 		exit(-1);
@@ -629,14 +662,18 @@ playz:
 #endif
 	    ) {
 		switch(ft) {
-		    case VTX: playvtx();break;
-		    case PSG: playpsg();break;
-		    case PT2: case PT3:
-		    case STP: case STC:
-		    case PSC: case ASC:
-		    case GTR: case FTC:
-		    case SQT: case FLS:
-		    case AY:  playemu();break;
+		    case VTX:
+			playvtx();
+			break;
+		    case PSG:
+			playpsg();
+			break;
+		    case PT1: case PT2: case PT3:
+		    case STP: case STC: case PSC:
+		    case ASC: case GTR: case FTC:
+		    case SQT: case FLS: case AY: case FXM:
+			playemu();
+			break;
 		}
 		indik();
 #ifndef LPT_PORT

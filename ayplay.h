@@ -1,5 +1,5 @@
-//(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.18 2003/11/06 09:21:37 root Exp $ */
+//(c)2004 sisoft\trg - AYplayer.
+/* $Id: ayplay.h,v 1.19 2004/01/11 12:28:11 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -48,6 +48,11 @@ extern void erro(char*);
 #define DEMO_T VTX
 #define DEMO_S 946
 extern _UC DEMO_D[];
+
+#define PT1_init 0x8000
+#define PT1_play 0x8006
+#define PT1_song 0x86c6
+extern _UC pt1_player[];
 
 #define PT2_init 49152
 #define PT2_play 49158
@@ -102,5 +107,10 @@ extern _UC sqt_player[];
 #define FLS_play 49158
 #define FLS_song 50589
 extern _UC fls_player[];
+
+#define FXM_init 0xa92e
+#define FXM_play 0xa934
+#define FXM_song 0xade8
+extern _UC fxm_player[];
 
 #endif
