@@ -1,12 +1,12 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.16 2003/07/01 08:12:56 root Exp $ */
+/* $Id: ayplay.c,v 1.17 2003/07/26 19:43:51 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
 _US sp;
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t=0,lp;
-enum {UNK=0,VTX,PSG,AY,HOB,PT2,PT3,STP,STC,PSC,ASC} formats;
+enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC} formats;
 static char name[]="Name:    ",author[]="Author:  ";
 static int quitflag=0;
 int ca,cb,cc,ft=UNK;
@@ -17,8 +17,8 @@ int ca,cb,cc,ft=UNK;
 
 void erro(char *ermess)
 {
-	if(ermess)printf("\n” Error: %s!\n",ermess);
-	    else puts("* Support: VTX, PSG, AY, PT2, PT3, STP, STC, PSC, ASC, Hobeta.\n* Usage: ayplayer filename");
+	if(ermess)printf("\n* Error: %s!\n",ermess);
+	    else puts("* Support: VTX, PSG, AY, YM, PT2, PT3, STP, STC, PSC, ASC, Hobeta.\n* Usage: ayplayer filename");
 	exit(-1);
 }
 
@@ -193,6 +193,7 @@ int main(int argc,char *argv[])
 	if(stat(nam?nam:argv[1],&sb))erro("can't stat sound file");
 	if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".vtx"))ft=VTX;
 	    else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".psg"))ft=PSG;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ym"))ft=YM;
 	if(ft) {
 		if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro("out of memory");
 		if((infile=fopen(nam?nam:argv[1],"rb"))==NULL)erro("can't open sound file");
@@ -327,6 +328,46 @@ again:			switch(ft) {
 		unlh5(ibuf,obuf,origsize,compsize);
 		obuf=tt2;free(tt1);tt1=NULL;
 		break;
+/*
+  Id:dword;
+  Leo:array[0..7]of char;+4
+  Num_of_tiks:dword;+12
+  Song_Attr:dword;+16
+  Num_of_Dig:word;+20
+  ChipFrq:dword;+22
+  InterFrq:word;+26
+  Loop:dword;+28
+  Add_Size:word;+32
+*/
+	    case YM: {
+		_UL j;
+		_US i1=0,i2;
+		struct {int l;_UC *b;} ds[256];
+		puts("YM file");
+		if(memcmp(ibuf+2,"-lh5-",5))erro("unknown archive type");
+		compsize=*(long*)(ibuf+7);
+		origsize=*(long*)(ibuf+11);
+		ibuf+=*(_UC*)ibuf+2;
+		if((tt2=obuf=(_UC*)calloc(1,origsize))==NULL)erro("out of memory");
+		unlh5(ibuf,obuf,origsize,compsize);
+		obuf=tt2;free(tt1);tt1=NULL;
+		if(*obuf!='Y'||obuf[1]!='M')erro("unknown format");
+		tick=*(_UL*)(obuf+12);
+		i=*(_US*)(obuf+20);
+		if(i>0) {
+			i2=*(_US*)(obuf+32)+34;
+			while(i>0) {
+				j=*(_UL*)(obuf+i2);
+				ds[i1].l=j;
+				ds[i1].b=obuf+i2+4;
+				i2+=j+4;
+				i1++;
+				i--;
+			}
+//			if((*(_UL*)(obuf+16)&0x6000000)==0x2000000) {
+		}
+
+		} break;
 	    case PSG:
 		puts("PSG file");
 		for(t=5,tick=0;t<sb.st_size;t++)if(ibuf[t]==0xff)tick++;
