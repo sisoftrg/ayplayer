@@ -1,4 +1,4 @@
-/* $Id: ayplay.h,v 1.1 2003/05/25 14:15:11 root Exp $ */
+/* $Id: ayplay.h,v 1.1.1.1 2003/05/25 14:15:11 root Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/io.h>

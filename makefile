@@ -1,5 +1,5 @@
 #(c)2002 sisoft\trg - AYplayer.
-# $Id: makefile,v 1.1 2003/05/25 14:15:11 root Exp $
+# $Id: makefile,v 1.1.1.1 2003/05/25 14:15:11 root Exp $
 
 bindir = /usr/local/bin
 LPTport = 0x378

@@ -1,5 +1,5 @@
 //(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.1 2003/05/25 14:15:11 root Exp $ */
+/* $Id: ayplay.c,v 1.1.1.1 2003/05/25 14:15:11 root Exp $ */
 #include "ayplay.h"
 
 _UL origsize,compsize,count,q,tick,t;
