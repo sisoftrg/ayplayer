@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.19 2003/10/30 08:10:27 root Exp $ */
+/* $Id: ayplay.c,v 1.20 2003/10/30 08:54:14 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -189,6 +189,13 @@ int main(int argc,char *argv[])
 	puts("\n\tAY Player'2003, for real AY chip on LPT port");
 	puts("(c)Stepan Pologov (sisoft\\TRG), 2:5050/125, sisoft@udm.net");
 	if(argc!=2||strchr(argv[1],'.')==NULL)erro(NULL);
+	if(!strcmp(argv[1],".")) {
+		sb.st_size=DEMO_S;ft=DEMO_T;
+		if((ibuf=tt1=(_UC*)malloc(sb.st_size))==NULL)erro("out of memory");
+		memcpy(ibuf,DEMO_D,DEMO_S);
+		puts("\nFile:    AYPlayer demo song");
+		goto playz;
+	}
 	if(!strcasecmp(strrchr(argv[1],'.'),".gz")) {
 		char cmd[256];
 		nam=tmpnam(NULL);
@@ -322,10 +329,11 @@ again:			switch(ft) {
 		}
 	}
 	if(nam)unlink(nam);
+	printf("\nFile:    %s\n",argv[1]);
+playz:
 #ifdef UNIX
 	signal(SIGHUP,sighup);signal(SIGINT,sighup);
 #endif
-	printf("\nFile:    %s\n",argv[1]);
 	printf("Type:    %s",nam?"packed ":"");
 	switch(ft) {
 	    case VTX:

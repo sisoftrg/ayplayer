@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.11 2003/10/30 08:10:27 root Exp $ */
+/* $Id: ayplay.h,v 1.12 2003/10/30 08:54:14 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -43,6 +43,10 @@
 
 extern void unlh5(_UC*,_UC*,_UL,_UL);
 extern void erro(char*);
+
+#define DEMO_T VTX
+#define DEMO_S 946
+extern _UC DEMO_D[];
 
 #define PT2_init 49152
 #define PT2_play 49158
