@@ -1,17 +1,17 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.30 2003/11/05 12:41:23 root Exp $ */
+/* $Id: ayplay.c,v 1.31 2003/11/06 09:21:37 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
-_US sp;
-_UC *ibuf,*obuf;
-_UL origsize,compsize,count,q,tick,t=0,lp;
 enum {UNK=0,VTX,PSG,AY,YM,HOB,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT,FLS} formats;
+static _US sp;
+static _UC *ibuf,*obuf;
+static _UL origsize,compsize,q,tick,t=0,lp;
 static char name[]="Name:    ",author[]="Author:  ";
 static int quitflag=0;
-int ca,cb,cc,ft=UNK;
-#define PLADR 18432
+static int ca,cb,cc,ft=UNK;
 
+#define PLADR 18432
 #define WRD(x) ((*(_UC*)(x))*256+(*(_UC*)((x)+1)))
 #define PTR(x) ((*(char*)(x))*256+(*(char*)((x)+1)))
 
@@ -213,6 +213,7 @@ int main(int argc,char *argv[])
 		if(system(cmd))erro("can't gzip sound file");
 	}
 	if(stat(nam?nam:argv[1],&sb))erro("can't stat sound file");
+	if(sb.st_size<128)erro("file is empty");
 	if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".vtx"))ft=VTX;
 	    else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".psg"))ft=PSG;
 		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".ym"))ft=YM;
@@ -503,7 +504,7 @@ playz:
 	    case YM: {
 		_UL j;
 		_US i1=0,i2;
-		struct {int l;_UC *b;} ds[256];
+		struct {int l;_UC *b;} ds[1024];
 		puts("YM file");
 		if(memcmp(ibuf+2,"-lh5-",5))erro("unknown archive type");
 		compsize=*(long*)(ibuf+7);
@@ -616,7 +617,11 @@ playz:
 		break;
 	}
 	t=0;printf("Playing..\n\n");
-	while(!quitflag) {
+	while(!quitflag
+#ifdef WIN
+	    &&!_bios_keybrd(_KEYBRD_READY)
+#endif
+	    ) {
 		switch(ft) {
 		    case VTX: playvtx();break;
 		    case PSG: playpsg();break;
@@ -645,6 +650,8 @@ playz:
 #ifdef UNIX
 	signal(SIGHUP,SIG_DFL);
 	signal(SIGINT,SIG_DFL);
+#else
+	getch();
 #endif
 	return 0;
 }

@@ -1,11 +1,11 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: unlzh.c,v 1.3 2003/06/26 17:12:08 root Exp $ */
+/* $Id: unlzh.c,v 1.4 2003/11/06 09:21:37 root Exp $ */
 #include "ayplay.h"
 
 static _US left[1019],right[1019],pt_table[256],bitbuf=0;
 static _UC subbitbuf=0,bitcount=0,*text,pt_len[128];
-_UC *ibuf,*obuf;
-_UL origsize,compsize;
+static _UC *ibuf,*obuf;
+static _UL origsize,compsize;
 
 static void fillbuf(_UC n)
 {
@@ -101,7 +101,7 @@ static void read_pt_len(short nn,short nbit,short i_special)
 	}
 }
 
-void unlh5(_UC *ibuf,_UC *obuf,_UL origsize,_UL compsize)
+void unlh5(_UC *_ibuf,_UC *_obuf,_UL _origsize,_UL _compsize)
 {
 	_US blocksize=0,dicsiz=1<<13,c_table[4096],mask=1,loc=0;
 	int i,j,k,c,n,q,dicsiz1=dicsiz-1;
@@ -110,6 +110,9 @@ void unlh5(_UC *ibuf,_UC *obuf,_UL origsize,_UL compsize)
 	text=(_UC*)malloc(dicsiz);
 	if(text==NULL)erro("out of memory");
 	memset(text,' ',dicsiz);
+	ibuf=_ibuf;obuf=_obuf;
+	origsize=_origsize;
+	compsize=_compsize;
 	fillbuf(16);
 	while(count<origsize) {
 		if (!blocksize) {

@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: sndemu_w.c,v 1.1 2003/11/05 12:41:23 root Exp $ */
+/* $Id: sndemu_w.c,v 1.2 2003/11/06 09:21:37 root Exp $ */
 
 //base version of this file was taken from x128 emulator by James McKay.
 
@@ -36,7 +36,7 @@ static void MuteSound(void)
     _UC OldPSG7=255;
     OldPSG7=PSG[7];
     PSG[7]=255;
-    PSGOut(7,255);
+    sound_ay_write(7,255);
     PSG[7]=OldPSG7;
 }
 

@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.17 2003/11/02 06:57:58 root Exp $ */
+/* $Id: ayplay.h,v 1.18 2003/11/06 09:21:37 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -19,6 +19,7 @@
 #include <dos.h>
 #include <io.h>
 #include <conio.h>
+#include <bios.h>
 #endif
 
 #define _UC unsigned char
