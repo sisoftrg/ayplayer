@@ -1,13 +1,19 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.h,v 1.8 2003/06/26 09:19:25 root Exp $ */
+/* $Id: ayplay.h,v 1.9 2003/07/01 09:31:19 root Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <time.h>
+#ifdef UNIX
 #include <sys/io.h>
 #include <signal.h>
-#include <sys/stat.h>
 #include <unistd.h>
-#include <time.h>
+#endif
+#ifdef WIN
+#include <dos.h>
+#include <io.h>
+#endif
 
 #define dPort __LPT_PORT_
 #define Port (dPort+2)

@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80.h,v 1.3 2003/06/26 09:19:25 root Exp $ */
+/* $Id: z80.h,v 1.4 2003/07/01 09:31:20 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
@@ -33,6 +33,10 @@ typedef struct {
 
   int tc;
   int rl7;
+
+#ifdef EZ80
+  dbyte cbaddr;
+#endif
 
   unsigned char r;
   unsigned char v;
