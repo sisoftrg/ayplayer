@@ -1,4 +1,4 @@
-/* $Id: ayplay.h,v 1.4 2003/06/24 19:48:20 root Exp $ */
+/* $Id: ayplay.h,v 1.5 2003/06/24 22:52:03 root Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,4 +26,17 @@ extern _UC pt2_player[];
 #define PT3_init 49152
 #define PT3_play 49157
 #define PT3_song 0xcd86
+#define PT3_table 49664
 extern _UC pt3_player[];
+extern _US pt3_tables[];
+
+#define STP_init 49152
+#define STP_play 49158
+#define STP_song 51048
+extern _UC stp_player[];
+
+#define STC_start 49152
+#define STC_init 49163
+#define STC_play 49166
+#define STC_song 50344
+extern _UC stc_player[];

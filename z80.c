@@ -78,7 +78,7 @@ void PRNM(interrupt)()
 void PRNM(reset)()
 {
   DANM(haltstate) = 0;
-  DANM(iff1) = DANM(iff2) = 0;
+  DANM(iff1) = DANM(iff2) = 1;
   DANM(it_mode) = 0;
   RI = 0;
   RR = 0;

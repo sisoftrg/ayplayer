@@ -264,7 +264,7 @@ l ## _o2: ;\
 	movb rs, RRV ;\
 l ## _o3:
 
-#define DI_CHECK		
+//#define DI_CHECK		
 	
 #define RSHLTIME(time) \
 	RSHL			; \
@@ -2199,14 +2199,14 @@ ex_de_hl:
 	TIME(4)
 
 di:
-	movw $0, IFF1
-	movw $0, IFF2
-	DI_CHECK
+//	movw $0, IFF1
+//	movw $0, IFF2
+//	DI_CHECK
 	TIME(4)
 
 ei:	
-	movw $1, IFF1
-	movw $1, IFF2
+//	movw $1, IFF1
+//	movw $1, IFF2
 	TIME(4)
 
 call_cc_nn:

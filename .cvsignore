@@ -6,5 +6,6 @@
 *.pt2
 *.pt3
 *.$?
-*.bin
+*.stp
+*.stc
 ayplayer

@@ -1,11 +1,11 @@
 //(c)2002 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.6 2003/06/24 19:48:20 root Exp $ */
+/* $Id: ayplay.c,v 1.7 2003/06/24 22:52:03 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
 _UC *ibuf,*obuf;
 _UL origsize,compsize,count,q,tick,t,lp;
-enum {UNK=0,VTX,PSG,HOB,PT2,PT3} formats;
+enum {UNK=0,VTX,PSG,HOB,PT2,PT3,STP,STC} formats;
 int quitflag=0,ca,cb,cc,ft=UNK;
 #define PLADR 18432
 
@@ -69,21 +69,16 @@ void playpsg()
 
 void playemu()
 {
-	int r=-1,v=-1;
 	_UC i;
+	int r=-1,v=-1;
 	DANM(haltstate)=0;
 	PC=PLADR+4;SP=PLADR+1024;
 	while(!DANM(haltstate)) {
 		DANM(r)=128;DANM(v)=128;
+//		printf("pc=%u,sp=%u\n",PC,SP);
 		PRNM(step)(1);
-		if((i=DANM(r))!=128) {
-//			puts("r");
-			r=i;
-		}
-		if((i=DANM(v))!=128) {
-//			puts("v");
-			v=i;
-		}
+		if((i=DANM(r))!=128)r=i;
+		if((i=DANM(v))!=128)v=i;
 		if(r>=0&&v>=0) {
 			if(r==7)v|=192;
 			if(r==8)ca=v;
@@ -155,7 +150,7 @@ int main(int argc,char *argv[])
 	char *nam=NULL;
 	_UC *tt1=NULL,*tt2=NULL;
 	struct stat sb;
-	_US iadr=0,padr=0,sngadr=0;
+	_US sadr=0,iadr=0,padr=0,sngadr=0;
 	puts("\n\tAY Player'2003, for real AY chip on LPT port");
 	puts("(c)Stepan Pologov (siSoft\\TRG), 2:5050/125, sisoft@udm.net");
 	if(argc!=2)erro(NULL);
@@ -176,8 +171,10 @@ int main(int argc,char *argv[])
 		fclose(infile);
 	} else {
 		if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".pt2"))ft=PT2;
-		    else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".pt3"))ft=PT3;
-			else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".pt3"))ft=PT3;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".stp"))ft=STP;
+		else if(!strcasecmp(strrchr(nam?nam:argv[1],'.'),".stc"))ft=STC;
+		else if(!strncasecmp(strrchr(nam?nam:argv[1],'.'),".$",2))ft=HOB;
 		if(ft) {
 			PRNM(init)();PRNM(reset)();
 			DANM(mem)[PLADR]=0xcd;
@@ -195,12 +192,14 @@ again:			switch(ft) {
 				    case 'm': ft=PT3;break;
 				}
 				if(ft!=HOB)goto again;
-				iadr=*(_US*)(hdr+9);
+				iadr=sadr=*(_US*)(hdr+9);
 				padr=iadr+5;ft=PT3;
-				fread(DANM(mem)+iadr,sb.st_size,1,infile);
+				fread(DANM(mem)+sadr,sb.st_size,1,infile);
 				if(DANM(mem)[padr]!=0xc3){padr++;ft=PT2;}
+				if(!memcmp(DANM(mem)+sadr+17,"KSA SOFT",8))ft=STP;
+				if(!memcmp(DANM(mem)+sadr+20,"SOUND TR",8)){ft=STC;iadr=sadr+11;padr=iadr+3;}
 				sngadr=*(_US*)(DANM(mem)+iadr+1);
-				printf("hob: s: %u, l: %lu, p: %u, sng: %u\n",iadr,sb.st_size,padr,sngadr);
+				printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);
 				break;
 			    case PT2:
 				memcpy(DANM(mem)+PT2_init,pt2_player,PT2_song-PT2_init);
@@ -212,9 +211,25 @@ again:			switch(ft) {
 			    case PT3:
 				memcpy(DANM(mem)+PT3_init,pt3_player,PT3_song-PT3_init);
 				fread(DANM(mem)+PT3_song,sb.st_size,1,infile);
+//				memcpy(DANM(mem)+PT3_table,pt3_tables+192*(*(_UC*)(DANM(mem)+PT3_song+99)),192);
 				iadr=PT3_init;
 				padr=PT3_play;
 				sngadr=PT3_song;
+				break;
+			    case STP:
+				memcpy(DANM(mem)+STP_init,stp_player,STP_song-STP_init);
+				fread(DANM(mem)+STP_song,sb.st_size,1,infile);
+				iadr=STP_init;
+				padr=STP_play;
+				sngadr=STP_song;
+				break;
+			    case STC:
+				memcpy(DANM(mem)+STC_start,stc_player,STC_song-STC_start);
+				fread(DANM(mem)+STC_song,sb.st_size,1,infile);
+				sadr=STC_start;
+				iadr=STC_init;
+				padr=STC_play;
+				sngadr=STC_song;
 				break;
 			}
 			*(_US*)(DANM(mem)+PLADR+1)=(_US)iadr;
@@ -250,11 +265,32 @@ again:			switch(ft) {
 		lp=0;q=0;
 		break;
 	    case PT3:
-		printf("Protracker 3.x\nName:    ");
+		fwrite(DANM(mem)+sngadr,15,1,stdout);
+		printf("\nName:    ");
 		fwrite(DANM(mem)+sngadr+30,32,1,stdout);
 		printf("\nAuthor:  ");
 		fwrite(DANM(mem)+sngadr+66,32,1,stdout);
 		printf("\n");
+		lp=0;q=0;
+		break;
+	    case STP:
+		puts("Sound Tracker Pro");
+		if(*(_UC*)(DANM(mem)+sadr+45)>=32) {
+			printf("Name:    ");
+			fwrite(DANM(mem)+sadr+45,25,1,stdout);
+			printf("\n");
+		}
+		lp=0;q=0;
+		break;
+	    case STC:
+		puts("Sound Tracker");
+		if(*(_UC*)(DANM(mem)+sadr+49)>=32) {
+			printf("Name:    ");
+			fwrite(DANM(mem)+sadr+49,10,1,stdout);
+			printf("\nAuthor:  ");
+			fwrite(DANM(mem)+sadr+63,12,1,stdout);
+			printf("\n");
+		}
 		lp=0;q=0;
 		break;
 	    default:
@@ -268,6 +304,7 @@ again:			switch(ft) {
 		    case VTX: playvtx();break;
 		    case PSG: playpsg();break;
 		    case PT2: case PT3:
+		    case STP: case STC:
 			playemu();break;
 		}
 		indik();
