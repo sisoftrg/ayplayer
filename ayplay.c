@@ -1,5 +1,5 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.13 2003/06/30 11:14:40 root Exp $ */
+/* $Id: ayplay.c,v 1.14 2003/06/30 22:11:00 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -145,7 +145,7 @@ char *vtxinfo(char *buf)
 	if(strlen(++buf))printf("Editor:  %s\n",buf);buf+=strlen(buf);
 	if(strlen(++buf))printf("Comment: %s\n",buf);buf+=strlen(buf);
 	tick=origsize/14L;printf("Length:  %lu min, %lu sec\n",tick/q/60L,tick/q%60L);
-	if(q!=50)printf("Warning: music may not play correctly!\n");
+	if(q!=50)puts("Warning: music may not play correctly!");
 	return(++buf);
 }
 
@@ -158,8 +158,8 @@ int main(int argc,char *argv[])
 	_UC *tt1=NULL,*tt2=NULL;
 	_US sadr=0,iadr=0,padr=0,sngadr=0,i;
 	puts("\n\tAY Player'2003, for real AY chip on LPT port");
-	puts("(c)Stepan Pologov (siSoft\\TRG), 2:5050/125, sisoft@udm.net");
-	if(argc!=2)erro(NULL);
+	puts("(c)Stepan Pologov (sisoft\\TRG), 2:5050/125, sisoft@udm.net");
+	if(argc!=2||strchr(argv[1],'.')==NULL)erro(NULL);
 	if(!strcasecmp(strrchr(argv[1],'.'),".gz")) {
 		char cmd[256];
 		nam=tmpnam(NULL);
