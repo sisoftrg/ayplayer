@@ -1,5 +1,5 @@
 //(c)2004 sisoft\trg - AYplayer.
-/* $Id: ayplay.c,v 1.36 2004/01/26 13:15:48 root Exp $ */
+/* $Id: ayplay.c,v 1.37 2004/02/06 12:23:45 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -114,18 +114,20 @@ static void playemu()
 static void indik()
 {
 	int i;
+	static unsigned sn=0;
 	char a[16]={"               "};
 	char b[16]={"               "};
-	char c[16]={"               "};
+	char c[16]={"               "},s;
 	for(i=0;i<(ca&15);i++)a[i]='=';if(i)a[(ca&15)-1]='-';
 	for(i=0;i<(cb&15);i++)b[i]='=';if(i)b[(cb&15)-1]='-';
 	for(i=0;i<(cc&15);i++)c[i]='=';if(i)c[(cc&15)-1]='-';
+	s=*((char*)&(":::/-\\|/-\\:::\\-/|\\-/")+((++sn)%100/5));
 	switch(ft) {
 	    case VTX: 
-		printf("%02lu:%02lu   A: %s   B: %s   C: %s\r",t/q/60L,t/q%60L,a,b,c);
+		printf("%02lu%c%02lu   A: %s   B: %s   C: %s\r",t/q/60L,s,t/q%60L,a,b,c);
 		break;
 	    default:
-		printf("%02lu:%02lu   A: %s   B: %s   C: %s\r",q/50L/60L,q/50L%60L,a,b,c);
+		printf("%02lu%c%02lu   A: %s   B: %s   C: %s\r",q/50L/60L,s,q/50L%60L,a,b,c);
 		break;
 	}
 	fflush(stdout);
