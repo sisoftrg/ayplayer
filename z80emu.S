@@ -1,7 +1,8 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80emu.S,v 1.6 2003/10/30 08:10:27 root Exp $ */
+/* $Id: z80emu.S,v 1.7 2003/10/30 18:49:50 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
+#ifndef EZ80
 
 .text
 	
@@ -5732,3 +5733,5 @@ intr_table_dd_fd_cb:
 	ALIGN
 
 	.text
+
+#endif

@@ -1,9 +1,10 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_op5.c,v 1.1 2003/07/01 09:31:20 root Exp $ */
+/* $Id: z80_op5.c,v 1.2 2003/10/30 18:49:50 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
 #include "z80_emu.h"
+#ifdef EZ80
 
 OPDEF(ill_ed, 0x00)
 {
@@ -425,3 +426,5 @@ OPDEF(otdr, 0xBB)
   OUTID(--);
   IOREPEAT();
 }
+
+#endif

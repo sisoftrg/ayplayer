@@ -1,9 +1,10 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80optab.c,v 1.2 2003/10/30 08:10:27 root Exp $ */
+/* $Id: z80optab.c,v 1.3 2003/10/30 18:49:50 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
 #include "z80_emu.h"
+#ifdef EZ80
 
 #define NEXTTAB(tab) \
 {                                                \
@@ -1433,3 +1434,5 @@ op_f z80c_op_tab_cb[] = {
   z80op_set_7_ihl,
   z80op_set_7_a
 };
+
+#endif

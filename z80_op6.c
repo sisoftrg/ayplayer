@@ -1,9 +1,10 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_op6.c,v 1.1 2003/07/01 09:31:20 root Exp $ */
+/* $Id: z80_op6.c,v 1.2 2003/10/30 18:49:50 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
 #include "z80_emu.h"
+#ifdef EZ80
 
 #define GHL DANM(cbaddr)
 
@@ -417,3 +418,5 @@ SET_N_IHL(4)
 SET_N_IHL(5)
 SET_N_IHL(6)
 SET_N_IHL(7)
+
+#endif

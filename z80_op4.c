@@ -1,9 +1,10 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_op4.c,v 1.2 2003/10/24 07:53:15 root Exp $ */
+/* $Id: z80_op4.c,v 1.3 2003/10/30 18:49:50 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
 #include "z80_emu.h"
+#ifdef EZ80
 
 #define RET_CC(ccn, cc, n) \
 OPDEF(ret_ ## ccn, 0xC0+n*8)       \
@@ -300,3 +301,5 @@ PUSH_RR(iy, IY, 2)
 JP_RR(iy, IY)
 LD_SP_RR(iy, IY)
 EX_ISP_RR(iy, IY)
+
+#endif

@@ -1,9 +1,10 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_op2.c,v 1.1 2003/07/01 09:31:20 root Exp $ */
+/* $Id: z80_op2.c,v 1.2 2003/10/30 18:49:50 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
 #include "z80_emu.h"
+#ifdef EZ80
 
 OPDEF(halt, 0x76)
 {
@@ -222,3 +223,5 @@ LD_R_ID(iy, IY, e, RE, 3)
 LD_R_ID(iy, IY, h, RH, 4)
 LD_R_ID(iy, IY, l, RL, 5)
 LD_R_ID(iy, IY, a, RA, 6)
+
+#endif

@@ -1,9 +1,10 @@
 //(c)2003 sisoft\trg - AYplayer.
-/* $Id: z80_op3.c,v 1.1 2003/07/01 09:31:20 root Exp $ */
+/* $Id: z80_op3.c,v 1.2 2003/10/30 18:49:50 root Exp $ */
 
 //original version of this file was taken from SpectEmu0.92 by Miklos Szeredi 
 
 #include "z80_emu.h"
+#ifdef EZ80
 
 #define ARIR(arin, func, an, rn, r, n) \
 OPDEF(arin ## _ ## rn, 0x80+an*8+n)      \
@@ -189,3 +190,7 @@ ARIID(and,   AND, 4, iy, IY)
 ARIID(xor,   XOR, 5, iy, IY)
 ARIID(or,    OR,  6, iy, IY)
 ARIID(cp,    CP,  7, iy, IY)
+
+#else
+#define for_suppress_warning
+#endif
