@@ -15,23 +15,23 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  */
 
-/* $Id: malloc.c,v 1.1 2004/08/02 09:47:51 root Exp $ */
+/* $Id: malloc.c,v 1.2 2005/04/07 08:09:19 root Exp $ */
 /* written by Jim Meyering */
 
 #include <config.h>
-
-#undef malloc
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
-char *malloc ();
+#undef malloc
+
+void *malloc ();
 
 /* Allocate an N-byte block of memory from the heap.
    If N is zero, allocate a 1-byte block.  */
 
-char *
+void *
 rpl_malloc (size_t n)
 {
   if (n == 0)

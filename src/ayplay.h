@@ -1,11 +1,11 @@
-/* (c)2004 sisoft\trg - AYplayer.
-\* $Id: ayplay.h,v 1.4 2004/08/02 09:44:26 root Exp $ */
+/* (c)2005 sisoft\trg - AYplayer.
+\* $Id: ayplay.h,v 1.5 2005/04/07 08:09:18 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+#endif/*have_c.h*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,20 +13,19 @@
 #include <time.h>
 #ifdef WIN32
 #undef UNIX
-
-#else
+#else/*win32*/
 #ifdef UNIX
 #include <sys/time.h>
 #include <sys/io.h>
 #include <signal.h>
 #include <unistd.h>
-#else
+#else/*unix*/
 #include <dos.h>
 #include <io.h>
 #include <conio.h>
 #include <bios.h>
-#endif
-#endif
+#endif/*unix*/
+#endif/*win32*/
 #include "i18.h"
 
 #define _UC unsigned char
@@ -40,26 +39,23 @@
 #define XSLEEP
 #ifdef LPT_PORT
 #define outb(d,p)
-#endif
-#else
+#endif/*lpt*/
+#else/*win32*/
 #define XSLEEP delay(20)
 #ifdef LPT_PORT
 #define outb(d,p) outp(p,d)
-#endif
-#endif
+#endif/*lpt*/
+#endif/*win32*/
 #define POINT 'ù'
-#else
+#else/*!unix*/
 #ifdef LPT_PORT
-#define XSLEEP { \
-    struct timeval tv; \
-    tv.tv_sec=0;tv.tv_usec=20000; \
-    select(0,NULL,NULL,NULL,&tv); \
-}
-#else
+#define XSLEEP pause()
+#define USE_ITIMER
+#else/*lpt*/
 #define XSLEEP
-#endif
+#endif/*lpt*/
 #define POINT '•'
-#endif
+#endif/*!unix*/
 
 extern void unlh5(_UC*,_UC*,_UL,_UL);
 extern void erro(char*);

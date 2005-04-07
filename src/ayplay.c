@@ -1,5 +1,5 @@
-/* (c)2004 sisoft\trg - AYplayer.
-\* $Id: ayplay.c,v 1.4 2004/08/02 09:44:26 root Exp $ */
+/* (c)2005 sisoft\trg - AYplayer.
+\* $Id: ayplay.c,v 1.5 2005/04/07 08:09:18 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -31,6 +31,12 @@ static void sighup(int sig)
 	signal(sig,sighup);
 	quitflag=1;
 }
+#ifdef USE_ITIMER
+static void sigalrm(int sig)
+{
+	signal(sig,sigalrm);
+}
+#endif
 #endif
 
 void sreg(char reg,_UC dat)
@@ -201,6 +207,30 @@ static _US xstr(char *n,_US sa,char *e,_US x)
 	return l;
 }
 
+static void play_frame()
+{
+	switch(ft) {
+	    case VTX:
+		playvtx();
+		break;
+	    case PSG:
+		playpsg();
+		break;
+	    case PT1: case PT2: case PT3:
+	    case STP: case STC: case PSC:
+	    case ASC: case GTR: case FTC:
+	    case SQT: case FLS: case AY: case FXM:
+		playemu();
+		break;
+	}
+	indik();
+#ifndef LPT_PORT
+#ifndef ADLIB
+	sound_frame(1);
+#endif
+#endif
+}
+
 int main(int argc,char *argv[])
 {
 	int co=0;
@@ -209,6 +239,9 @@ int main(int argc,char *argv[])
 	char *nam=NULL;
 	_UC *tt1=NULL,*tt2=NULL;
 	_US sadr=0,iadr=0,padr=0,sngadr=0,i;
+#ifdef USE_ITIMER
+	struct itimerval it;
+#endif
 	puts("\n AY Player'2004, for real AY chip on LPT port");
 	puts("(c) Stepan Pologov (sisoft\\\\trg), sisoft@bk.ru");
 	GT_INIT;
@@ -517,6 +550,9 @@ again:			switch(ft) {
 playz:
 #ifdef UNIX
 	signal(SIGHUP,sighup);signal(SIGINT,sighup);
+#ifdef USE_ITIMER
+	signal(SIGALRM,sigalrm);
+#endif
 #endif
 	printf(_("Type:    %s%s"),nam?_("packed "):"",co?_("compiled "):"");
 #ifndef LPT_PORT
@@ -673,6 +709,12 @@ playz:
 		break;
 	}
 	t=0;printf(_("Playing..\n\n"));
+#ifdef USE_ITIMER
+	it.it_interval.tv_sec=0;
+	it.it_interval.tv_usec=20000;
+	it.it_value=it.it_interval;
+	setitimer(ITIMER_REAL,&it,NULL);
+#endif
 	while(!quitflag
 #ifndef UNIX
 #ifndef WIN32
@@ -680,26 +722,7 @@ playz:
 #endif
 #endif
 	    ) {
-		switch(ft) {
-		    case VTX:
-			playvtx();
-			break;
-		    case PSG:
-			playpsg();
-			break;
-		    case PT1: case PT2: case PT3:
-		    case STP: case STC: case PSC:
-		    case ASC: case GTR: case FTC:
-		    case SQT: case FLS: case AY: case FXM:
-			playemu();
-			break;
-		}
-		indik();
-#ifndef LPT_PORT
-#ifndef ADLIB
-		sound_frame(1);
-#endif
-#endif
+		play_frame();
 		XSLEEP;
 	}
 	if(tt1)free(tt1);
