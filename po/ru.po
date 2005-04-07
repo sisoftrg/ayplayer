@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ayplayer 0.99\n"
 "Report-Msgid-Bugs-To: sisoft@bk.ru\n"
-"POT-Creation-Date: 2005-04-07 12:06+0400\n"
+"POT-Creation-Date: 2005-04-07 13:50+0400\n"
 "PO-Revision-Date: 2004-03-11 19:10+0300\n"
 "Last-Translator: Stepan A. Pologov <sisoft@bk.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -36,82 +36,82 @@ msgstr ""
 "* Умеем: %s.\n"
 "* Используем: ayplayer filename\n"
 
-#: src/ayplay.c:157
+#: src/ayplay.c:156
 #, c-format
 msgid "Chip:    %s\n"
 msgstr "Чип:      %s\n"
 
-#: src/ayplay.c:158
+#: src/ayplay.c:157
 #, c-format
 msgid "Regime:  "
 msgstr "Режим:    "
 
-#: src/ayplay.c:161
+#: src/ayplay.c:160
 msgid "Mono"
 msgstr "Моно"
 
-#: src/ayplay.c:162
+#: src/ayplay.c:161
 msgid "ABC stereo"
 msgstr "ABC стерео"
 
-#: src/ayplay.c:163
+#: src/ayplay.c:162
 msgid "ACB stereo"
 msgstr "ACB стерео"
 
-#: src/ayplay.c:164
+#: src/ayplay.c:163
 msgid "BAC stereo"
 msgstr "BAC стерео"
 
-#: src/ayplay.c:165
+#: src/ayplay.c:164
 msgid "BCA stereo"
 msgstr "BCA стерео"
 
-#: src/ayplay.c:166
+#: src/ayplay.c:165
 msgid "CAB stereo"
 msgstr "CAB стерео"
 
-#: src/ayplay.c:167
+#: src/ayplay.c:166
 msgid "CBA stereo"
 msgstr "CBA стерео"
 
-#: src/ayplay.c:168
+#: src/ayplay.c:167
 msgid "unknown mode"
 msgstr "неизвестный режим"
 
-#: src/ayplay.c:173
+#: src/ayplay.c:172
 #, c-format
 msgid "Year:    %u\n"
 msgstr "Год:      %u\n"
 
-#: src/ayplay.c:175
+#: src/ayplay.c:174
 msgid "playable data is empty"
 msgstr "нет данных для проигрывания"
 
-#: src/ayplay.c:178
+#: src/ayplay.c:177
 #, c-format
 msgid "Origin:  %s\n"
 msgstr "Оригинал: %s\n"
 
-#: src/ayplay.c:179
+#: src/ayplay.c:178
 #, c-format
 msgid "Editor:  %s\n"
 msgstr "Редактор: %s\n"
 
-#: src/ayplay.c:180
+#: src/ayplay.c:179
 #, c-format
 msgid "Comment: %s\n"
 msgstr "Коммент:  %s\n"
 
-#: src/ayplay.c:181 src/ayplay.c:615 src/ayplay.c:625
+#: src/ayplay.c:180 src/ayplay.c:617 src/ayplay.c:627
 #, c-format
 msgid "Length:  %lu min, %lu sec\n"
 msgstr "Длина:    %lu мин, %lu сек.\n"
 
-#: src/ayplay.c:182
+#: src/ayplay.c:181
 msgid "Warning: music may not play correctly!"
 msgstr "Внимание! модуль может звучать неверно!"
 
-#: src/ayplay.c:250
+#: src/ayplay.c:246
 msgid "can't init soundcard"
 msgstr "не могу открыть звуковуху"
 
@@ -123,8 +123,8 @@ msgstr "Название: "
 msgid "Author:  "
 msgstr "Автор:    "
 
-#: src/ayplay.c:256 src/ayplay.c:274 src/ayplay.c:508 src/ayplay.c:567
-#: src/ayplay.c:591 src/unlzh.c:111
+#: src/ayplay.c:256 src/ayplay.c:275 src/ayplay.c:510 src/ayplay.c:569
+#: src/ayplay.c:593 src/unlzh.c:111
 msgid "out of memory"
 msgstr "мало памяти"
 
@@ -148,11 +148,15 @@ msgstr "не могу найти файл"
 msgid "file is empty"
 msgstr "файл пуст"
 
-#: src/ayplay.c:275 src/ayplay.c:304
+#: src/ayplay.c:270
+msgid "no file extension"
+msgstr "у файла нет расширения"
+
+#: src/ayplay.c:276 src/ayplay.c:306
 msgid "can't open sound file"
 msgstr "не могу открыть файл"
 
-#: src/ayplay.c:311
+#: src/ayplay.c:313
 msgid ""
 "\n"
 "Warn: corrupted hobeta file!"
@@ -160,27 +164,27 @@ msgstr ""
 "\n"
 "!!! плохой hobeta-заголовок!"
 
-#: src/ayplay.c:322
+#: src/ayplay.c:324
 msgid "Uncompiled SoundTracker modules is not supported"
 msgstr "некомпилированные модули SoundTracker не поддерживаются"
 
-#: src/ayplay.c:324
+#: src/ayplay.c:326
 msgid "Extension of this file is not supported"
 msgstr "Данный формат не поддерживается"
 
-#: src/ayplay.c:487
+#: src/ayplay.c:489
 msgid "bad fls file"
 msgstr "плохой fls модуль"
 
-#: src/ayplay.c:510 src/ayplay.c:594 src/ayplay.c:707
+#: src/ayplay.c:512 src/ayplay.c:596 src/ayplay.c:709
 msgid "unknown format"
 msgstr "неизвестный формат"
 
-#: src/ayplay.c:532
+#: src/ayplay.c:534
 msgid "bad file format"
 msgstr "файл повреждён"
 
-#: src/ayplay.c:549
+#: src/ayplay.c:551
 #, c-format
 msgid ""
 "\n"
@@ -189,49 +193,43 @@ msgstr ""
 "\n"
 "Файл:     %s\n"
 
-#: src/ayplay.c:557
+#: src/ayplay.c:559
 #, c-format
 msgid "Type:    %s%s"
 msgstr "Модуль:   %s%s"
 
-#: src/ayplay.c:557
+#: src/ayplay.c:559
 msgid "packed "
 msgstr "упакованный "
 
-#: src/ayplay.c:557
+#: src/ayplay.c:559
 msgid "compiled "
 msgstr "компилированный "
 
-#: src/ayplay.c:587
+#: src/ayplay.c:589
 msgid "unknown archive type"
 msgstr "неизвестный архив"
 
-#: src/ayplay.c:613
+#: src/ayplay.c:615
 msgid "bad psg file"
 msgstr "плохой psg файл"
 
-#: src/ayplay.c:621
+#: src/ayplay.c:623
 #, c-format
 msgid "Misc:    %s\n"
 msgstr "Прочее:   %s\n"
 
-#: src/ayplay.c:711
-#, c-format
-msgid ""
-"Playing..\n"
-"\n"
-msgstr ""
-"Слушаем..\n"
-"\n"
+#: src/ayplay.c:712
+msgid "Playing..\n"
+msgstr "Слушаем..\n"
 
-#: src/ayplay.c:734
-#, c-format
+#: src/ayplay.c:729
 msgid ""
 "\n"
-"Exiting..\n"
+"Exiting.."
 msgstr ""
 "\n"
-"Выходим..\n"
+"Выходим.."
 
 #: src/unlzh.c:47
 msgid "bad file structure"
