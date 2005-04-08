@@ -1,27 +1,27 @@
 /* (c)2005 sisoft\trg - AYplayer.
-\* $Id: ayplay.c,v 1.6 2005/04/07 09:54:12 root Exp $ */
+\* $Id: ayplay.c,v 1.7 2005/04/08 12:19:25 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
 enum {
-    UNK=0,VTX,PSG,AY,YM,HOB,PT1,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT,FLS,FXM
+    UNK=0,VTX,PSG,AY,AYM,YM,HOB,PT1,PT2,PT3,STP,STC,PSC,ASC,GTR,FTC,SQT,FLS,FXM
 } formats;
 static _US sp;
-static _UC *ibuf,*obuf;
-static _UL origsize,compsize,q,tick,t=0,lp;
-static char *name,*author;
-static int quitflag=0;
-static int ca,cb,cc,ft=UNK;
+static _UC *ibuf,*obuf,*mem;
+static _UL origsize,compsize,q,tick=0,t=0,lp;
+static char *name,*author,*comm;
+static int quitflag=0,ca,cb,cc,ft=UNK;
 
-#define PLADR 18432
+#define PLADR 10240
 #define WRD(x) (((*(_UC*)(x))<<8)+(*(_UC*)((x)+1)))
+#define DWRD(x) (((*(_UC*)(x))<<24)+((*(_UC*)((x)+1))<<16)+((*(_UC*)((x)+2))<<8)+(*(_UC*)((x)+3)))
 #define PTR(x) (((*(char*)(x))<<8)+(*(char*)((x)+1)))
-#define FORMATS "VTX,PSG,AY,YM,PT[123],STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,FLS,FXM,Hobeta"
 
 void erro(char *ermess)
 {
 	if(ermess)printf(_("\n* Error: %s!\n"),ermess);
-	else printf(_("* Support: %s.\n* Usage: ayplayer filename\n"),FORMATS);
+	else printf(_("* Support: %s.\n* Usage: ayplayer filename [part]\n"),
+	"VTX,PSG,AY,AYM,YM,PTx,STP,STC,ZXS,PSC,ASC,GTR,FTC,SQT,FLS,FXM,Hobeta");
 	exit(-1);
 }
 
@@ -73,8 +73,10 @@ static void playvtx()
 
 static void playpsg()
 {
-	_UC a,i;
-	while((i=ibuf[t+++4])<0xfd&&t<lp) {
+	_UC a,i=0;
+	static _US nosn=0;
+	if(nosn>0)nosn--;
+	else while((i=ibuf[t+++4])<0xfd&&t<lp) {
 		a=ibuf[t+++4];
 		if(i==7)a|=192;
 		else if(i==8)ca=a;
@@ -82,6 +84,7 @@ static void playpsg()
 		else if(i==10)cc=a;
 		if(i<14)sreg(i,a);
 	}
+	if(i==0xfe)nosn=ibuf[t+++4]<<2;
 	if(++q>=tick||t>=lp||i==0xfd)t=q=0;
 }
 
@@ -140,6 +143,7 @@ static void indik()
 	if(mc&&c[mc]==' ')c[mc]=POINT;
 	s=slashes[(++sn)%100/5];
 	switch(ft) {
+	    case YM: 
 	    case VTX: 
 		printf("%02lu%c%02lu   A:%s   B:%s   C:%s\r",t/q/60L,s,t/q%60L,a,b,c);
 		break;
@@ -176,16 +180,15 @@ static _UC *vtxinfo(char *buf)
 	if(strlen(++buf))printf("%s%s\n",author,buf);buf+=strlen(buf);
 	if(strlen(++buf))printf(_("Origin:  %s\n"),buf);buf+=strlen(buf);
 	if(strlen(++buf))printf(_("Editor:  %s\n"),buf);buf+=strlen(buf);
-	if(strlen(++buf))printf(_("Comment: %s\n"),buf);buf+=strlen(buf);
-	tick=origsize/14L;printf(_("Length:  %lu min, %lu sec\n"),tick/q/60L,tick/q%60L);
-	if(q!=50)puts(_("Warning: music may not play correctly!"));
+	if(strlen(++buf))printf("%s%s\n",comm,buf);buf+=strlen(buf);
+	tick=origsize/14;
 	return((_UC*)(++buf));
 }
 
 static _US xfind(_US sa,char *s,int l)
 {
 	_US f=0;
-	while(memcmp(DANM(mem)+sa+f,s,l)&&f<256)f++;
+	while(memcmp(mem+sa+f,s,l)&&f<256)f++;
 	if(f>255)f=0;
 	return f;
 }
@@ -195,10 +198,10 @@ static _US xstr(char *n,_US sa,char *e,_US x)
 	_US l=x,i=0;
 	if(e)l=xfind(sa,e,x);
 	if(l) {
-		while(i<l&&DANM(mem)[sa+i]==' ')i++;
+		while(i<l&&mem[sa+i]==' ')i++;
 		if(i<l) {
 			if(n)printf(n);
-			fwrite(DANM(mem)+sa+i,1,l-i,stdout);
+			fwrite(mem+sa+i,1,l-i,stdout);
 			printf("\n");
 		}
 	}
@@ -209,6 +212,7 @@ static _US xstr(char *n,_US sa,char *e,_US x)
 static void play_frame()
 {
 	switch(ft) {
+	    case YM:
 	    case VTX:
 		playvtx();
 		break;
@@ -229,7 +233,7 @@ static void play_frame()
 
 int main(int argc,char *argv[])
 {
-	int co=0;
+	int co=0,ps=0;
 	FILE *infile;
 	struct stat sb;
 	char *nam=NULL,*s;
@@ -238,10 +242,10 @@ int main(int argc,char *argv[])
 #ifdef USE_ITIMER
 	struct itimerval it;
 #endif
-	puts("\n AY Player'2004, for real AY chip on LPT port");
-	puts("(c) Stepan Pologov (sisoft\\\\trg), sisoft@bk.ru");
+	puts("\n AY Player'2005, for real AY chip on LPT port");
+	puts("(c) Stepan Pologov (sisoft//trg), sisoft@bk.ru");
 	GT_INIT;
-	if(argc!=2||!strchr(argv[1],'.'))erro(NULL);
+	if((argc!=2&&(argc!=3||(*argv[2]&0xf0)!=0x30))||!strchr(argv[1],'.'))erro(NULL);
 #ifndef LPT_PORT
 	if(!sound_init())erro(_("can't init soundcard"));
 #else
@@ -249,6 +253,7 @@ int main(int argc,char *argv[])
 	ioperm(LPT_PORT,3,1);
 #endif
 #endif
+	comm=_("Comment: ");
 	name=_("Name:    ");
 	author=_("Author:  ");
 	if(!strcmp(argv[1],".")) {
@@ -265,6 +270,7 @@ int main(int argc,char *argv[])
 		snprintf(cmd,256,"gzip -cd %s >%s 2>/dev/null",argv[1],nam);
 		if(system(cmd)){unlink(nam);erro(_("can't gzip sound file"));}
 	}
+	if(argc==3)ps=atoi(argv[2]);
 	if(stat(nam?nam:argv[1],&sb))erro(_("can't stat sound file"));
 	if(sb.st_size<128)erro(_("file is empty"));
 	if(!(s=strrchr(nam?nam:argv[1],'.')))erro(_("no file extension"));
@@ -290,26 +296,31 @@ int main(int argc,char *argv[])
 		else if(!strcasecmp(s,"sqt"))ft=SQT;
 		else if(!strcasecmp(s,"fls"))ft=FLS;
 		else if(!strcasecmp(s,"fxm"))ft=FXM;
+		else if(!strcasecmp(s,"aym"))ft=AYM;
 		else if(!strcasecmp(s,"ay"))ft=AY;
 		else if(!strcmp(s,"m"))ft=PT3;
 		else if(!strcmp(s,"M"))ft=PT2;
 		else if(*s=='$'&&s[1])ft=HOB;
 		if(ft) {
-			PRNM(init)();PRNM(reset)();
-			DANM(mem)[PLADR]=0xcd;
-			DANM(mem)[PLADR+3]=0x76;
-			DANM(mem)[PLADR+4]=0xcd;
-			DANM(mem)[PLADR+7]=0x76;
-			for(i=0;i<256;i++)DANM(mem)[i]=0xc9;
-			for(;i<16384;i++)DANM(mem)[i]=0xff;
-			DANM(mem)[0]=0x76;DANM(mem)[0x38]=0xfb;sp=PLADR+1024;
+			PRNM(init)();
+			PRNM(reset)();
+			mem=DANM(mem);
+			for(i=0;i<256;i++)mem[i]=0xc9;
+			for(;i<16384;i++)mem[i]=0xff;
+			mem[0]=0x76;mem[0x38]=0xfb;
+			mem[PLADR]=0xcd;
+			mem[PLADR+3]=0x76;
+			mem[PLADR+4]=0xcd;
+			mem[PLADR+7]=0x76;
+			sp=PLADR+2048;
 			if(!(infile=fopen(nam?nam:argv[1],"rb")))erro(_("can't open sound file"));
 again:			switch(ft) {
 			    case HOB: {
 				char hdr[17]={0};
-				unsigned short crc=0;
+				unsigned short crc;
 				fread(hdr,1,17,infile);
-				for(i=0;i<15;i++)crc+=hdr[i]*257+i;
+				if(!strncasecmp(hdr,"ProTracker ",10)){ft=PT3;co=0;fseek(infile,0,SEEK_SET);goto again;}
+				for(crc=0,i=0;i<15;++i)crc+=(_UC)hdr[i]*257+i;
 				if(crc!=*(_US*)(hdr+15))puts(_("\nWarn: corrupted hobeta file!"));
 				sb.st_size=*(_US*)(hdr+11);
 				if(sb.st_size<128)sb.st_size=*(_US*)(hdr+13);
@@ -329,116 +340,116 @@ again:			switch(ft) {
 				iadr=sadr=*(_US*)(hdr+9);
 				if(iadr<16384)iadr=49152;
 				padr=iadr+5;ft=PT3;co=1;
-				fread(DANM(mem)+sadr,1,sb.st_size,infile);
-				sngadr=*(_US*)(DANM(mem)+iadr+1);
-				if(DANM(mem)[padr]!=0xc3){padr++;ft=PT2;}
-				if(*(_US*)(DANM(mem)+sadr)==0x83e){padr=iadr+48;ft=SQT;}
-				if(!memcmp(DANM(mem)+sadr+17,"KSA SOFT",8)) {
-					if((*(_US*)(DANM(mem)+sadr+4)-sadr)>256) {
-						iadr=*(_US*)(DANM(mem)+sadr+4)-0x4e;
-						memcpy(DANM(mem)+iadr,DANM(mem)+sadr,sb.st_size);
+				fread(mem+sadr,1,sb.st_size,infile);
+				sngadr=*(_US*)(mem+iadr+1);
+				if(mem[padr]!=0xc3){padr++;ft=PT2;}
+				if(*(_US*)(mem+sadr)==0x83e){padr=iadr+48;ft=SQT;}
+				if(!memcmp(mem+sadr+17,"KSA SOFT",8)) {
+					if((*(_US*)(mem+sadr+4)-sadr)>256) {
+						iadr=*(_US*)(mem+sadr+4)-0x4e;
+						memcpy(mem+iadr,mem+sadr,sb.st_size);
 						sadr=iadr;padr=iadr+6;
 					}
 					ft=STP;
 				}
-				if(!memcmp(DANM(mem)+sadr+20,"SOUND TR",8)){ft=STC;iadr=sadr+11;padr=iadr+3;}
-				if(!memcmp(DANM(mem)+sadr+1091,"SONG BY ",8)){ft=STC;iadr=sadr;padr=iadr+6;}
-				if(!memcmp(DANM(mem)+sadr+7,"SONG BY ST",10)){ft=STC;co=0;fseek(infile,17,SEEK_SET);goto again;}
-				if(!memcmp(DANM(mem)+sadr+20,"ASM COMP",8)){ft=ASC;iadr=sadr+11;padr=iadr+3;}
+				if(!memcmp(mem+sadr+20,"SOUND TR",8)){ft=STC;iadr=sadr+11;padr=iadr+3;}
+				if(!memcmp(mem+sadr+1091,"SONG BY ",8)){ft=STC;iadr=sadr;padr=iadr+6;}
+				if(!memcmp(mem+sadr+7,"SONG BY ST",10)){ft=STC;co=0;fseek(infile,17,SEEK_SET);goto again;}
+				if(!memcmp(mem+sadr+20,"ASM COMP",8)){ft=ASC;iadr=sadr+11;padr=iadr+3;}
 				if(xfind(sadr,"ASM COMP",8)){ft=ASC;co=0;fseek(infile,17,SEEK_SET);goto again;}
-				if(!memcmp(DANM(mem)+sadr,"ProTrack",8)){ft=PT3;co=0;fseek(infile,17,SEEK_SET);goto again;}
-				if(!memcmp(DANM(mem)+sadr+77,"PT 3 P",6)){ft=PT3;iadr=sadr;padr=iadr+5;co=2;}
-				if(!memcmp(DANM(mem)+sadr+9,"PSC ",4)){ft=PSC;iadr=sadr;padr=iadr+6;}
-				if(ft==PT2&&*(DANM(mem)+sadr+131+*(DANM(mem)+sadr+1))==0xff){co=0;fseek(infile,17,SEEK_SET);goto again;}
+				if(!memcmp(mem+sadr,"ProTrack",8)){ft=PT3;co=0;fseek(infile,17,SEEK_SET);goto again;}
+				if(!memcmp(mem+sadr+77,"PT 3 P",6)){ft=PT3;iadr=sadr;padr=iadr+5;co=2;}
+				if(!memcmp(mem+sadr+9,"PSC ",4)){ft=PSC;iadr=sadr;padr=iadr+6;}
+				if(ft==PT2&&mem[sadr+131+mem[sadr+1]]==0xff){co=0;fseek(infile,17,SEEK_SET);goto again;}
 				/*printf("hob: s: %u, l: %lu, i: %u, p: %u, sng: %u\n",sadr,sb.st_size,iadr,padr,sngadr);*/
 				} break;
 			    case PT1:
-				memcpy(DANM(mem)+PT1_init,pt1_player,PT1_song-PT1_init);
-				fread(DANM(mem)+PT1_song,1,sb.st_size,infile);
+				memcpy(mem+PT1_init,pt1_player,PT1_song-PT1_init);
+				fread(mem+PT1_song,1,sb.st_size,infile);
 				iadr=PT1_init;
 				padr=PT1_play;
 				sngadr=PT1_song;
 				break;
 			    case PT2:
-				memcpy(DANM(mem)+PT2_init,pt2_player,PT2_song-PT2_init);
-				fread(DANM(mem)+PT2_song,1,sb.st_size,infile);
+				memcpy(mem+PT2_init,pt2_player,PT2_song-PT2_init);
+				fread(mem+PT2_song,1,sb.st_size,infile);
 				iadr=PT2_init;
 				padr=PT2_play;
 				sngadr=PT2_song;
 				break;
 			    case PT3:
-				memcpy(DANM(mem)+PT3_init,pt3_player,PT3_song-PT3_init);
-				fread(DANM(mem)+PT3_song,1,sb.st_size,infile);i=6;
-				if(*(_UC*)(DANM(mem)+PT3_song+13)>='0'&&*(_UC*)(DANM(mem)+PT3_song+13)<='9')
-					i=*(_UC*)(DANM(mem)+PT3_song+13)-'0';
-				switch(*(_UC*)(DANM(mem)+PT3_song+99)) {
+				memcpy(mem+PT3_init,pt3_player,PT3_song-PT3_init);
+				fread(mem+PT3_song,1,sb.st_size,infile);i=6;
+				if(mem[PT3_song+13]>='0'&&mem[PT3_song+13]<='9')
+				    i=mem[PT3_song+13]-'0';
+				switch(mem[PT3_song+99]) {
 				    case 0: if(i<=3)i=0; else i=1; break;
 				    case 1: i=2; break;
 				    case 2: if(i<=3)i=3; else i=4; break;
 				    default: if(i<=3)i=5; else i=6; break;
 				}
-				memcpy(DANM(mem)+PT3_table,pt3_tables+96*i,192);
+				memcpy(mem+PT3_table,pt3_tables+96*i,192);
 				iadr=PT3_init;
 				padr=PT3_play;
 				sngadr=PT3_song;
 				break;
 			    case STP:
-				memcpy(DANM(mem)+STP_init,stp_player,STP_song-STP_init);
-				fread(DANM(mem)+STP_song,1,sb.st_size,infile);
+				memcpy(mem+STP_init,stp_player,STP_song-STP_init);
+				fread(mem+STP_song,1,sb.st_size,infile);
 				iadr=STP_init;
 				padr=STP_play;
 				sngadr=STP_song;
 				break;
 			    case STC:
-				memcpy(DANM(mem)+STC_start,stc_player,STC_song-STC_start);
-				fread(DANM(mem)+STC_song,1,sb.st_size,infile);
+				memcpy(mem+STC_start,stc_player,STC_song-STC_start);
+				fread(mem+STC_song,1,sb.st_size,infile);
 				sadr=STC_start;
 				iadr=STC_init;
 				padr=STC_play;
 				sngadr=STC_song;
 				break;
 			    case PSC:
-				memcpy(DANM(mem)+PSC_init,psc_player,PSC_song-PSC_init);
-				fread(DANM(mem)+PSC_song,1,sb.st_size,infile);
+				memcpy(mem+PSC_init,psc_player,PSC_song-PSC_init);
+				fread(mem+PSC_song,1,sb.st_size,infile);
 				iadr=PSC_init;
 				padr=PSC_play;
 				sngadr=PSC_song;
 				break;
 			    case ASC:
-				memcpy(DANM(mem)+ASC_start,asc_player,ASC_song-ASC_start);
-				fread(DANM(mem)+ASC_song,1,sb.st_size,infile);
+				memcpy(mem+ASC_start,asc_player,ASC_song-ASC_start);
+				fread(mem+ASC_song,1,sb.st_size,infile);
 				sadr=ASC_start;
 				iadr=ASC_init;
 				padr=ASC_play;
 				sngadr=ASC_song;
 				break;
 			    case GTR:
-				memcpy(DANM(mem)+GTR_init,gtr_player,GTR_song-GTR_init);
-				fread(DANM(mem)+GTR_song,1,sb.st_size,infile);
+				memcpy(mem+GTR_init,gtr_player,GTR_song-GTR_init);
+				fread(mem+GTR_song,1,sb.st_size,infile);
 				iadr=GTR_init;
 				padr=GTR_play;
 				sngadr=GTR_song;
 				break;
 			    case FTC:
-				memcpy(DANM(mem)+FTC_init,ftc_player,FTC_song-FTC_init);
-				fread(DANM(mem)+FTC_song,1,sb.st_size,infile);
+				memcpy(mem+FTC_init,ftc_player,FTC_song-FTC_init);
+				fread(mem+FTC_song,1,sb.st_size,infile);
 				iadr=FTC_init;
 				padr=FTC_play;
 				sngadr=FTC_song;
 				break;
 			    case SQT: {
 				_US j=0,k,*p,fl;
-				memcpy(DANM(mem)+SQT_init,sqt_player,SQT_song-SQT_init);
-				fread(DANM(mem)+SQT_song,1,sb.st_size,infile);
-				i=*(_US*)(DANM(mem)+SQT_song+2)-10;
-				k=*(_US*)(DANM(mem)+SQT_song+8)-i;
-				while(*(DANM(mem)+SQT_song+k)) {
-					if(j<(*(DANM(mem)+SQT_song+k)&0x7f))j=*(DANM(mem)+SQT_song+k)&0x7f;k+=2;
-					if(j<(*(DANM(mem)+SQT_song+k)&0x7f))j=*(DANM(mem)+SQT_song+k)&0x7f;k+=2;
-					if(j<(*(DANM(mem)+SQT_song+k)&0x7f))j=*(DANM(mem)+SQT_song+k)&0x7f;k+=3;
+				memcpy(mem+SQT_init,sqt_player,SQT_song-SQT_init);
+				fread(mem+SQT_song,1,sb.st_size,infile);
+				i=*(_US*)(mem+SQT_song+2)-10;
+				k=*(_US*)(mem+SQT_song+8)-i;
+				while(mem[SQT_song+k]) {
+					if(j<(mem[SQT_song+k]&0x7f))j=mem[SQT_song+k]&0x7f;k+=2;
+					if(j<(mem[SQT_song+k]&0x7f))j=mem[SQT_song+k]&0x7f;k+=2;
+					if(j<(mem[SQT_song+k]&0x7f))j=mem[SQT_song+k]&0x7f;k+=3;
 				}
-				p=(_US*)(DANM(mem)+SQT_song+2);
-				fl=(*(_US*)(DANM(mem)+SQT_song+6)-i+(j<<1))/2;
+				p=(_US*)(mem+SQT_song+2);
+				fl=(*(_US*)(mem+SQT_song+6)-i+(j<<1))/2;
 				for(k=0;k<fl;k++) {
 					*p-=i;
 					*p+=SQT_song;
@@ -451,31 +462,31 @@ again:			switch(ft) {
 			    case FLS: {
 				int i3,i1,i2;
 				_US *p,song_len=sb.st_size;
-				memcpy(DANM(mem)+FLS_init,fls_player,FLS_song-FLS_init);
-				fread(DANM(mem)+FLS_song,1,sb.st_size,infile);
-				i3=*(_US*)(DANM(mem)+FLS_song+2)-16;
+				memcpy(mem+FLS_init,fls_player,FLS_song-FLS_init);
+				fread(mem+FLS_song,1,sb.st_size,infile);
+				i3=*(_US*)(mem+FLS_song+2)-16;
 				if(i3>=0) do {
-					i2=*(_US*)(DANM(mem)+FLS_song+4)-i3+2;
+					i2=*(_US*)(mem+FLS_song+4)-i3+2;
 					if(i2>=8&&i2<song_len) {
-						p=(_US*)(DANM(mem)+FLS_song+i2);
+						p=(_US*)(mem+FLS_song+i2);
 						i1=*p-i3;
 						if(i1>=8&&i1<song_len) {
-							p=(_US*)(DANM(mem)+FLS_song+i2-4);
+							p=(_US*)(mem+FLS_song+i2-4);
 							i2=*p-i3;
 							if(i2>=6&&i2<song_len)
 							    if(i1-i2==0x20) {
-								i2=*(_US*)(DANM(mem)+FLS_song+8)-i3;
+								i2=*(_US*)(mem+FLS_song+8)-i3;
 								if(i2>21&&i2<song_len) {
-									i1=*(_US*)(DANM(mem)+FLS_song+6)-i3;
+									i1=*(_US*)(mem+FLS_song+6)-i3;
 									if(i1>20&&i1<song_len)
-									    if(*(_UC*)(DANM(mem)+FLS_song+i1-1)==0) {
-										while(i1<song_len&&*(_UC*)(DANM(mem)+FLS_song+i1)!=255)
+									    if(!mem[FLS_song+i1-1]) {
+										while(i1<song_len&&mem[FLS_song+i1]!=255)
 										    do {
-											if(*(_UC*)(DANM(mem)+FLS_song+i1)<=0x5f||*(_UC*)(DANM(mem)+FLS_song+i1)==0x80||*(_UC*)(DANM(mem)+FLS_song+i1)==0x81) {
+											if(mem[FLS_song+i1]<=0x5f||mem[FLS_song+i1]==0x80||mem[FLS_song+i1]==0x81) {
 												i1++;
 												break;
 											}
-											if(*(_UC*)(DANM(mem)+FLS_song+i1)>=0x82&&*(_UC*)(DANM(mem)+FLS_song+i1)<=0x8e)i1++;
+											if(mem[FLS_song+i1]>=0x82&&mem[FLS_song+i1]<=0x8e)i1++;
 											i1++;
 										} while(i1<song_len);
 										if(i1+1==i2)break;
@@ -487,9 +498,9 @@ again:			switch(ft) {
 					i3--;
 				} while(i3>=0);
 				if(i3<0)erro(_("bad fls file"));
-				p=(_US*)(DANM(mem)+FLS_song);
-				i1=*(_US*)(DANM(mem)+FLS_song+4)-i3+(long)p;
-				i2=*(_US*)(DANM(mem)+FLS_song)-i3+(long)p+2;
+				p=(_US*)(mem+FLS_song);
+				i1=*(_US*)(mem+FLS_song+4)-i3+(long)p;
+				i2=*(_US*)(mem+FLS_song)-i3+(long)p+2;
 				do {
 					*p-=i3;
 					*p+=FLS_song;
@@ -506,44 +517,72 @@ again:			switch(ft) {
 				sngadr=FLS_song;
 				} break;
 			    case AY:
-/* todo: play all parts */	tt1=malloc(sb.st_size);
-				if(!tt1)erro(_("out of memory"));
+				if(!(tt1=malloc(sb.st_size)))erro(_("out of memory"));
 				fread(tt1,1,sb.st_size,infile);
-				if(memcmp(tt1,"ZXAYEMUL",8))erro(_("unknown format"));
+				if(strncmp(tt1,"ZXAY",4))erro(_("unknown format"));
+				if(strncmp(tt1+4,"EMUL",4))erro(_("bad file format"));
+				if(ps<1)ps=tt1[17]+1;
+				if(ps-1>tt1[16])ps=tt1[16]+1;
 				ibuf=tt1+18;
-				ibuf+=PTR(ibuf)+2;
+				ibuf+=PTR(ibuf)+4*ps-2;
 				ibuf+=PTR(ibuf)+4;
-				tick=WRD(ibuf);ibuf+=6;
-				obuf=ibuf+PTR(ibuf);
+				tick=WRD(ibuf);
+				RA=ABK=RH=HBK=RD=DBK=RB=BBK=XH=YH=ibuf[4];
+				RF=FBK=RL=LBK=RE=EBK=RC=CBK=XL=YL=ibuf[5];
+				ibuf+=6;obuf=ibuf+PTR(ibuf);
 				ibuf+=PTR(ibuf+2)+2;
-				sp=WRD(obuf);
-				if(!sp)sp=PLADR+1024;
+				if(WRD(obuf))sp=WRD(obuf);
 				iadr=WRD(obuf+2);
 				padr=WRD(obuf+4);
-				/*printf("iadr=%u,padr=%u,sp=%u\n",iadr,padr,sp);*/
 				do {
-					/*printf("to=%u,from=%u,len=%u\n",WRD(ibuf),4+PTR(ibuf+4),WRD(ibuf+2));*/
-					memcpy(DANM(mem)+WRD(ibuf),ibuf+4+PTR(ibuf+4),WRD(ibuf+2));
+					i=WRD(ibuf+2);
+					if(i+WRD(ibuf)>65536)i=65536-WRD(ibuf);
+					if(i+4+PTR(ibuf+4)+ibuf-tt1>sb.st_size)
+					    i=sb.st_size-(4+PTR(ibuf+4)+ibuf-tt1);
+					/*printf("to=%u,from=%u,len=%u\n",WRD(ibuf),4+PTR(ibuf+4)+ibuf-tt1,i);*/
+					if(i)memcpy(mem+WRD(ibuf),ibuf+4+PTR(ibuf+4),i);
 					if(!iadr)iadr=WRD(ibuf);ibuf+=6;
 				} while(WRD(ibuf));
+				/*printf("iadr=%u,padr=%u,sp=%u\n",iadr,padr,sp);*/
+				RI=3;
+				break;
+			    case AYM:
+				if(!(tt1=malloc(sb.st_size)))erro(_("out of memory"));
+				fread(tt1,1,sb.st_size,infile);
+				if(strncmp(tt1,"AYM0",4))erro(_("unknown format"));
+				ibuf=tt1+0x45;
+				iadr=*(_US*)(tt1+0x30);
+				padr=*(_US*)(tt1+0x32);
+				if(ps<1)ps=tt1[0x36]+1;
+				if(ps-1<tt1[0x34])ps=tt1[0x34]+1;
+				if(ps-1>tt1[0x35])ps=tt1[0x35]+1;
+				tt1[0x38+tt1[0x37]]=ps-1;
+				AF=*(_US*)(tt1+0x38);BC=*(_US*)(tt1+0x3a);
+				DE=*(_US*)(tt1+0x3c);HL=*(_US*)(tt1+0x3e);
+				IX=*(_US*)(tt1+0x40);IY=*(_US*)(tt1+0x42);
+				for(i=0;i<tt1[0x44];i++) {
+					/*printf("to=%u,from=%u,len=%u\n",*(_US*)ibuf,ibuf+4-tt1,*(_US*)(ibuf+2));*/
+					memcpy(mem+*(_US*)ibuf,ibuf+4,*(_US*)(ibuf+2));
+					ibuf+=*(_US*)(ibuf+2)+4;
+				}
 				break;
 			    case FXM: {
 				char bu[6];
-				memcpy(DANM(mem)+FXM_init,ftc_player,FXM_song-FXM_init);
+				memcpy(mem+FXM_init,fxm_player,FXM_song-FXM_init);
 				fread(bu,1,6,infile);
-				if(strncasecmp(bu,"FXSM",4))erro(_("bad file format"));
+				if(strncmp(bu,"FXSM",4))erro(_("bad file format"));
 				sngadr=*(unsigned short*)(bu+4);
-				fread(DANM(mem)+sngadr,1,sb.st_size-6,infile);
-				memcpy(DANM(mem)+FXM_song,DANM(mem)+sngadr,sb.st_size-6);
+				fread(mem+sngadr,1,sb.st_size-6,infile);
+				memcpy(mem+FXM_song,mem+sngadr,sb.st_size-6);
 				iadr=FXM_init;
 				padr=FXM_play;
 				} break;
 			}
-			*(_US*)(DANM(mem)+PLADR+1)=(_US)iadr;
+			*(_US*)(mem+PLADR+1)=(_US)iadr;
 			PC=PLADR;SP=sp;
 			while(iadr&&!DANM(haltstate)){/*printf("pc=%u,sp=%u\n",PC,SP);*/PRNM(step)(1);}
-			if(!padr)padr=DANM(mem)[(dbyte)(((int)RI<<8)+0xFF)]+256*DANM(mem)[(dbyte)(((int)RI<<8)+0xFF+1)];
-			*(_US*)(DANM(mem)+PLADR+5)=(_US)padr;
+			if(!padr)padr=mem[(dbyte)(((int)RI<<8)+0xFF)]+256*mem[(dbyte)(((int)RI<<8)+0xFF+1)]/*,printf("new padr=%d\n",padr)*/;
+			*(_US*)(mem+PLADR+5)=(_US)padr;
 			fclose(infile);
 		}
 	}
@@ -560,7 +599,8 @@ playz:
 #ifndef LPT_PORT
 	sound_ay_reset();
 #endif
-	/*{FILE *xx=fopen("debug","wb");fwrite(DANM(mem),1,65536,xx);fclose(xx);}*/
+	/*{FILE *f=fopen("dbg","wb");fwrite(mem,1,65536,f);fclose(f);}*/
+	lp=0;q=50;
 	switch(ft) {
 	    case VTX:
 		puts("Vortex Tracker");
@@ -568,82 +608,88 @@ playz:
 		compsize=sb.st_size-(ibuf-tt1);
 		if(!(tt2=obuf=calloc(14,tick)))erro(_("out of memory"));
 		unlh5(ibuf,obuf,origsize,compsize);
-		obuf=tt2;free(tt1);tt1=NULL;
+		free(tt1);tt1=NULL;
 		break;
-/*
-  Id:dword;
-  Leo:array[0..7]of char;+4
-  Num_of_tiks:dword;+12
-  Song_Attr:dword;+16
-  Num_of_Dig:word;+20
-  ChipFrq:dword;+22
-  InterFrq:word;+26
-  Loop:dword;+28
-  Add_Size:word;+32
-*/
 	    case YM: {
-		_UL j;
-		_US i1=0,i2;
-		struct {int l;_UC *b;} ds[1024];
-		puts("YM file");
+		_UC *raw;
+		_US i2,yv;
 		if(memcmp(ibuf+2,"-lh5-",5))erro(_("unknown archive type"));
 		compsize=*(long*)(ibuf+7);
 		origsize=*(long*)(ibuf+11);
 		ibuf+=*(_UC*)ibuf+2;
 		if(!(tt2=obuf=calloc(1,origsize)))erro(_("out of memory"));
 		unlh5(ibuf,obuf,origsize,compsize);
-		obuf=tt2;free(tt1);tt1=NULL;
-		if(*obuf!='Y'||obuf[1]!='M')erro(_("unknown format"));
-		tick=*(_UL*)(obuf+12);
-		i=*(_US*)(obuf+20);
-		if(i>0) {
-			i2=*(_US*)(obuf+32)+34;
-			while(i>0) {
-				j=*(_UL*)(obuf+i2);
-				ds[i1].l=j;
-				ds[i1].b=obuf+i2+4;
-				i2+=j+4;
-				i1++;
-				i--;
-			}
-			/*if((*(_UL*)(obuf+16)&0x6000000)==0x2000000) {*/
+		free(tt1);tt1=NULL;
+		/*{FILE *f=fopen("ym_dbg","wb");fwrite(tt2,1,origsize,f);fclose(f);}*/
+		if(*obuf!='Y'||obuf[1]!='M'||strncmp(obuf+4,"LeOnArD!",8))erro(_("unknown format"));
+		yv=obuf[2]-'0';if(yv==3&&obuf[3]=='b')yv=4;
+		printf("YM%d file\n",yv);
+		if(yv>=5) {
+			tick=DWRD(obuf+12);
+			i2=WRD(obuf+20);
+			q=WRD(obuf+26);
+			lp=DWRD(obuf+28);
+			if(lp>=tick)lp=0;
+			i=34+WRD(obuf+32);
+			for(;i2>0;i2--)i+=DWRD(obuf+i)+4;
+			if((i2=strlen((char*)obuf+i)))printf("%s%s\n",name,obuf+i);i+=i2+1;
+			if((i2=strlen((char*)obuf+i)))printf("%s%s\n",author,obuf+i);i+=i2+1;
+			if((i2=strlen((char*)obuf+i)))printf("%s%s\n",comm,obuf+i);i+=i2+1;
+			if(DWRD(obuf+16)&1)yv=5;
+			else yv=6;
+		} else {
+			tick=(origsize-(yv==4?8:4))/14;
+			if(yv==4)lp=DWRD(obuf+4+tick*14);
+			i=4;
 		}
-
+		if(!(raw=calloc(14,tick)))erro(_("out of memory"));
+		if(yv<6)memcpy(raw,obuf+i,tick*14);
+		else for(i2=0;i2<tick;i2++)
+			for(yv=0;yv<14;yv++)
+			    raw[yv*tick+i2]=obuf[i+i2*16+yv];
+		free(tt2);tt2=obuf=raw;
 		} break;
 	    case PSG:
 		puts("PSG file");
 		if(memcmp(ibuf,"PSG\x1a",4))erro(_("bad psg file"));
-		for(t=5,tick=0;t<sb.st_size;t++)if(ibuf[t]==0xff)tick++;
-		printf(_("Length:  %lu min, %lu sec\n"),tick/50L/60L,tick/50L%60L);
-		lp=sb.st_size-4;q=0;
+		for(t=5,tick=0;t<sb.st_size;t++) {
+			if(ibuf[t]==0xff)tick++;
+			else if(ibuf[t]==0xfe)t++,tick+=ibuf[t]<<2;
+			else if(ibuf[t]==0xfd)break;
+		}
+		if(ibuf[4]>=10&&ibuf[4]<128&&ibuf[5]<128)q=ibuf[5];
+		lp=sb.st_size-4;
 		break;
 	    case AY:
 		puts("AY file");
 		ibuf=tt1+12;co=1;
-		printf(_("Misc:    %s\n"),ibuf+PTR(ibuf));
-		printf("%s%s\n",author,ibuf+2+PTR(ibuf+2));
-		ibuf+=6;ibuf+=PTR(ibuf);
-		printf("%s%s\n",name,ibuf+PTR(ibuf));
-		if(tick)printf(_("Length:  %lu min, %lu sec\n"),tick/50L/60L,tick/50L%60L);
-		lp=0;q=0;
+		if(ibuf[PTR(ibuf)])printf("%s%s\n",author,ibuf+PTR(ibuf));ibuf+=2;
+		if(ibuf[PTR(ibuf)])printf(_("Misc:    %s\n"),ibuf+PTR(ibuf));
+		printf(_("Songs #: %d (first=%d)\n"),ibuf[2]+1,ibuf[3]+1);
+		ibuf+=PTR(ibuf+4)+4*ps;
+		if(ibuf[PTR(ibuf)])printf("%s%s\n",name,ibuf+PTR(ibuf));
+		break;
+	    case AYM:
+		puts("AYM file");co=1;
+		memcpy(mem+PLADR+1024,tt1+4,44);
+		xstr(name,PLADR+1024,NULL,28);
+		xstr(author,PLADR+1052,NULL,16);
+		printf(_("Songs #: %d (first=%d)\n"),tt1[0x35]-tt1[0x34]+1,tt1[0x36]+1);
 		break;
 	    case PT1:
 		puts("Protracker 1.x");
 		xstr(name,sngadr+69,NULL,30);
-		lp=0;q=0;
 		break;
 	    case PT2:
 		puts("Protracker 2.x");
 		xstr(name,sngadr+101,NULL,30);
-		lp=0;q=0;
 		break;
 	    case PT3:
-		q=15;if(co==2)sngadr=*(_US*)(DANM(mem)+iadr+1);
-		if(!strncasecmp((char*)(DANM(mem)+sngadr),"Vortex",6))q=23;
-		xstr(NULL,sngadr,NULL,q);
+		i=15;if(co==2)sngadr=*(_US*)(mem+iadr+1);
+		if(!strncasecmp((char*)(mem+sngadr),"Vortex",6))i=23;
+		xstr(NULL,sngadr,NULL,i);
 		xstr(name,sngadr+30,NULL,32);
 		xstr(author,sngadr+66,NULL,32);
-		lp=0;q=0;
 		break;
 	    case STP:
 		puts("Sound Tracker Pro");
@@ -653,69 +699,62 @@ playz:
 			i=xfind(sadr,"KSA ",4);
 			if(i)xstr(name,sadr+i+28,NULL,25);
 		}
-		lp=0;q=0;
 		break;
 	    case STC:
 		puts("Sound Tracker");
-/* ???		if(*(_UC*)(DANM(mem)+sadr+49)>=32) {
-			xstr(name,sadr+49,NULL,10);
-			xstr(author,sadr+63,NULL,12);
-		}*/
-		if((*(_UC*)(DANM(mem)+sngadr+7)>=32)&&strncasecmp((char*)(DANM(mem)+sngadr+7),"SONG BY ST C",12)&&strncasecmp((char*)(DANM(mem)+sngadr+7),"SOUND TR",8))
+		if(mem[sngadr+7]>=32&&strncasecmp((char*)mem+sngadr+7,"SONG BY ST",10)&&strncasecmp((char*)mem+sngadr+7,"SOUND TRA",9))
 		    xstr(name,sngadr+7,NULL,18);
-		lp=0;q=0;
 		break;
 	    case PSC:
 		xstr(NULL,sngadr,NULL,9);
 		xstr(name,sngadr+25,NULL,19);
 		xstr(author,sngadr+49,NULL,19);
-		lp=0;q=0;
 		break;
 	    case ASC:
 		puts("ASC Sound Master");
 		i=xfind(sngadr,"ASM ",4);
 		if(i) {
-			xstr(name,sngadr+i+19+1*(*(DANM(mem)+sngadr+i+19)==0xfd),NULL,20);
+			xstr(name,sngadr+i+19+(mem[sngadr+i+19]==0xfd),NULL,20);
 			xstr(author,sngadr+i+43,NULL,20);
-		} else if(*(_UC*)(DANM(mem)+sadr+39)>=32) {
+		} else if(mem[sadr+39]>=32) {
 			i=xstr(name,sadr+39," BY ",4);
 			xstr(author,sadr+39+i,NULL,32);
 		}
-		lp=0;q=0;
 		break;
 	    case GTR:
 		puts("Global Tracker");
 		xstr(name,sngadr+7,NULL,32);
-		lp=0;q=0;
 		break;
 	    case FTC:
 		puts("Fast Tracker");
 		xstr(name,sngadr+8,NULL,42);
-		lp=0;q=0;
 		break;
 	    case SQT:
 		puts("SQ-Tracker");
-		lp=0;q=0;
 		break;
 	    case FLS:
 		puts("Flash Tracker");
-		lp=0;q=0;
 		break;
 	    case FXM:
 		puts("Fuxoft AY language");
-		lp=0;q=0;
 		break;
 	    default:
 		erro(_("unknown format"));
 		break;
 	}
-	t=0;puts(_("Playing..\n"));
+	if(tick)printf(_("Length:  %lu min, %lu sec\n"),tick/q/60,(tick/q)%60);
+	if(ps>0&&ft!=AY&&ft!=AYM)ps=0;
+	t=0;if(ps<2)puts(_("Playing..\n"));
+	else printf(_("Playing part %d..\n\n"),ps);
 #ifdef USE_ITIMER
 	it.it_interval.tv_sec=0;
-	it.it_interval.tv_usec=20000;
+	it.it_interval.tv_usec=1000000/q;
 	it.it_value=it.it_interval;
 	setitimer(ITIMER_REAL,&it,NULL);
+#else
+	if(q!=50)puts(_("Warning: music may not play correctly!"));
 #endif
+	if(ft!=YM&&ft!=VTX)q=0;
 	while(!quitflag
 #ifndef UNIX
 #ifndef WIN32
