@@ -2,7 +2,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([ayplayer],[0.99],[sisoft@bk.ru])
 AM_INIT_AUTOMAKE([ayplayer],[0.99])
-AC_REVISION([$Id: configure.in,v 1.8 2004/03/11 17:27:52 root Exp $])
+AC_REVISION([$Id: configure.in,v 1.9 2005/12/11 11:39:13 root Exp $])
 AC_PREREQ(2.53)
 AC_CONFIG_SRCDIR([src/ayplay.c])
 AM_CONFIG_HEADER([config.h])
@@ -20,8 +20,11 @@ AM_GNU_GETTEXT_VERSION(0.14)
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
-AC_CHECK_HEADER(sys/soundcard.h,oss=yes,oss=no)
+AC_CHECK_HEADERS([stdlib.h string.h unistd.h malloc.h])
+AC_CHECK_HEADER([sys/soundcard.h],oss=yes,oss=no)
+AC_CHECK_HEADER([windows.h],windows=yes,windows=no)
+AC_CHECK_HEADER([mmsystem.h],winmm=yes,winmm=no,[#include <windows.h>])
+AC_CHECK_HEADER([dsound.h],dsound=yes,dsound=no,[#include <windows.h>])
 
 dnl Checks for library functions.
 AC_FUNC_MALLOC
@@ -44,19 +47,31 @@ fi
 dnl for sound output
 AC_MSG_CHECKING([for sound output])
 AC_ARG_WITH(lptport,AC_HELP_STRING([--with-lptport=hexaddr],[specifies LPT port address (none)]),,with_lptport=no)
+AC_ARG_ENABLE(directsound,AC_HELP_STRING([--enable-directsound],[enable use of DirectSound on Win32]),,with_dsound=no)
 case "$with_lptport" in
 	no)	if test "x$oss" = "xyes"; then
 			AC_MSG_RESULT(OSS emulaion)
 		else
-			AC_MSG_ERROR(no sound outputs found)
+		    if test "x$dsound" = "xyes" -a "x$with_dsound" = "xyes"; then
+			AC_MSG_RESULT(Win32 DirectSound)
+			AC_DEFINE_UNQUOTED(DSOUND,1,[use DirectSound])
+			LDADD="-ldsound -lwinmm $LDADD"
+		    else
+			if test "x$winmm" = "xyes"; then
+			    AC_MSG_RESULT(Win32 WaveOut)
+			    LDADD="-lwinmm $LDADD"
+			else
+			    AC_MSG_ERROR(no sound outputs found)
+			fi
+		    fi
 		fi;;
-	0x378)	AC_MSG_RESULT(LPT1 (0x378));oss="no";;
-	0x278)	AC_MSG_RESULT(LPT2 (0x278));oss="no";;
-	0x3bc)	AC_MSG_RESULT(LPT3 (0x3bc));oss="no";;
-	0x???)	AC_MSG_RESULT(LPT on $with_lptport);oss="no";;
+	0x378)	AC_MSG_RESULT(LPT1 (0x378));dig="no";;
+	0x278)	AC_MSG_RESULT(LPT2 (0x278));dig="no";;
+	0x3bc)	AC_MSG_RESULT(LPT3 (0x3bc));dig="no";;
+	0x???)	AC_MSG_RESULT(LPT on $with_lptport);dig="no";;
 	*)	AC_MSG_ERROR([Address '$with_lock_style' must be in hex style, ex. 0x378]);;
 esac
-if test "x$oss" = "xno"; then
+if test "x$dig" = "xno"; then
 	AC_DEFINE_UNQUOTED(LPT_PORT,$with_lptport,[LPT port address])
 fi
 
@@ -65,7 +80,13 @@ if test "x$USE_MAINTAINER_MODE" = "xyes"; then
 	CFLAGS="$CFLAGS -Wall -pedantic -O3"
 fi
 
-AC_DEFINE_UNQUOTED(UNIX,1,[Compile with UNIX-style includes])
+if test "x$windows" = "xyes"; then
+    AC_DEFINE_UNQUOTED(WIN32,1,[Compile with Win32-style includes])
+else
+    AC_DEFINE_UNQUOTED(UNIX,1,[Compile with UNIX-style includes])
+fi
+
+AC_SUBST(LDADD)
 
 AC_CONFIG_FILES([Makefile src/Makefile po/Makefile.in])
 

@@ -1,28 +1,39 @@
-/* (c)2003 sisoft\trg - AYplayer.
-\* $Id: sndemu.c,v 1.2 2004/04/26 12:18:52 root Exp $
+/* (c)2005 sisoft\trg - AYplayer.
+\* $Id: sndemu.c,v 1.3 2005/12/11 11:39:20 root Exp $
  \ base version of this file was taken from aylet-0.3 by Russell Marks. */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <unistd.h>
-#include "z80.h"
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 #ifndef LPT_PORT
+#ifdef UNIX
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <sys/soundcard.h>
+#else/*unix*/
+#ifdef WIN32
+#include <windows.h>
+#include <malloc.h>
+#include <mmsystem.h>
+#ifdef DSOUND
+#include <dsound.h>
+#endif
+#endif
+#endif
+#include <stdio.h>
+#include "ayplay.h"
+#include "z80.h"
 
-#define BASE_SOUND_FRAG_PWR	4
+#define BASE_SOUND_FRAG_PWR	6
 #define AY_CLOCK		1773400
-#define AMPL_AY_TONE		28
+#define AMPL_AY_TONE		26
 #define AY_CHANGE_MAX		8000
-#define STEREO_BUF_SIZE 1024
+#define STEREO_BUF_SIZE		1024
 
 int soundfd=-1;
 int sixteenbit=1;
@@ -42,7 +53,7 @@ static unsigned int ay_tick_incr;
 static unsigned int ay_tone_period[3],ay_noise_period,ay_env_period;
 static unsigned char sound_ay_registers[16];
 
-static struct ay_change_tag {
+struct ay_change_tag {
     unsigned char reg,val;
 };
 
@@ -51,6 +62,121 @@ static int ay_change_count;
 static int rstereobuf_l[STEREO_BUF_SIZE],rstereobuf_r[STEREO_BUF_SIZE];
 static int rstereopos,rchan1pos,rchan2pos,rchan3pos;
 
+#ifdef WIN32
+#ifdef DSOUND
+
+#define MAX_AUDIO_BUFFER 8192*5
+LPDIRECTSOUND lpDS; /* DirectSound object */
+LPDIRECTSOUNDBUFFER lpDSBuffer; /* sound buffer */
+DWORD nextpos; /* next position is circular buffer */
+
+static int driver_init(int *freqptr,int *stereoptr)
+{
+    WAVEFORMATEX pcmwf; /* waveformat struct */
+    DSBUFFERDESC dsbd; /* buffer description */
+    CoInitialize(NULL);
+    if(CoCreateInstance(&CLSID_DirectSound,NULL,CLSCTX_INPROC_SERVER,&IID_IDirectSound,(void**)&lpDS) != DS_OK) {
+        return 0;
+    }
+    if(IDirectSound_Initialize(lpDS,NULL) != DS_OK) {
+        return 0;
+    }
+    if(IDirectSound_SetCooperativeLevel(lpDS,GetDesktopWindow(),DSSCL_NORMAL) != DS_OK) {
+        return 0;
+    }
+    memset(&pcmwf,0,sizeof(WAVEFORMATEX));
+    pcmwf.cbSize=0;
+    pcmwf.nChannels=*stereoptr ? 2 : 1;
+    pcmwf.nBlockAlign=pcmwf.nChannels; /* number of channels * number of bytes per channel */
+    pcmwf.nSamplesPerSec=*freqptr;
+    pcmwf.nAvgBytesPerSec=pcmwf.nSamplesPerSec * pcmwf. nBlockAlign;
+    pcmwf.wBitsPerSample=8;
+    pcmwf.wFormatTag=WAVE_FORMAT_PCM;
+    memset(&dsbd,0,sizeof(DSBUFFERDESC));
+    dsbd.dwBufferBytes=MAX_AUDIO_BUFFER;
+    dsbd.dwFlags=DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE;
+    dsbd.dwSize=sizeof(DSBUFFERDESC);
+    dsbd.lpwfxFormat=&pcmwf;
+    if(IDirectSound_CreateSoundBuffer(lpDS,&dsbd,&lpDSBuffer,NULL) != DS_OK) {
+        return 0;
+    }
+    if(IDirectSoundBuffer_Play(lpDSBuffer,0,0,DSBPLAY_LOOPING) != DS_OK) {
+        return 0;
+    }
+    nextpos=0;
+    return 1;
+}
+
+static void driver_end()
+{
+    IDirectSoundBuffer_Stop(lpDSBuffer);
+    IDirectSoundBuffer_Release(lpDSBuffer);
+    IDirectSound_Release(lpDS);
+    CoUninitialize();
+}
+
+static void driver_frame(unsigned char *data,int len)
+{
+    HRESULT hres;
+    int i;
+    UCHAR * ucbuffer1,*ucbuffer2;
+    DWORD length1,length2;
+    hres=IDirectSoundBuffer_Lock(lpDSBuffer,nextpos,(DWORD)len,(void **)&ucbuffer1,&length1,(void **)&ucbuffer2,&length2,DSBLOCK_ENTIREBUFFER);
+    if (hres != DS_OK) return; /* couldn't get a lock on the buffer */
+    for(i=0; i<length1 && i<len; i++) {
+        ucbuffer1[ i ]=*data++;
+        nextpos++;
+    }
+    for(i=0; i<length2 && i+length1<len; i++) {
+        ucbuffer2[ i ]=*data++;
+        nextpos++;
+    }
+    if(nextpos >= MAX_AUDIO_BUFFER) nextpos -= MAX_AUDIO_BUFFER;
+    IDirectSoundBuffer_Unlock(lpDSBuffer,ucbuffer1,length1,ucbuffer2,length2);
+}
+#else
+
+HWAVEOUT WaveOutHandle;
+
+static int driver_init(int *freqptr,int *stereoptr)
+{
+    WAVEFORMATEX pcmwf;
+    UINT hr;
+    pcmwf.wFormatTag        = WAVE_FORMAT_PCM;
+    pcmwf.nChannels         = *stereoptr ? 2 : 1;
+    pcmwf.wBitsPerSample    = 8;
+    pcmwf.nBlockAlign       = pcmwf.nChannels * pcmwf.wBitsPerSample / 8;
+    pcmwf.nSamplesPerSec    = *freqptr;
+    pcmwf.nAvgBytesPerSec   = pcmwf.nSamplesPerSec * pcmwf.nBlockAlign;
+    pcmwf.cbSize            = 0;
+    hr = waveOutOpen(&WaveOutHandle, WAVE_MAPPER, &pcmwf, 0, 0, 0);
+    if(hr)return 0;
+}
+
+static void driver_end()
+{
+    waveOutReset(WaveOutHandle);
+    waveOutClose(WaveOutHandle);
+}
+
+static void driver_frame(unsigned char *data,int len)
+{
+    WAVEHDR wavehdr;
+    wavehdr.dwFlags = WHDR_BEGINLOOP | WHDR_ENDLOOP;
+    wavehdr.lpData = (LPSTR)data;
+    wavehdr.dwBufferLength = len;
+    wavehdr.dwBytesRecorded = 0;
+    wavehdr.dwUser = 0;
+    wavehdr.dwLoops = -1;
+    waveOutPrepareHeader(WaveOutHandle, &wavehdr, sizeof(WAVEHDR));
+    waveOutWrite(WaveOutHandle, &wavehdr, sizeof(WAVEHDR));
+    if(wavehdr.lpData) {
+        waveOutUnprepareHeader(WaveOutHandle, &wavehdr, sizeof(WAVEHDR));
+	wavehdr.dwFlags &= ~WHDR_PREPARED;
+    }
+}
+#endif
+#endif
 
 #ifdef UNIX
 static int driver_init(int *freqptr,int *stereoptr)
@@ -67,11 +193,11 @@ static int driver_init(int *freqptr,int *stereoptr)
         close(soundfd);
         return(0);
     }
-    frag=(0x40000|BASE_SOUND_FRAG_PWR);
     if(ioctl(soundfd,SNDCTL_DSP_SPEED,freqptr)<0) {
         close(soundfd);
         return(0);
     }
+    frag=(0x80000|BASE_SOUND_FRAG_PWR);
     if(*freqptr>8250) frag++;
     if(*freqptr>16500) frag++;
     if(*freqptr>33000) frag++;
@@ -118,10 +244,10 @@ static void sound_ay_init()
 {
     int f;
     static int levels[16]= {
-            0x0000, 0x0385, 0x053D, 0x0770,
-            0x0AD7, 0x0FD5, 0x15B0, 0x230C,
-            0x2B4C, 0x43C1, 0x5A4B, 0x732F,
-            0x9204, 0xAFF1, 0xD921, 0xFFFF
+            0x0000, 0x0344, 0x04BC, 0x06ED,
+            0x0A3D, 0x0F23, 0x1515, 0x2277,
+            0x2898, 0x4142, 0x5B2B, 0x726C,
+            0x9069, 0xB555, 0xD79B, 0xFFFF
     };
     for(f=0;f<16;f++)ay_tone_levels[f]=(levels[f]*AMPL_AY_TONE+0x8000)/0xffff;
     ay_noise_tick=ay_noise_period=0;
@@ -365,7 +491,7 @@ void sound_frame_blank()
         first=0;
         memset(buf,128,sizeof(buf));
     }
-    if(sizeof(buf)<fulllen) {
+    if((int)sizeof(buf)<fulllen) {
         usleep(20000);
         return;
     }

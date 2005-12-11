@@ -1,4 +1,4 @@
-# Russian translations for ayplayer package
+# Russian translations for ayplayer package.
 # Английские переводы для пакета ayplayer.
 # Copyright (C) 2004 Free Software Foundation, Inc.
 # This file is distributed under the same license as the ayplayer package.
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ayplayer 0.99\n"
 "Report-Msgid-Bugs-To: sisoft@bk.ru\n"
-"POT-Creation-Date: 2005-04-08 16:15+0400\n"
+"POT-Creation-Date: 2005-12-11 13:02+0300\n"
 "PO-Revision-Date: 2005-04-08 15:00+0400\n"
 "Last-Translator: Stepan A. Pologov <sisoft@bk.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -113,8 +113,8 @@ msgstr "Название: "
 msgid "Author:  "
 msgstr "Автор:    "
 
-#: src/ayplay.c:261 src/ayplay.c:281 src/ayplay.c:520 src/ayplay.c:550
-#: src/ayplay.c:609 src/ayplay.c:620 src/ayplay.c:645 src/unlzh.c:111
+#: src/ayplay.c:261 src/ayplay.c:283 src/ayplay.c:522 src/ayplay.c:552
+#: src/ayplay.c:613 src/ayplay.c:624 src/ayplay.c:649 src/unlzh.c:111
 msgid "out of memory"
 msgstr "мало памяти"
 
@@ -126,27 +126,27 @@ msgstr ""
 "\n"
 "Файл:     AYPlayer demo song"
 
-#: src/ayplay.c:271
+#: src/ayplay.c:272
 msgid "can't gzip sound file"
 msgstr "не могу распаковать файл"
 
-#: src/ayplay.c:274
+#: src/ayplay.c:276
 msgid "can't stat sound file"
 msgstr "не могу найти файл"
 
-#: src/ayplay.c:275
+#: src/ayplay.c:277
 msgid "file is empty"
 msgstr "файл пуст"
 
-#: src/ayplay.c:276
+#: src/ayplay.c:278
 msgid "no file extension"
 msgstr "у файла нет расширения"
 
-#: src/ayplay.c:282 src/ayplay.c:316
+#: src/ayplay.c:284 src/ayplay.c:318
 msgid "can't open sound file"
 msgstr "не могу открыть файл"
 
-#: src/ayplay.c:324
+#: src/ayplay.c:326
 msgid ""
 "\n"
 "Warn: corrupted hobeta file!"
@@ -154,27 +154,27 @@ msgstr ""
 "\n"
 "!!! плохой hobeta-заголовок!"
 
-#: src/ayplay.c:335
+#: src/ayplay.c:337
 msgid "Uncompiled SoundTracker modules is not supported"
 msgstr "некомпилированные модули SoundTracker не поддерживаются"
 
-#: src/ayplay.c:337
+#: src/ayplay.c:339
 msgid "Extension of this file is not supported"
 msgstr "Данный формат не поддерживается"
 
-#: src/ayplay.c:500
+#: src/ayplay.c:502
 msgid "bad fls file"
 msgstr "плохой fls модуль"
 
-#: src/ayplay.c:522 src/ayplay.c:552 src/ayplay.c:624 src/ayplay.c:742
+#: src/ayplay.c:524 src/ayplay.c:554 src/ayplay.c:628 src/ayplay.c:746
 msgid "unknown format"
 msgstr "неизвестный формат"
 
-#: src/ayplay.c:523 src/ayplay.c:573
+#: src/ayplay.c:525 src/ayplay.c:575
 msgid "bad file format"
 msgstr "файл повреждён"
 
-#: src/ayplay.c:590
+#: src/ayplay.c:594
 #, c-format
 msgid ""
 "\n"
@@ -183,47 +183,47 @@ msgstr ""
 "\n"
 "Файл:     %s\n"
 
-#: src/ayplay.c:598
+#: src/ayplay.c:602
 #, c-format
 msgid "Type:    %s%s"
 msgstr "Модуль:   %s%s"
 
-#: src/ayplay.c:598
+#: src/ayplay.c:602
 msgid "packed "
 msgstr "упакованный "
 
-#: src/ayplay.c:598
+#: src/ayplay.c:602
 msgid "compiled "
 msgstr "компилированный "
 
-#: src/ayplay.c:616
+#: src/ayplay.c:620
 msgid "unknown archive type"
 msgstr "неизвестный архив"
 
-#: src/ayplay.c:654
+#: src/ayplay.c:658
 msgid "bad psg file"
 msgstr "плохой psg файл"
 
-#: src/ayplay.c:667
+#: src/ayplay.c:671
 #, c-format
 msgid "Misc:    %s\n"
 msgstr "Прочее:   %s\n"
 
-#: src/ayplay.c:668 src/ayplay.c:677
+#: src/ayplay.c:672 src/ayplay.c:681
 #, c-format
 msgid "Songs #: %d (first=%d)\n"
 msgstr "Мелодий:  %d (начать c %d)\n"
 
-#: src/ayplay.c:745
+#: src/ayplay.c:749
 #, c-format
 msgid "Length:  %lu min, %lu sec\n"
 msgstr "Длина:    %lu мин, %lu сек.\n"
 
-#: src/ayplay.c:747
+#: src/ayplay.c:751
 msgid "Playing..\n"
 msgstr "Слушаем..\n"
 
-#: src/ayplay.c:748
+#: src/ayplay.c:752
 #, c-format
 msgid ""
 "Playing part %d..\n"
@@ -232,11 +232,11 @@ msgstr ""
 "Слушаем %d-ю часть..\n"
 "\n"
 
-#: src/ayplay.c:755
+#: src/ayplay.c:759
 msgid "Warning: music may not play correctly!"
 msgstr "Внимание! модуль может звучать неверно!"
 
-#: src/ayplay.c:768
+#: src/ayplay.c:772
 msgid ""
 "\n"
 "Exiting.."

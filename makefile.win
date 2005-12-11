@@ -1,18 +1,21 @@
-#(c)2004 sisoft\trg - AYplayer.
-# $Id: makefile.win,v 1.16 2004/08/02 09:43:57 root Exp $
+#(c)2005 sisoft\trg - AYplayer.
+# $Id: makefile.win,v 1.17 2005/12/11 11:39:13 root Exp $
 
-#MAKE = wmake
+MAKE = wmake
+
+SYSTEM = DOS
+#SYSTEM = WIN32
 
 all: help
-help:
-	echo type 'make real' or 'make adlib' for making.
+help: .symbolic
+	@echo type 'make real' or 'make adlib' for making.
 
-real:
-	$(MAKE) -f src/makefile.win CDEFS=-dLPTPORT=0x378 all
-adlib:
-	$(MAKE) -f src/makefile.win CDEFS=-dADLIB all
+real: .symbolic
+	$(MAKE) -C src -f makefile.win CDEFS_OPT="-dLPT_PORT=0x378 -d$(SYSTEM)" all
+adlib: .symbolic
+	$(MAKE) -C src -f makefile.win CDEFS_OPT="-dADLIB -d$(SYSTEM)" all
 
-install:
-	$(MAKE) -f src/makefile.win install
-clean:
-	$(MAKE) -f src/makefile.win clean
+install: .symbolic
+	$(MAKE) -C src -f makefile.win install
+clean: .symbolic
+	$(MAKE) -C src -f makefile.win clean

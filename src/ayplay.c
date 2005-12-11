@@ -1,5 +1,5 @@
 /* (c)2005 sisoft\trg - AYplayer.
-\* $Id: ayplay.c,v 1.7 2005/04/08 12:19:25 root Exp $ */
+\* $Id: ayplay.c,v 1.8 2005/12/11 11:39:20 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -263,6 +263,7 @@ int main(int argc,char *argv[])
 		puts(_("\nFile:    AYPlayer demo song"));
 		goto playz;
 	}
+#ifdef UNIX
 	if(!strcasecmp(strrchr(argv[1],'.'),".gz")) {
 		char cmd[256];
 		nam=tmpnam(NULL);
@@ -270,6 +271,7 @@ int main(int argc,char *argv[])
 		snprintf(cmd,256,"gzip -cd %s >%s 2>/dev/null",argv[1],nam);
 		if(system(cmd)){unlink(nam);erro(_("can't gzip sound file"));}
 	}
+#endif
 	if(argc==3)ps=atoi(argv[2]);
 	if(stat(nam?nam:argv[1],&sb))erro(_("can't stat sound file"));
 	if(sb.st_size<128)erro(_("file is empty"));
@@ -519,8 +521,8 @@ again:			switch(ft) {
 			    case AY:
 				if(!(tt1=malloc(sb.st_size)))erro(_("out of memory"));
 				fread(tt1,1,sb.st_size,infile);
-				if(strncmp(tt1,"ZXAY",4))erro(_("unknown format"));
-				if(strncmp(tt1+4,"EMUL",4))erro(_("bad file format"));
+				if(strncmp((char*)tt1,"ZXAY",4))erro(_("unknown format"));
+				if(strncmp((char*)(tt1+4),"EMUL",4))erro(_("bad file format"));
 				if(ps<1)ps=tt1[17]+1;
 				if(ps-1>tt1[16])ps=tt1[16]+1;
 				ibuf=tt1+18;
@@ -549,7 +551,7 @@ again:			switch(ft) {
 			    case AYM:
 				if(!(tt1=malloc(sb.st_size)))erro(_("out of memory"));
 				fread(tt1,1,sb.st_size,infile);
-				if(strncmp(tt1,"AYM0",4))erro(_("unknown format"));
+				if(strncmp((char*)tt1,"AYM0",4))erro(_("unknown format"));
 				ibuf=tt1+0x45;
 				iadr=*(_US*)(tt1+0x30);
 				padr=*(_US*)(tt1+0x32);
@@ -586,7 +588,9 @@ again:			switch(ft) {
 			fclose(infile);
 		}
 	}
+#ifdef UNIX
 	if(nam)unlink(nam);
+#endif
 	printf(_("\nFile:    %s\n"),argv[1]);
 playz:
 #ifdef UNIX
@@ -621,7 +625,7 @@ playz:
 		unlh5(ibuf,obuf,origsize,compsize);
 		free(tt1);tt1=NULL;
 		/*{FILE *f=fopen("ym_dbg","wb");fwrite(tt2,1,origsize,f);fclose(f);}*/
-		if(*obuf!='Y'||obuf[1]!='M'||strncmp(obuf+4,"LeOnArD!",8))erro(_("unknown format"));
+		if(*obuf!='Y'||obuf[1]!='M'||strncmp((char*)(obuf+4),"LeOnArD!",8))erro(_("unknown format"));
 		yv=obuf[2]-'0';if(yv==3&&obuf[3]=='b')yv=4;
 		printf("YM%d file\n",yv);
 		if(yv>=5) {
@@ -652,7 +656,7 @@ playz:
 	    case PSG:
 		puts("PSG file");
 		if(memcmp(ibuf,"PSG\x1a",4))erro(_("bad psg file"));
-		for(t=5,tick=0;t<sb.st_size;t++) {
+		for(t=5,tick=0;t<(_UL)sb.st_size;t++) {
 			if(ibuf[t]==0xff)tick++;
 			else if(ibuf[t]==0xfe)t++,tick+=ibuf[t]<<2;
 			else if(ibuf[t]==0xfd)break;

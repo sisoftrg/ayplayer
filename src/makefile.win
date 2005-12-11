@@ -1,24 +1,25 @@
-#(c)2004 sisoft\trg - AYplayer.
-# $Id: makefile.win,v 1.2 2004/08/02 09:44:26 root Exp $
+#(c)2005 sisoft\trg - AYplayer.
+# $Id: makefile.win,v 1.3 2005/12/11 11:39:20 root Exp $
 
 CC = wcc386
 LD = wlink
 CFLAGS = -5r -w9 -mf -ox -j -bt=windows -zq -fo=$^&
 LFLAGS = op{q} system dos4g
-CDEFS += -dEZ80
+CDEFS = -dEZ80
 
 all: ayplayer.exe
 
-ayplay.obj:	ayplay.c ayplay.h z80.h makefile.win
+ayplay.obj:	ayplay.c ayplay.h z80.h players.h i18.h makefile.win
 unlzh.obj:	unlzh.c ayplay.h makefile.win
 z80.obj:	z80.c z80.h ayplay.h makefile.win
+sndemu.obj:	sndemu.c ayplay.h z80.h makefile.win
 sndemu_w.obj:	sndemu_w.c ayplay.h z80.h makefile.win
-players.obj:	players.h ayplay.h makefile.win
+players.obj:	players.h demo_pl.c ayplay.h makefile.win
 
 Z80_OBJS = z80_step.obj z80optab.obj z80_op1.obj z80_op2.obj &
 	   z80_op3.obj z80_op4.obj z80_op5.obj z80_op6.obj
 
-OBJS = ayplay.obj unlzh.obj z80.obj $(Z80_OBJS) sndemu_w.obj players.obj malloc.obj
+OBJS = ayplay.obj unlzh.obj z80.obj $(Z80_OBJS) sndemu.obj sndemu_w.obj players.obj
 
 ayplayer.lnk: makefile.win
 	@%create ayplayer.lnk
@@ -26,7 +27,7 @@ ayplayer.lnk: makefile.win
 	@for %i in ($(OBJS)) do @%append ayplayer.lnk file %i
 
 .c.obj:
-	$(CC) $(CFLAGS) $(CDEFS) $[&
+	$(CC) $(CFLAGS) $(CDEFS) $(CDEFS_OPT) $[&
 
 ayplayer.exe: $(OBJS) makefile.win ayplayer.lnk
 	$(LD) $(LFLAGS) @$^*

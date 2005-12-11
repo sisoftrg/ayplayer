@@ -1,5 +1,5 @@
 /* (c)2003 sisoft\trg - AYplayer.
-\* $Id: unlzh.c,v 1.4 2005/04/08 12:19:25 root Exp $ */
+\* $Id: unlzh.c,v 1.5 2005/12/11 11:39:20 root Exp $ */
 #include "ayplay.h"
 
 static _US left[1019],right[1019],pt_table[256],bitbuf=0;
@@ -39,23 +39,23 @@ static void make_table(short nchar,_UC bitlen[],short tablebits,_US table[])
 		count[i]=0;
 		weight[i]=1<<(16-i);
 	}
-	for(i=0;i<nchar;i++)count[bitlen[i]]++;
+	for(i=0;i<(unsigned)nchar;i++)count[bitlen[i]]++;
 	for(i=1;i<=16;i++) {
 		start[i]=total;
 		total+=weight[i]*count[i];
 	}
 	if(total&0xffff)erro(_("bad file structure"));
-	for(i=1;i<=tablebits;i++) {
+	for(i=1;i<=(unsigned)tablebits;i++) {
 		start[i]>>=m;
 		weight[i]>>=m;
 	}
 	j=start[tablebits+1]>>m;
-	if(j)for(i=j;i<k;i++)table[i]=0;
+	if(j)for(i=j;(int)i<k;i++)table[i]=0;
 	for(j=0;j<nchar;j++) {
 		k=bitlen[j];
 		if(!k)continue;
 		l=start[k]+weight[k];
-		if(k<=tablebits)for(i=start[k];i<l;i++)table[i]=j;
+		if(k<=tablebits)for(i=start[k];(int)i<l;i++)table[i]=j;
 		else {
 			p=&table[(i=start[k])>>m];
 			i<<=tablebits;
