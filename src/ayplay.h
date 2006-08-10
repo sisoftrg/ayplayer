@@ -1,5 +1,5 @@
-/* (c)2005 sisoft\trg - AYplayer.
-\* $Id: ayplay.h,v 1.6 2005/12/11 11:39:20 root Exp $ */
+/* AYplayer (c)2001-2006 sisoft//trg.
+\* $Id: ayplay.h,v 1.7 2006/08/10 03:13:52 root Exp $ */
 #ifndef __AYPLAY_H_
 #define __AYPLAY_H_
 
@@ -37,7 +37,7 @@
 #define strncasecmp strnicmp
 #ifdef WIN32
 #define XSLEEP
-#define usleep(x) Sleep(x)
+#define usleep(x) Sleep((x)>1000?(x)/1000:1)
 #ifdef LPT_PORT
 #define outb(d,p)
 #endif/*lpt*/

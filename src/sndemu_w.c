@@ -1,5 +1,5 @@
-/* (c)2003 sisoft\trg - AYplayer.
-\* $Id: sndemu_w.c,v 1.3 2004/08/02 09:44:26 root Exp $
+/* AYplayer (c)2001-2006 sisoft//trg.
+\* $Id: sndemu_w.c,v 1.4 2006/08/10 03:13:55 root Exp $
  \ base version of this file was taken from x128 emulator by James McKay. */
 
 #include "ayplay.h"

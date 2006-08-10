@@ -1,5 +1,5 @@
-#(c)2005 sisoft\trg - AYplayer.
-# $Id: makefile.win,v 1.17 2005/12/11 11:39:13 root Exp $
+# AYplayer (c)2001-2006 sisoft//trg.
+# $Id: makefile.win,v 1.18 2006/08/10 03:13:46 root Exp $
 
 MAKE = wmake
 

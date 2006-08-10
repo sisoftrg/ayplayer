@@ -1,5 +1,5 @@
-/* (c)2005 sisoft\trg - AYplayer.
-\* $Id: sndemu.c,v 1.3 2005/12/11 11:39:20 root Exp $
+/* AYplayer (c)2001-2006 sisoft//trg.
+\* $Id: sndemu.c,v 1.4 2006/08/10 03:13:55 root Exp $
  \ base version of this file was taken from aylet-0.3 by Russell Marks. */
 
 #ifdef HAVE_CONFIG_H
@@ -243,7 +243,7 @@ static void driver_frame(unsigned char *data,int len)
 static void sound_ay_init()
 {
     int f;
-    static int levels[16]= {
+    static const int levels[16]= {
             0x0000, 0x0344, 0x04BC, 0x06ED,
             0x0A3D, 0x0F23, 0x1515, 0x2277,
             0x2898, 0x4142, 0x5B2B, 0x726C,
@@ -292,12 +292,10 @@ void sound_end()
 
 #define AY_DO_TONE(var,chan) \
   is_low=0;								\
-  if(is_on) {								\
-    (var)=0;								\
-    if(level) {								\
-      if(ay_tone_high[chan]) (var)= (level);				\
-      else (var)=-(level),is_low=1;					\
-    }									\
+  (var)=0;								\
+  if(level) {								\
+    if(ay_tone_high[chan]) (var)=(level);				\
+    else (var)=-(level),is_low=1;					\
   }									\
   ay_tone_tick[chan]+=tone_count;					\
   count=0;								\
@@ -305,12 +303,12 @@ void sound_end()
     count++;								\
     ay_tone_tick[chan]-=ay_tone_period[chan];				\
     ay_tone_high[chan]=!ay_tone_high[chan];				\
-    if(is_on && count==1 && level && ay_tone_tick[chan]<tone_count) {	\
+    if(count==1 && level && ay_tone_tick[chan]<tone_count) {		\
       if(is_low) (var)+=AY_GET_SUBVAL(chan);				\
       else (var)-=AY_GET_SUBVAL(chan);					\
     }									\
   }									\
-  if(is_on && count>1) (var)=-(level)
+  if(count>1) (var)=-(level)
 
 #define GEN_STEREO(pos,val) \
   if((pos)<0) {							\
@@ -338,7 +336,7 @@ static void sound_ay_overlay()
     struct ay_change_tag *change_ptr=ay_change;
     int changes_left=ay_change_count;
     int reg,r;
-    int is_low,is_on;
+    int is_low;
     int chan1,chan2,chan3;
     unsigned int tone_count,noise_count;
     for(f=0,ptr=sound_buf;f<sound_framesiz;f++) {
@@ -411,14 +409,20 @@ static void sound_ay_overlay()
         ay_tone_subcycles+=ay_tick_incr;
         tone_count=ay_tone_subcycles>>(3+16);
         ay_tone_subcycles&=(8<<16)-1;
-        level=chan1; is_on=!(mixer&1);
-        AY_DO_TONE(chan1,0);
+	if((mixer&1)==0) {
+            level=chan1;
+            AY_DO_TONE(chan1,0);
+        }
         if((mixer&0x08)==0 && noise_toggle)chan1=0;
-        level=chan2; is_on=!(mixer&2);
-        AY_DO_TONE(chan2,1);
+	if((mixer&2)==0) {
+            level=chan2;
+            AY_DO_TONE(chan2,1);
+        }
         if((mixer&0x10)==0 && noise_toggle)chan2=0;
-        level=chan3; is_on=!(mixer&4);
-        AY_DO_TONE(chan3,2);
+	if((mixer&4)==0) {
+            level=chan3;
+            AY_DO_TONE(chan3,2);
+        }
         if((mixer&0x20)==0 && noise_toggle)chan3=0;
         if(!sound_stereo) {
             (*ptr++)+=chan1+chan2+chan3;
@@ -447,7 +451,7 @@ void sound_ay_write(int reg,int val)
 {
     if(reg>=15) return;
     if(ay_change_count<AY_CHANGE_MAX) {
-        ay_change[ay_change_count].reg=reg;
+        ay_change[ay_change_count].reg=reg&15;
         ay_change[ay_change_count].val=val;
         ay_change_count++;
     }

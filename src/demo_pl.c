@@ -1,5 +1,5 @@
-/* (c)2003 sisoft\trg - AYplayer.
-\* $Id: demo_pl.c,v 1.2 2004/04/26 12:18:51 root Exp $
+/* AYplayer (c)2001-2006 sisoft//trg.
+\* $Id: demo_pl.c,v 1.3 2006/08/10 03:13:52 root Exp $
  \ demo song <something.vtx> */
 
 unsigned char DEMO_D[] = {

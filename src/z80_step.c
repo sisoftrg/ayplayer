@@ -1,5 +1,5 @@
-/* (c)2003 sisoft\trg - AYplayer.
-\* $Id: z80_step.c,v 1.3 2004/08/02 09:44:26 root Exp $
+/* AYplayer (c)2001-2006 sisoft//trg.
+\* $Id: z80_step.c,v 1.4 2006/08/10 03:13:59 root Exp $
  \ original version of this file was taken from SpectEmu0.92 by Miklos Szeredi
   */
 #include "z80_emu.h"

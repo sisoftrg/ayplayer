@@ -1,8 +1,8 @@
-# (c)2004 sisoft\trg - AYplayer.
+# AYplayer (c)2001-2006 sisoft//trg.
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([ayplayer],[0.99],[sisoft@bk.ru])
-AM_INIT_AUTOMAKE([ayplayer],[0.99])
-AC_REVISION([$Id: configure.in,v 1.9 2005/12/11 11:39:13 root Exp $])
+AC_INIT([ayplayer],[0.15],[sisoft@bk.ru])
+AM_INIT_AUTOMAKE([ayplayer],[0.15])
+AC_REVISION([$Id: configure.in,v 1.10 2006/08/10 03:13:45 root Exp $])
 AC_PREREQ(2.53)
 AC_CONFIG_SRCDIR([src/ayplay.c])
 AM_CONFIG_HEADER([config.h])

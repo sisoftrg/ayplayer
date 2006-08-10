@@ -1,5 +1,5 @@
-/* (c)2005 sisoft\trg - AYplayer.
-\* $Id: ayplay.c,v 1.8 2005/12/11 11:39:20 root Exp $ */
+/* AYplayer (c)2001-2006 sisoft//trg.
+\* $Id: ayplay.c,v 1.9 2006/08/10 03:13:52 root Exp $ */
 #include "ayplay.h"
 #include "z80.h"
 
@@ -242,7 +242,7 @@ int main(int argc,char *argv[])
 #ifdef USE_ITIMER
 	struct itimerval it;
 #endif
-	puts("\n AY Player'2005, for real AY chip on LPT port");
+	puts("\n AY sound player for real AY chip on LPT port");
 	puts("(c) Stepan Pologov (sisoft//trg), sisoft@bk.ru");
 	GT_INIT;
 	if((argc!=2&&(argc!=3||(*argv[2]&0xf0)!=0x30))||!strchr(argv[1],'.'))erro(NULL);

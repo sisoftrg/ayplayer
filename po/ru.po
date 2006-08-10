@@ -2,14 +2,14 @@
 # Английские переводы для пакета ayplayer.
 # Copyright (C) 2004 Free Software Foundation, Inc.
 # This file is distributed under the same license as the ayplayer package.
-# Stepan A. Pologov <sisoft@bk.ru>, 2005.
+# Stepan A. Pologov <sisoft@bk.ru>, 2004-2006.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ayplayer 0.99\n"
+"Project-Id-Version: ayplayer 0.15\n"
 "Report-Msgid-Bugs-To: sisoft@bk.ru\n"
-"POT-Creation-Date: 2005-12-11 13:02+0300\n"
-"PO-Revision-Date: 2005-04-08 15:00+0400\n"
+"POT-Creation-Date: 2006-08-10 07:08+0400\n"
+"PO-Revision-Date: 2006-08-10 07:08+0400\n"
 "Last-Translator: Stepan A. Pologov <sisoft@bk.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"

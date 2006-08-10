@@ -1,5 +1,5 @@
-/* (c)2003 sisoft\trg - AYplayer.
-\* $Id: unlzh.c,v 1.5 2005/12/11 11:39:20 root Exp $ */
+/* AYplayer (c)2001-2006 sisoft//trg.
+\* $Id: unlzh.c,v 1.6 2006/08/10 03:13:57 root Exp $ */
 #include "ayplay.h"
 
 static _US left[1019],right[1019],pt_table[256],bitbuf=0;

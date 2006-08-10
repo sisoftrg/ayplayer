@@ -1,5 +1,5 @@
-/* (c)2004 sisoft\trg - AYplayer.
-\* $Id: fxm_pl.c,v 1.2 2004/04/26 12:18:51 root Exp $ */
+/* AYplayer (c)2001-2006 sisoft//trg.
+\* $Id: fxm_pl.c,v 1.3 2006/08/10 03:13:53 root Exp $ */
 
 unsigned char fxm_player[] = {
   0xC3, 0x37, 0xA9, 0xC3, 0x8C, 0xA9, 0xC3, 0xF7, 0xAA, 0xF3,

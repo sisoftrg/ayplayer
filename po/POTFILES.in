@@ -1,4 +1,4 @@
-# (c)2004 sisoft\trg - AYplayer.
-# $Id: POTFILES.in,v 1.1 2004/03/11 17:27:55 root Exp $
+# AYplayer (c)2001-2006 sisoft//trg.
+# $Id: POTFILES.in,v 1.2 2006/08/10 03:13:49 root Exp $
 src/ayplay.c
 src/unlzh.c

@@ -1,5 +1,5 @@
-/* (c)2004 sisoft\trg - AYplayer.
-\* $Id: i18.h,v 1.2 2004/04/26 12:18:51 root Exp $ */
+/* AYplayer (c)2001-2006 sisoft//trg.
+\* $Id: i18.h,v 1.3 2006/08/10 03:13:53 root Exp $ */
 #ifndef __I18_H_
 #define __I18_H_
 
