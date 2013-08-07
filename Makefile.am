@@ -3,3 +3,5 @@
 AUTOMAKE_OPTIONS = foreign 1.5 dist-bzip2
 EXTRA_DIST = config.rpath mkinstalldirs makefile.win
 SUBDIRS = src po
+
+ACLOCAL_AMFLAGS = -I m4

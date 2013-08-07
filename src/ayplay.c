@@ -200,7 +200,7 @@ static _US xstr(char *n,_US sa,char *e,_US x)
 	if(l) {
 		while(i<l&&mem[sa+i]==' ')i++;
 		if(i<l) {
-			if(n)printf(n);
+			if(n)printf("%s", n);
 			fwrite(mem+sa+i,1,l-i,stdout);
 			printf("\n");
 		}
@@ -243,7 +243,7 @@ int main(int argc,char *argv[])
 	struct itimerval it;
 #endif
 	puts("\n AY sound player for real AY chip on LPT port");
-	puts("(c) Stepan Pologov (sisoft//trg), sisoft@bk.ru");
+	puts("(c) sisoft, sisoftrg@gmail.com");
 	GT_INIT;
 	if((argc!=2&&(argc!=3||(*argv[2]&0xf0)!=0x30))||!strchr(argv[1],'.'))erro(NULL);
 #ifndef LPT_PORT
@@ -746,7 +746,7 @@ playz:
 		erro(_("unknown format"));
 		break;
 	}
-	if(tick)printf(_("Length:  %lu min, %lu sec\n"),tick/q/60,(tick/q)%60);
+	if(tick)printf(_("Length:  %u min, %u sec\n"),tick/q/60,(tick/q)%60);
 	if(ps>0&&ft!=AY&&ft!=AYM)ps=0;
 	t=0;if(ps<2)puts(_("Playing..\n"));
 	else printf(_("Playing part %d..\n\n"),ps);

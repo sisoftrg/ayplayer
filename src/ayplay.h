@@ -29,7 +29,7 @@
 #include "i18.h"
 
 #define _UC unsigned char
-#define _UL unsigned long
+#define _UL unsigned int
 #define _US unsigned short
 
 #ifndef UNIX
@@ -41,21 +41,22 @@
 #ifdef LPT_PORT
 #define outb(d,p)
 #endif/*lpt*/
+#define POINT '-'
 #else/*win32*/
 #define XSLEEP delay(20)
 #ifdef LPT_PORT
 #define outb(d,p) outp(p,d)
 #endif/*lpt*/
-#endif/*win32*/
 #define POINT 'ù'
+#endif/*win32*/
 #else/*!unix*/
 #ifdef LPT_PORT
 #define XSLEEP pause()
-#define USE_ITIMER
+#define USE_ITIMER 1
 #else/*lpt*/
 #define XSLEEP
 #endif/*lpt*/
-#define POINT '•'
+#define POINT '*'
 #endif/*!unix*/
 
 extern void unlh5(_UC*,_UC*,_UL,_UL);

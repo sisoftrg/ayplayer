@@ -1,7 +1,7 @@
 # AYplayer (c)2001-2006 sisoft//trg.
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([ayplayer],[0.15],[sisoft@bk.ru])
-AM_INIT_AUTOMAKE([ayplayer],[0.15])
+AC_INIT([ayplayer],[0.16],[sisoftrg@gmail.com])
+AM_INIT_AUTOMAKE([ayplayer],[0.16])
 AC_REVISION([$Id: configure.in,v 1.10 2006/08/10 03:13:45 root Exp $])
 AC_PREREQ(2.53)
 AC_CONFIG_SRCDIR([src/ayplay.c])
@@ -16,7 +16,7 @@ AM_PROG_AS
 
 dnl Internationalize
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION(0.14)
+AM_GNU_GETTEXT_VERSION([0.18.2])
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -32,6 +32,9 @@ AC_FUNC_MEMCMP
 AC_TYPE_SIGNAL
 AC_FUNC_STAT
 AC_CHECK_FUNCS([memset strcasecmp strchr strncasecmp strrchr ioperm])
+
+dnl ALSA sound
+AM_PATH_ALSA
 
 dnl Checks asm use.
 AC_MSG_CHECKING([for Z80 emulation on ASM])
@@ -52,7 +55,7 @@ case "$with_lptport" in
 	no)	if test "x$oss" = "xyes"; then
 			AC_MSG_RESULT(OSS emulaion)
 		else
-		    if test "x$dsound" = "xyes" -a "x$with_dsound" = "xyes"; then
+		    if test "x$dsound" = "xyes" -a "x$enable_directsound" = "xyes"; then
 			AC_MSG_RESULT(Win32 DirectSound)
 			AC_DEFINE_UNQUOTED(DSOUND,1,[use DirectSound])
 			LDADD="-ldsound -lwinmm $LDADD"

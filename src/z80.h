@@ -57,7 +57,6 @@ extern byte PRNM(outports)[];
 #ifndef ADLIB
 extern int sound_freq;
 extern int sound_stereo;
-extern int sound_stereo_ay_narrow;
 extern int soundfd;
 extern int sixteenbit;
 extern int sound_frame(int really);

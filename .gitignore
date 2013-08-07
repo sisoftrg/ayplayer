@@ -17,5 +17,6 @@ install-sh
 mkinstalldirs
 missing
 depcomp
+compile
 ABOUT-NLS
 m4

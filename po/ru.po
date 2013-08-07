@@ -1,22 +1,23 @@
 # Russian translations for ayplayer package.
-# Английские переводы для пакета ayplayer.
+# п░п╫пЁп╩п╦п╧я│п╨п╦п╣ п©п╣я─п╣п╡п╬п╢я▀ п╢п╩я▐ п©п╟п╨п╣я┌п╟ ayplayer.
 # Copyright (C) 2004 Free Software Foundation, Inc.
 # This file is distributed under the same license as the ayplayer package.
-# Stepan A. Pologov <sisoft@bk.ru>, 2004-2006.
+# sisoft <sisoftrg@gmail.com>, 2004-2006.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: ayplayer 0.15\n"
-"Report-Msgid-Bugs-To: sisoft@bk.ru\n"
-"POT-Creation-Date: 2006-08-10 07:08+0400\n"
+"Report-Msgid-Bugs-To: sisoftrg@gmail.com\n"
+"POT-Creation-Date: 2013-08-07 04:23+0400\n"
 "PO-Revision-Date: 2006-08-10 07:08+0400\n"
-"Last-Translator: Stepan A. Pologov <sisoft@bk.ru>\n"
+"Last-Translator: sisoft <sisoftrg@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=KOI8-R\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
-"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: src/ayplay.c:22
 #, c-format
@@ -25,7 +26,7 @@ msgid ""
 "* Error: %s!\n"
 msgstr ""
 "\n"
-"* Ошибка: %s!\n"
+"* п·я┬п╦п╠п╨п╟: %s!\n"
 
 #: src/ayplay.c:23
 #, c-format
@@ -33,90 +34,90 @@ msgid ""
 "* Support: %s.\n"
 "* Usage: ayplayer filename [part]\n"
 msgstr ""
-"* Умеем: %s.\n"
-"* Используем: ayplayer filename [часть]\n"
+"* пёп╪п╣п╣п╪: %s.\n"
+"* п≤я│п©п╬п╩я▄п╥я┐п╣п╪: ayplayer filename [я┤п╟я│я┌я▄]\n"
 
 #: src/ayplay.c:160
 #, c-format
 msgid "Chip:    %s\n"
-msgstr "Чип:      %s\n"
+msgstr "п╖п╦п©:      %s\n"
 
 #: src/ayplay.c:161
 #, c-format
 msgid "Regime:  "
-msgstr "Режим:    "
+msgstr "п═п╣п╤п╦п╪:    "
 
 #: src/ayplay.c:164
 msgid "Mono"
-msgstr "Моно"
+msgstr "п°п╬п╫п╬"
 
 #: src/ayplay.c:165
 msgid "ABC stereo"
-msgstr "ABC стерео"
+msgstr "ABC я│я┌п╣я─п╣п╬"
 
 #: src/ayplay.c:166
 msgid "ACB stereo"
-msgstr "ACB стерео"
+msgstr "ACB я│я┌п╣я─п╣п╬"
 
 #: src/ayplay.c:167
 msgid "BAC stereo"
-msgstr "BAC стерео"
+msgstr "BAC я│я┌п╣я─п╣п╬"
 
 #: src/ayplay.c:168
 msgid "BCA stereo"
-msgstr "BCA стерео"
+msgstr "BCA я│я┌п╣я─п╣п╬"
 
 #: src/ayplay.c:169
 msgid "CAB stereo"
-msgstr "CAB стерео"
+msgstr "CAB я│я┌п╣я─п╣п╬"
 
 #: src/ayplay.c:170
 msgid "CBA stereo"
-msgstr "CBA стерео"
+msgstr "CBA я│я┌п╣я─п╣п╬"
 
 #: src/ayplay.c:171
 msgid "unknown mode"
-msgstr "неизвестный режим"
+msgstr "п╫п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ я─п╣п╤п╦п╪"
 
 #: src/ayplay.c:176
 #, c-format
 msgid "Year:    %u\n"
-msgstr "Год:      %u\n"
+msgstr "п⌠п╬п╢:      %u\n"
 
 #: src/ayplay.c:178
 msgid "playable data is empty"
-msgstr "нет данных для проигрывания"
+msgstr "п╫п╣я┌ п╢п╟п╫п╫я▀я┘ п╢п╩я▐ п©я─п╬п╦пЁя─я▀п╡п╟п╫п╦я▐"
 
 #: src/ayplay.c:181
 #, c-format
 msgid "Origin:  %s\n"
-msgstr "Оригинал: %s\n"
+msgstr "п·я─п╦пЁп╦п╫п╟п╩: %s\n"
 
 #: src/ayplay.c:182
 #, c-format
 msgid "Editor:  %s\n"
-msgstr "Редактор: %s\n"
+msgstr "п═п╣п╢п╟п╨я┌п╬я─: %s\n"
 
 #: src/ayplay.c:250
 msgid "can't init soundcard"
-msgstr "не могу открыть звуковуху"
+msgstr "п╫п╣ п╪п╬пЁя┐ п╬я┌п╨я─я▀я┌я▄ п╥п╡я┐п╨п╬п╡я┐я┘я┐"
 
 #: src/ayplay.c:256
 msgid "Comment: "
-msgstr "Коммент:  "
+msgstr "п п╬п╪п╪п╣п╫я┌:  "
 
 #: src/ayplay.c:257
 msgid "Name:    "
-msgstr "Название: "
+msgstr "п²п╟п╥п╡п╟п╫п╦п╣: "
 
 #: src/ayplay.c:258
 msgid "Author:  "
-msgstr "Автор:    "
+msgstr "п░п╡я┌п╬я─:    "
 
 #: src/ayplay.c:261 src/ayplay.c:283 src/ayplay.c:522 src/ayplay.c:552
 #: src/ayplay.c:613 src/ayplay.c:624 src/ayplay.c:649 src/unlzh.c:111
 msgid "out of memory"
-msgstr "мало памяти"
+msgstr "п╪п╟п╩п╬ п©п╟п╪я▐я┌п╦"
 
 #: src/ayplay.c:263
 msgid ""
@@ -124,27 +125,27 @@ msgid ""
 "File:    AYPlayer demo song"
 msgstr ""
 "\n"
-"Файл:     AYPlayer demo song"
+"п╓п╟п╧п╩:     AYPlayer demo song"
 
 #: src/ayplay.c:272
 msgid "can't gzip sound file"
-msgstr "не могу распаковать файл"
+msgstr "п╫п╣ п╪п╬пЁя┐ я─п╟я│п©п╟п╨п╬п╡п╟я┌я▄ я└п╟п╧п╩"
 
 #: src/ayplay.c:276
 msgid "can't stat sound file"
-msgstr "не могу найти файл"
+msgstr "п╫п╣ п╪п╬пЁя┐ п╫п╟п╧я┌п╦ я└п╟п╧п╩"
 
 #: src/ayplay.c:277
 msgid "file is empty"
-msgstr "файл пуст"
+msgstr "я└п╟п╧п╩ п©я┐я│я┌"
 
 #: src/ayplay.c:278
 msgid "no file extension"
-msgstr "у файла нет расширения"
+msgstr "я┐ я└п╟п╧п╩п╟ п╫п╣я┌ я─п╟я│я┬п╦я─п╣п╫п╦я▐"
 
 #: src/ayplay.c:284 src/ayplay.c:318
 msgid "can't open sound file"
-msgstr "не могу открыть файл"
+msgstr "п╫п╣ п╪п╬пЁя┐ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩"
 
 #: src/ayplay.c:326
 msgid ""
@@ -152,27 +153,27 @@ msgid ""
 "Warn: corrupted hobeta file!"
 msgstr ""
 "\n"
-"!!! плохой hobeta-заголовок!"
+"!!! п©п╩п╬я┘п╬п╧ hobeta-п╥п╟пЁп╬п╩п╬п╡п╬п╨!"
 
 #: src/ayplay.c:337
 msgid "Uncompiled SoundTracker modules is not supported"
-msgstr "некомпилированные модули SoundTracker не поддерживаются"
+msgstr "п╫п╣п╨п╬п╪п©п╦п╩п╦я─п╬п╡п╟п╫п╫я▀п╣ п╪п╬п╢я┐п╩п╦ SoundTracker п╫п╣ п©п╬п╢п╢п╣я─п╤п╦п╡п╟я▌я┌я│я▐"
 
 #: src/ayplay.c:339
 msgid "Extension of this file is not supported"
-msgstr "Данный формат не поддерживается"
+msgstr "п■п╟п╫п╫я▀п╧ я└п╬я─п╪п╟я┌ п╫п╣ п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌я│я▐"
 
 #: src/ayplay.c:502
 msgid "bad fls file"
-msgstr "плохой fls модуль"
+msgstr "п©п╩п╬я┘п╬п╧ fls п╪п╬п╢я┐п╩я▄"
 
 #: src/ayplay.c:524 src/ayplay.c:554 src/ayplay.c:628 src/ayplay.c:746
 msgid "unknown format"
-msgstr "неизвестный формат"
+msgstr "п╫п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ я└п╬я─п╪п╟я┌"
 
 #: src/ayplay.c:525 src/ayplay.c:575
 msgid "bad file format"
-msgstr "файл повреждён"
+msgstr "я└п╟п╧п╩ п©п╬п╡я─п╣п╤п╢я▒п╫"
 
 #: src/ayplay.c:594
 #, c-format
@@ -181,47 +182,47 @@ msgid ""
 "File:    %s\n"
 msgstr ""
 "\n"
-"Файл:     %s\n"
+"п╓п╟п╧п╩:     %s\n"
 
 #: src/ayplay.c:602
 #, c-format
 msgid "Type:    %s%s"
-msgstr "Модуль:   %s%s"
+msgstr "п°п╬п╢я┐п╩я▄:   %s%s"
 
 #: src/ayplay.c:602
 msgid "packed "
-msgstr "упакованный "
+msgstr "я┐п©п╟п╨п╬п╡п╟п╫п╫я▀п╧ "
 
 #: src/ayplay.c:602
 msgid "compiled "
-msgstr "компилированный "
+msgstr "п╨п╬п╪п©п╦п╩п╦я─п╬п╡п╟п╫п╫я▀п╧ "
 
 #: src/ayplay.c:620
 msgid "unknown archive type"
-msgstr "неизвестный архив"
+msgstr "п╫п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ п╟я─я┘п╦п╡"
 
 #: src/ayplay.c:658
 msgid "bad psg file"
-msgstr "плохой psg файл"
+msgstr "п©п╩п╬я┘п╬п╧ psg я└п╟п╧п╩"
 
 #: src/ayplay.c:671
 #, c-format
 msgid "Misc:    %s\n"
-msgstr "Прочее:   %s\n"
+msgstr "п÷я─п╬я┤п╣п╣:   %s\n"
 
 #: src/ayplay.c:672 src/ayplay.c:681
 #, c-format
 msgid "Songs #: %d (first=%d)\n"
-msgstr "Мелодий:  %d (начать c %d)\n"
+msgstr "п°п╣п╩п╬п╢п╦п╧:  %d (п╫п╟я┤п╟я┌я▄ c %d)\n"
 
 #: src/ayplay.c:749
 #, c-format
-msgid "Length:  %lu min, %lu sec\n"
-msgstr "Длина:    %lu мин, %lu сек.\n"
+msgid "Length:  %u min, %u sec\n"
+msgstr "п■п╩п╦п╫п╟:    %u п╪п╦п╫, %u я│п╣п╨.\n"
 
 #: src/ayplay.c:751
 msgid "Playing..\n"
-msgstr "Слушаем..\n"
+msgstr "п║п╩я┐я┬п╟п╣п╪..\n"
 
 #: src/ayplay.c:752
 #, c-format
@@ -229,12 +230,12 @@ msgid ""
 "Playing part %d..\n"
 "\n"
 msgstr ""
-"Слушаем %d-ю часть..\n"
+"п║п╩я┐я┬п╟п╣п╪ %d-я▌ я┤п╟я│я┌я▄..\n"
 "\n"
 
 #: src/ayplay.c:759
 msgid "Warning: music may not play correctly!"
-msgstr "Внимание! модуль может звучать неверно!"
+msgstr "п▓п╫п╦п╪п╟п╫п╦п╣! п╪п╬п╢я┐п╩я▄ п╪п╬п╤п╣я┌ п╥п╡я┐я┤п╟я┌я▄ п╫п╣п╡п╣я─п╫п╬!"
 
 #: src/ayplay.c:772
 msgid ""
@@ -242,8 +243,8 @@ msgid ""
 "Exiting.."
 msgstr ""
 "\n"
-"Выходим.."
+"п▓я▀я┘п╬п╢п╦п╪.."
 
 #: src/unlzh.c:47
 msgid "bad file structure"
-msgstr "файл повреждён"
+msgstr "я└п╟п╧п╩ п©п╬п╡я─п╣п╤п╢я▒п╫"

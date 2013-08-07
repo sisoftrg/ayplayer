@@ -2,6 +2,8 @@
 \* $Id: sndemu.c,v 1.4 2006/08/10 03:13:55 root Exp $
  \ base version of this file was taken from aylet-0.3 by Russell Marks. */
 
+#define ALSA
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -14,7 +16,13 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#ifdef ALSA
+#define ALSA_PCM_NEW_HW_PARAMS_API
+#define ALSA_PCM_NEW_SW_PARAMS_API
+#include <alsa/asoundlib.h>
+#else/*alsa*/
 #include <sys/soundcard.h>
+#endif
 #else/*unix*/
 #ifdef WIN32
 #include <windows.h>
@@ -32,14 +40,21 @@
 #define BASE_SOUND_FRAG_PWR	6
 #define AY_CLOCK		1773400
 #define AMPL_AY_TONE		26
-#define AY_CHANGE_MAX		8000
+#define AY_CHANGE_MAX		16384
 #define STEREO_BUF_SIZE		1024
 
-int soundfd=-1;
+#ifdef ALSA
+static snd_pcm_t *asnd=NULL;
+#else
+static int soundfd=-1;
+#endif
 int sixteenbit=1;
+#ifdef UNIX
+int sound_freq=48000;
+#else
 int sound_freq=44100;
+#endif
 int sound_stereo=1;
-int sound_stereo_narrow=0;
 
 static int sound_framesiz;
 static unsigned char ay_tone_levels[16];
@@ -179,6 +194,80 @@ static void driver_frame(unsigned char *data,int len)
 #endif
 
 #ifdef UNIX
+#ifdef ALSA
+
+static int driver_init(int *freqptr,int *stereoptr)
+{
+	int e;
+	snd_pcm_hw_params_t *hwp;
+	snd_pcm_sw_params_t *swp;
+	snd_pcm_uframes_t bsize,thresh;
+	snd_pcm_uframes_t periods,bframes;
+	periods=512;bframes=periods*16;
+	if((e=snd_pcm_open(&asnd,"default",SND_PCM_STREAM_PLAYBACK,0))<0){asnd=NULL;return 0;}
+	snd_pcm_nonblock(asnd,0);
+	if((e=snd_pcm_hw_params_malloc(&hwp))<0)return 0;
+	if((e=snd_pcm_hw_params_any(asnd,hwp))<0)return 0;
+	if((e=snd_pcm_hw_params_set_access(asnd,hwp,SND_PCM_ACCESS_RW_INTERLEAVED))<0)return 0;
+	if((e=snd_pcm_hw_params_set_format(asnd,hwp,sixteenbit?SND_PCM_FORMAT_S16_LE:SND_PCM_FORMAT_S8))<0)return 0;
+	if((e=snd_pcm_hw_params_set_channels(asnd,hwp,*stereoptr?2:1))<0)return 0;
+	if((e=snd_pcm_hw_params_set_rate_near(asnd,hwp,(unsigned*)freqptr,0))<0)return 0;
+	if((e=snd_pcm_hw_params_set_buffer_size_near(asnd,hwp,&bframes))<0)return 0;
+	if((e=snd_pcm_hw_params_set_period_size_near(asnd,hwp,&periods,0))<0)return 0;
+	if((e=snd_pcm_hw_params(asnd,hwp))<0)return 0;
+	snd_pcm_hw_params_get_period_size(hwp,&periods,0);
+	snd_pcm_hw_params_get_buffer_size(hwp,&bsize);
+	if(periods==bsize)return 0;
+	snd_pcm_hw_params_free(hwp);
+	if((e=snd_pcm_sw_params_malloc(&swp))!=0)return 0;
+	if((e=snd_pcm_sw_params_current(asnd,swp))!=0)return 0;
+	e=bsize/periods*periods;thresh=e;
+	if(thresh<1)thresh=(snd_pcm_uframes_t)1;
+	if(thresh>(snd_pcm_uframes_t)e)thresh=(snd_pcm_uframes_t)e;
+	if((e=snd_pcm_sw_params_set_start_threshold(asnd,swp,thresh))<0)return 0;
+	if((e=snd_pcm_sw_params_set_stop_threshold(asnd,swp,bsize))<0)return 0;
+	if((e=snd_pcm_sw_params(asnd,swp))!=0)return 0;
+	snd_pcm_sw_params_free(swp);
+	snd_pcm_reset(asnd);
+    return(1);
+}
+
+static void driver_end()
+{
+	if(!asnd)return;
+	snd_pcm_drain(asnd);
+	snd_pcm_close(asnd);
+	asnd=NULL;
+}
+
+static void driver_frame(unsigned char *data,int len)
+{
+	int e,n;
+	static unsigned char buf16[8192];
+
+    if(sixteenbit) {
+        unsigned char *src,*dst;
+        int f;
+        src=data; dst=buf16;
+        for(f=0;f<len;f++) {
+            *dst++=128;
+            *dst++=*src++-128;
+        }
+        data=buf16;
+    }
+    len >>= 1;
+
+	for(n=0;n<len;) {
+		e=snd_pcm_writei(asnd,data+n*(sound_stereo?2:1),len-n);
+		if(e==-EPIPE)snd_pcm_prepare(asnd);
+		else if(e==-ESTRPIPE)snd_pcm_resume(asnd);
+		else snd_pcm_wait(asnd,1000);
+		if(e>0)n+=e;
+	}
+}
+
+#else
+
 static int driver_init(int *freqptr,int *stereoptr)
 {
     int frag,tmp;
@@ -237,6 +326,7 @@ static void driver_frame(unsigned char *data,int len)
 }
 
 #endif
+#endif
 
 #define CLOCK_RESET(clock) ay_tick_incr=(int)(65536.*clock/sound_freq)
 
@@ -273,7 +363,7 @@ int sound_init()
     sound_ptr=sound_buf;
     sound_ay_init();
     if(sound_stereo) {
-        int pos=(sound_stereo_narrow?3:6)*sound_freq/8000;
+        int pos=6*sound_freq/8000;
         for(f=0;f<STEREO_BUF_SIZE;f++)rstereobuf_l[f]=rstereobuf_r[f]=0;
         rstereopos=0;
         rchan1pos=-pos;

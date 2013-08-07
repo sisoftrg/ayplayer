@@ -2,3 +2,4 @@ ayplayer
 Makefile
 Makefile.in
 .deps
+*.o
