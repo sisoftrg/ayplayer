@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ayplayer 0.15\n"
+"Project-Id-Version: ayplayer 0.16\n"
 "Report-Msgid-Bugs-To: sisoftrg@gmail.com\n"
-"POT-Creation-Date: 2013-08-07 04:23+0400\n"
+"POT-Creation-Date: 2015-09-11 22:56+0300\n"
 "PO-Revision-Date: 2006-08-10 07:08+0400\n"
 "Last-Translator: sisoft <sisoftrg@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"

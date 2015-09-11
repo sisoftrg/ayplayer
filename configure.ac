@@ -1,8 +1,7 @@
 # AYplayer (c)2001-2006 sisoft//trg.
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([ayplayer],[0.16],[sisoftrg@gmail.com])
-AM_INIT_AUTOMAKE([ayplayer],[0.16])
-AC_REVISION([$Id: configure.in,v 1.10 2006/08/10 03:13:45 root Exp $])
+AM_INIT_AUTOMAKE
 AC_PREREQ(2.53)
 AC_CONFIG_SRCDIR([src/ayplay.c])
 AM_CONFIG_HEADER([config.h])
@@ -16,7 +15,7 @@ AM_PROG_AS
 
 dnl Internationalize
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.18.2])
+AM_GNU_GETTEXT_VERSION([0.19.6])
 
 dnl Checks for header files.
 AC_HEADER_STDC

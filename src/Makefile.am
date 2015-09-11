@@ -10,6 +10,7 @@ ayplayer_SOURCES = ayplay.c unlzh.c players.c malloc.c \
 	sndemu.c z80.c z80_step.c z80emu.S z80optab.c \
 	z80_op1.c z80_op2.c z80_op3.c z80_op4.c z80_op5.c z80_op6.c
 
-AM_CCASFLAGS = $(DEFS) -I..
 localedir=$(datadir)/locale
 DEFS += -DLOCALEDIR=\"$(localedir)\"
+AM_CCASFLAGS = $(DEFS) -I..
+AM_CFLAGS = -Wno-unused-result
